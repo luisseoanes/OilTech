@@ -26,11 +26,7 @@
     <!-- NAV -->
     <nav id="main-nav">
         <a class="nav-logo" href="#">
-            <div class="nav-logo-mark"><span>OT</span></div>
-            <div class="nav-logo-text">
-                <div class="nav-logo-title">Oil Tech</div>
-                <div class="nav-logo-sub">de Colombia S.A.S.</div>
-            </div>
+            <img src="imagenes/LOGO OIL TECHpng (1).png" alt="Oil Tech Logo" style="height: 48px; width: auto; object-fit: contain;">
         </a>
         <ul class="nav-links">
             <li><a href="#nosotros">Nosotros</a></li>
@@ -42,88 +38,35 @@
     </nav>
 
     <!-- HERO -->
-    <section class="hero">
-        <div class="hero-left">
-            <div class="hero-label">Oil Tech de Colombia S.A.S.</div>
-            <h1 class="hero-h1">
-                Soluciones de<br>lubricación para<br>la <em>industria</em>
+    <section class="hero" style="background: linear-gradient(rgba(10, 10, 10, 0.6), rgba(10, 10, 10, 0.3)), url('imagenes/hero_industrial.png') center/cover no-repeat; display: flex; align-items: center; justify-content: center; min-height: 90vh;">
+        <div class="hero-left glass-card" style="max-width: 800px; text-align: center; margin: 0 auto; color: white;">
+            <div class="hero-label" style="justify-content: center; color: var(--yellow); margin-bottom: 24px;">Oil Tech de Colombia S.A.S.</div>
+            <h1 class="hero-h1" style="color: white; font-size: clamp(3rem, 5vw, 5rem);">
+                Soluciones de<br>lubricación para<br>la <em style="color: var(--yellow);">industria</em>
             </h1>
-            <p class="hero-sub">
-                Distribuimos lubricantes, grasas, EPP y productos de mantenimiento industrial en todo el territorio
-                nacional, respaldados por más de 13 años de experiencia.
+            <p class="hero-sub" style="color: rgba(255,255,255,0.9); max-width: 600px; margin: 0 auto 40px auto; font-size: 1.3rem;">
+                Distribuimos lubricantes, grasas, EPP y productos de mantenimiento industrial en todo el territorio nacional, respaldados por más de 13 años de experiencia.
             </p>
-            <div class="hero-actions">
-                <a class="btn-primary" href="productos.html">Ver Productos</a>
-                <a class="btn-outline" href="#contacto">Contáctenos</a>
+            <div class="hero-actions" style="justify-content: center;">
+                <a class="btn-primary" href="productos.html" style="background: var(--yellow); color: var(--black);">Ver Portafolio Visual</a>
+                <a class="btn-outline" href="#contacto" style="border-color: white; color: white;">Contáctenos</a>
             </div>
-            <div class="hero-stat-row">
-                <div class="hero-stat">
-                    <div class="hero-stat-num">13+</div>
-                    <div class="hero-stat-label">Años de experiencia</div>
+            
+            <div class="hero-stat-row" style="margin-top: 50px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.2); display: flex; justify-content: center; gap: 40px;">
+                <div class="hero-stat" style="border: none; padding: 0; flex: none;">
+                    <div class="hero-stat-num" style="color: var(--yellow); font-size: 2.8rem;">13+</div>
+                    <div class="hero-stat-label" style="color: white;">Años de experiencia</div>
                 </div>
-                <div class="hero-stat">
-                    <div class="hero-stat-num">250+</div>
-                    <div class="hero-stat-label">Referencias industriales</div>
+                <!-- Divisor -->
+                <div style="width: 1px; background: rgba(255,255,255,0.2);"></div>
+                <div class="hero-stat" style="border: none; padding: 0; flex: none;">
+                    <div class="hero-stat-num" style="color: var(--yellow); font-size: 2.8rem;">250+</div>
+                    <div class="hero-stat-label" style="color: white;">Referencias industriales</div>
                 </div>
-                <div class="hero-stat">
-                    <div class="hero-stat-num">5</div>
-                    <div class="hero-stat-label">Líneas de producto</div>
-                </div>
-            </div>
-        </div>
-        <div class="hero-right">
-            <div
-                style="font-size:0.65rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--soft);margin-bottom:20px;">
-                Nuestro portafolio</div>
-
-            <div class="hero-product-card">
-                <div class="hpc-icon">🛢️</div>
-                <div class="hpc-body">
-                    <h4>Lubricantes Industriales</h4>
-                    <p>Aceites hidráulicos, compresores, engranajes, sintéticos</p>
-                </div>
-                <div class="hpc-refs">+80 refs.</div>
-            </div>
-
-            <div class="hero-product-card">
-                <div class="hpc-icon">⚙️</div>
-                <div class="hpc-body">
-                    <h4>Grasas Industriales</h4>
-                    <p>Alta presión, EP, lubricación centralizada</p>
-                </div>
-                <div class="hpc-refs">+10 refs.</div>
-            </div>
-
-            <div class="hero-product-card">
-                <div class="hpc-icon">🦺</div>
-                <div class="hpc-body">
-                    <h4>Seguridad Industrial (EPP)</h4>
-                    <p>Guantes, arneses, botas, protección auditiva</p>
-                </div>
-                <div class="hpc-refs">+40 refs.</div>
-            </div>
-
-            <div class="hero-product-card">
-                <div class="hpc-icon">🧴</div>
-                <div class="hpc-body">
-                    <h4>Limpieza y Mantenimiento</h4>
-                    <p>Desengrasantes, jabones industriales, desinfectantes</p>
-                </div>
-                <div class="hpc-refs">+30 refs.</div>
-            </div>
-
-            <div class="hero-product-card">
-                <div class="hpc-icon">🔧</div>
-                <div class="hpc-body">
-                    <h4>Herramientas y Suministros</h4>
-                    <p>Bombas, filtros, bandas, componentes eléctricos</p>
-                </div>
-                <div class="hpc-refs">+100 refs.</div>
             </div>
         </div>
     </section>
-
-    <!-- MARQUEE -->
+<!-- MARQUEE -->
     <div class="marquee">
         <div class="marquee-track">
             <span class="marquee-item">Aceites Hidráulicos ISO 32/46/68/100</span>
@@ -205,150 +148,127 @@
 
     <!-- PRODUCTS -->
     <section class="products reveal" id="portafolio">
-        <div class="products-header">
+        <div class="products-header" style="max-width: 1200px; margin: 0 auto 56px auto;">
             <div>
-                <div class="section-label">Portafolio</div>
-                <h2 class="section-h2">Nuestras líneas<br>de solución</h2>
+                <div class="section-label">Portafolio Premium</div>
+                <h2 class="section-h2">Catálogo Visual<br>de Soluciones</h2>
             </div>
-            <a class="btn-outline" href="#contacto" style="font-size:0.72rem;padding:12px 22px;">Solicitar catálogo
-                →</a>
+            <a class="btn-outline" href="#contacto" style="font-size:0.72rem;padding:12px 22px;">Cotizar ahora →</a>
         </div>
 
-        <div class="products-grid">
+        <div class="products-grid" style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px;">
 
-            <!-- Featured card: Lubricantes -->
-            <div class="product-card featured tall">
-                <div class="featured-badge">Línea principal</div>
-                <div class="pc-icon" style="font-size:1.8rem;">🛢️</div>
-                <div class="pc-title" style="font-size:1.2rem;">Lubricantes Industriales</div>
-                <p class="pc-desc">
-                    Formulaciones avanzadas con aditivos de grafito, molibdeno y tecnologías sintéticas de alto
-                    desempeño. Diseñadas para proteger maquinaria, reducir el desgaste y mejorar la eficiencia operativa
-                    en condiciones críticas.
-                </p>
-                <div class="pc-tags">
-                    <span class="pc-tag">Aceites Hidráulicos</span>
-                    <span class="pc-tag">Compresores</span>
-                    <span class="pc-tag">Engranajes</span>
-                    <span class="pc-tag">Sintéticos</span>
-                    <span class="pc-tag">Térmicos</span>
-                    <span class="pc-tag">Dieléctricos</span>
-                    <span class="pc-tag">Corte</span>
-                    <span class="pc-tag">Solubles</span>
-                    <span class="pc-tag">Neumático</span>
-                    <span class="pc-tag">Grado Alimenticio</span>
+            <!-- Lubricantes -->
+            <div class="product-card featured" style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; padding: 0;">
+                <div class="img-wrapper" style="height: 100%;">
+                    <img src="imagenes/cat_lubricantes.png" alt="Lubricantes Industriales">
                 </div>
-                <div
-                    style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:18px 22px;margin-bottom:24px;">
-                    <div
-                        style="font-size:0.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:10px;">
-                        Viscosidades disponibles</div>
-                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                        <span
-                            style="font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.06);padding:4px 10px;border:1px solid rgba(255,255,255,0.08);">ISO
-                            32</span>
-                        <span
-                            style="font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.06);padding:4px 10px;border:1px solid rgba(255,255,255,0.08);">ISO
-                            46</span>
-                        <span
-                            style="font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.06);padding:4px 10px;border:1px solid rgba(255,255,255,0.08);">ISO
-                            68</span>
-                        <span
-                            style="font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.06);padding:4px 10px;border:1px solid rgba(255,255,255,0.08);">ISO
-                            100</span>
+                <div class="product-card-content" style="padding: 50px 40px; justify-content: center;">
+                    <div class="featured-badge" style="width: max-content;">Línea principal</div>
+                    <h3 class="pc-title" style="font-size:2rem;">Lubricantes Industriales</h3>
+                    <p class="pc-desc" style="font-size: 1.1rem; color: rgba(255,255,255,0.8);">
+                        Formulaciones avanzadas con aditivos de grafito, molibdeno y tecnologías sintéticas de alto
+                        desempeño. Diseñadas para proteger maquinaria, reducir el desgaste y mejorar la eficiencia operativa
+                        en condiciones críticas.
+                    </p>
+                    <div class="pc-tags" style="margin-top: 20px;">
+                        <span class="pc-tag">Hidráulicos</span>
+                        <span class="pc-tag">Sintéticos</span>
+                        <span class="pc-tag">Térmicos</span>
+                        <span class="pc-tag">Grado Alimenticio</span>
                     </div>
                 </div>
-                <div class="pc-footer" style="color:var(--yellow);border-top-color:rgba(255,255,255,0.1);">+80
-                    referencias disponibles</div>
             </div>
 
             <!-- Grasas -->
             <div class="product-card">
-                <div class="pc-icon">⚙️</div>
-                <div class="pc-title">Grasas Industriales</div>
-                <p class="pc-desc">Lubricantes de alta presión con disulfuro de molibdeno. Protección para rodamientos,
-                    engranajes y maquinaria pesada.</p>
-                <div class="pc-tags">
-                    <span class="pc-tag">Rodamientos</span>
-                    <span class="pc-tag">Maq. Pesada</span>
-                    <span class="pc-tag">Centralizada</span>
+                <div class="img-wrapper"><img src="imagenes/cat_grasas.png" alt="Grasas Industriales"></div>
+                <div class="product-card-content">
+                    <h3 class="pc-title">Grasas Industriales</h3>
+                    <p class="pc-desc">Lubricantes de alta presión con disulfuro de molibdeno. Protección para engranajes pesados.</p>
+                    <div style="flex-grow: 1;"></div>
+                    <div class="pc-footer">+10 referencias</div>
                 </div>
-                <div class="pc-footer">+10 referencias</div>
             </div>
 
             <!-- EPP -->
             <div class="product-card">
-                <div class="pc-icon">🦺</div>
-                <div class="pc-title">Seguridad Industrial</div>
-                <p class="pc-desc">Equipos de protección personal de alta calidad para entornos industriales exigentes.
-                    Cumplimiento normativo garantizado.</p>
-                <div class="pc-tags">
-                    <span class="pc-tag">EPP Completo</span>
-                    <span class="pc-tag">Alturas</span>
-                    <span class="pc-tag">Soldadura</span>
+                <div class="img-wrapper"><img src="imagenes/cat_epp.png" alt="Seguridad Industrial"></div>
+                <div class="product-card-content">
+                    <h3 class="pc-title">Seguridad Industrial</h3>
+                    <p class="pc-desc">Equipos de protección personal (EPP) de alta calidad. Cumplimiento normativo y ergonomía.</p>
+                    <div style="flex-grow: 1;"></div>
+                    <div class="pc-footer">+40 referencias</div>
                 </div>
-                <div class="pc-footer">+40 referencias</div>
             </div>
 
             <!-- Limpieza -->
             <div class="product-card">
-                <div class="pc-icon">🧴</div>
-                <div class="pc-title">Limpieza y Mantenimiento</div>
-                <p class="pc-desc">Insumos químicos de alto rendimiento para limpieza, desengrase y desinfección de
-                    equipos e instalaciones industriales.</p>
-                <div class="pc-tags">
-                    <span class="pc-tag">Desengrasantes</span>
-                    <span class="pc-tag">Desinfectantes</span>
+                <div class="img-wrapper"><img src="imagenes/cat_limpieza.png" alt="Limpieza y Mantenimiento"></div>
+                <div class="product-card-content">
+                    <h3 class="pc-title">Limpieza y Mantenimiento</h3>
+                    <p class="pc-desc">Insumos químicos de alto rendimiento para desengrase y desinfección industrial.</p>
+                    <div style="flex-grow: 1;"></div>
+                    <div class="pc-footer">+30 referencias</div>
                 </div>
-                <div class="pc-footer">+30 referencias</div>
             </div>
 
             <!-- Herramientas -->
             <div class="product-card">
-                <div class="pc-icon">🔧</div>
-                <div class="pc-title">Herramientas y Suministros</div>
-                <p class="pc-desc">Componentes para mantenimiento mecánico e industrial. Bombas, acoples, filtros,
-                    bandas, herramientas y eléctricos.</p>
-                <div class="pc-tags">
-                    <span class="pc-tag">Bombas</span>
-                    <span class="pc-tag">Filtros</span>
-                    <span class="pc-tag">Bandas</span>
+                <div class="img-wrapper"><img src="imagenes/cat_herramientas.png" alt="Herramientas y Suministros"></div>
+                <div class="product-card-content">
+                    <h3 class="pc-title">Herramientas Técnicas</h3>
+                    <p class="pc-desc">Componentes mecánicos, bombas, filtros y herramientas para mantenimiento técnico.</p>
+                    <div style="flex-grow: 1;"></div>
+                    <div class="pc-footer">+100 referencias</div>
                 </div>
-                <div class="pc-footer">+100 referencias</div>
             </div>
 
         </div>
     </section>
-
-    <!-- BENEFICIOS -->
+<!-- BENEFICIOS -->
     <section class="benefits reveal">
         <div class="section-label">¿Por qué Oil Tech?</div>
         <h2 class="section-h2" style="margin-bottom:0;">Ventajas que nos distinguen</h2>
         <div class="benefits-grid">
             <div class="benefit-item">
                 <div class="benefit-num">01</div>
-                <span class="benefit-icon">🔬</span>
+                
+<svg class="benefit-icon-svg" width="36" height="36" fill="var(--red)" viewBox="0 0 24 24" style="margin-bottom:16px;">
+  <path d="M11 2L7 12h5l-1 10 9-13h-6l2-9h-5z"/>
+</svg>
                 <h4>Equipo Técnico Especializado</h4>
                 <p>Ingenieros químicos disponibles para asesorar y recomendar la solución óptima para cada proceso
                     productivo.</p>
             </div>
             <div class="benefit-item">
                 <div class="benefit-num">02</div>
-                <span class="benefit-icon">📦</span>
+                
+<svg class="benefit-icon-svg" width="36" height="36" fill="var(--yellow)" viewBox="0 0 24 24" style="margin-bottom:16px;">
+  <path d="M2 10.96a2 2 0 0 1 1-1.73l8-4.62a2 2 0 0 1 2 0l8 4.62a2 2 0 0 1 1 1.73v5.66a2 2 0 0 1-1 1.73l-8 4.62a2 2 0 0 1-2 0l-8-4.62a2 2 0 0 1-1-1.73v-5.66M12 2A2 2 0 0 0 10 2L2 6.6"/>
+  <path d="m22 7.04-10 5.77v11.19"/>
+  <path d="m2 7.04 10 5.77 10-5.77"/>
+</svg>
                 <h4>Portafolio Integral</h4>
                 <p>Más de 250 referencias industriales en una sola fuente. Lubricantes, EPP, limpieza y herramientas
                     técnicas.</p>
             </div>
             <div class="benefit-item">
                 <div class="benefit-num">03</div>
-                <span class="benefit-icon">🇨🇴</span>
+                
+<svg class="benefit-icon-svg" width="36" height="36" fill="var(--red)" viewBox="0 0 24 24" style="margin-bottom:16px;">
+  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+</svg>
                 <h4>Cobertura Nacional</h4>
                 <p>Distribución a nivel nacional con logística confiable, tiempos de entrega oportunos y soporte
                     postventa.</p>
             </div>
             <div class="benefit-item">
                 <div class="benefit-num">04</div>
-                <span class="benefit-icon">✅</span>
+                
+<svg class="benefit-icon-svg" width="36" height="36" fill="var(--yellow)" viewBox="0 0 24 24" style="margin-bottom:16px;">
+  <path d="M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10zm-2-5l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+</svg>
                 <h4>Calidad Garantizada</h4>
                 <p>Productos supervisados bajo estándares internacionales, con trazabilidad y fichas técnicas
                     disponibles.</p>
@@ -445,28 +365,28 @@
             <h2 class="section-h2" style="margin-bottom:0;">Hablemos de<br>su proyecto</h2>
             <div class="contact-info-grid" style="margin-top:36px;">
                 <div class="contact-info-item">
-                    <div class="ci-icon">📍</div>
+                    <div class="ci-icon"><svg width="24" height="24" fill="var(--red)" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
                     <div class="ci-text">
                         <strong>Ubicación</strong>
                         <span>Bogotá D.C., Colombia — Cobertura Nacional</span>
                     </div>
                 </div>
                 <div class="contact-info-item">
-                    <div class="ci-icon">📞</div>
+                    <div class="ci-icon"><svg width="24" height="24" fill="var(--red)" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg></div>
                     <div class="ci-text">
                         <strong>Teléfono</strong>
                         <span>+57 (601) 000 0000</span>
                     </div>
                 </div>
                 <div class="contact-info-item">
-                    <div class="ci-icon">✉</div>
+                    <div class="ci-icon"><svg width="24" height="24" fill="var(--red)" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
                     <div class="ci-text">
                         <strong>Correo electrónico</strong>
                         <span>ventas@oiltechdecolombia.com</span>
                     </div>
                 </div>
                 <div class="contact-info-item">
-                    <div class="ci-icon">⏰</div>
+                    <div class="ci-icon"><svg width="24" height="24" fill="var(--red)" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></div>
                     <div class="ci-text">
                         <strong>Horario de atención</strong>
                         <span>Lun – Vie: 8:00 a.m. – 6:00 p.m. · Sáb: 8:00 a.m. – 12:00 m.</span>
@@ -515,6 +435,46 @@
                         placeholder="Cuéntenos qué producto requiere, cantidades aproximadas o cualquier detalle relevante..."></textarea>
                 </div>
                 <button class="form-submit">Enviar Solicitud</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- TRUST & CERTIFICATES -->
+    <section class="trust-section reveal">
+        <div class="trust-container">
+            <div class="trust-badges">
+                <div class="trust-badge">
+                    <div class="badge-icon">🇨🇴</div>
+                    <div class="badge-text">
+                        <h4>Sello Colombia</h4>
+                        <p>Producto y servicio 100% nacional con alcance en todo el territorio.</p>
+                    </div>
+                </div>
+                <div class="trust-badge">
+                    <div class="badge-icon">🌿</div>
+                    <div class="badge-text">
+                        <h4>Sostenibilidad</h4>
+                        <p>Compromiso con el medio ambiente y procesos industriales limpios.</p>
+                    </div>
+                </div>
+                <div class="trust-badge">
+                    <div class="badge-icon">🏆</div>
+                    <div class="badge-text">
+                        <h4>Calidad Técnica</h4>
+                        <p>Certificaciones que avalan la excelencia de nuestras líneas de solución.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="trust-contact-banner">
+                <div class="tcb-info">
+                    <h3>Atención Técnica Especializada</h3>
+                    <p>Contáctenos hoy mismo para recibir asesoría personalizada sobre lubricación y mantenimiento.</p>
+                </div>
+                <div class="tcb-actions">
+                    <a href="tel:+5760100000" class="btn-trust"><i class="fas fa-phone"></i> Llámanos</a>
+                    <a href="mailto:ventas@oiltechdecolombia.com" class="btn-trust-outline"><i class="fas fa-envelope"></i> Escríbenos</a>
+                </div>
             </div>
         </div>
     </section>

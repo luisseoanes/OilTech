@@ -5,14 +5,19 @@
     --orange: #FFA200;
     --yellow: #FFD400;
     --orange-lt: #fff8ec;
-    --black: #1a1a1a;
-    --dark: #2d2d2d;
-    --mid: #5a5a5a;
-    --soft: #8a8a8a;
-    --border: #e8e8e4;
+    --black: #0A0A0A;
+    --dark: #1F1F1F;
+    --mid: #4A4A4A;
+    --soft: #808080;
+    --border: #E5E7EB;
     --bg: #ffffff;
-    --bg2: #f8f7f4;
-    --bg3: #f2f1ed;
+    --bg2: #F9FAFB;
+    --bg3: #F3F4F6;
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --shadow-sm: 0 4px 6px rgba(0,0,0,0.05);
+    --shadow-md: 0 8px 24px rgba(227, 6, 19, 0.08);
+    --shadow-lg: 0 20px 40px rgba(227, 6, 19, 0.15);
 }
 
 *,
@@ -626,11 +631,44 @@ nav.scrolled {
 .product-card {
     background: var(--bg);
     border: 1px solid var(--border);
-    padding: 40px 36px;
+    border-radius: 16px;
     position: relative;
     overflow: hidden;
-    transition: border-color .3s, box-shadow .3s, transform .3s;
+    transition: all .4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    display: flex;
+    flex-direction: column;
 }
+
+.product-card:hover {
+    border-color: var(--red);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-8px);
+}
+
+.product-card .img-wrapper {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+}
+
+.product-card .img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.product-card:hover .img-wrapper img {
+    transform: scale(1.08); /* Hover zoom */
+}
+
+.product-card-content {
+    padding: 30px 24px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
 
 .product-card:hover {
     border-color: rgba(227, 6, 19, 0.25);
@@ -1297,3 +1335,123 @@ footer {
         gap: 32px;
     }
 }
+/* Glassmorphism Classes */
+.glass-card {
+    background: rgba(20, 20, 20, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 24px;
+    padding: 60px 50px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+}
+
+.product-card.featured { background: #1a1a1a; color: white; border: none; }
+.product-card.featured .pc-title { color: white; }
+.product-card.featured .pc-desc { color: rgba(255,255,255,0.7); }
+
+@media (max-width: 768px) {
+    .product-card.featured {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Trust Section */
+.trust-section {
+    padding: 80px 72px;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+}
+
+.trust-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.trust-badges {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    margin-bottom: 60px;
+}
+
+.trust-badge {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.badge-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.badge-text h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 8px;
+}
+
+.badge-text p {
+    font-size: 0.9rem;
+    color: var(--soft);
+    line-height: 1.5;
+}
+
+.trust-contact-banner {
+    background: var(--black);
+    padding: 50px;
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    box-shadow: var(--shadow-lg);
+}
+
+.tcb-info h3 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    color: var(--yellow);
+}
+
+.tcb-info p {
+    color: rgba(255, 255, 255, 0.7);
+    max-width: 500px;
+}
+
+.tcb-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-trust {
+    background: var(--red);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: transform 0.2s;
+}
+
+.btn-trust-outline {
+    border: 2px solid white;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: all 0.2s;
+}
+
+.btn-trust:hover, .btn-trust-outline:hover {
+    transform: translateY(-3px);
+}
+
+@media (max-width: 992px) {
+    .trust-badges { grid-template-columns: 1fr; }
+    .trust-contact-banner { flex-direction: column; text-align: center; gap: 30px; }
+}
+

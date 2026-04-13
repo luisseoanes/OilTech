@@ -1,0 +1,78 @@
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(rgba(240, 240, 240, 0.9), rgba(240, 240, 240, 0.9)), 
+                        url('../imagenes/LOGO OIL TECHpng (1).png') repeat;
+            background-size: 250px auto;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .logo-img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            margin: 0 0 20px;
+            color: #333;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px 12px 40px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .btn-login {
+            background: #E30613;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-login:hover {
+            background: #c30511;
+        }
+
+        .error-msg {
+            color: #d63031;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            display: none;
+        }

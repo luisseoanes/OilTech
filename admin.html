@@ -1,0 +1,425 @@
+<!-- admin.html -->
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrativo | Oil Tech</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="icon" href="images/Logotipo.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+
+<body>
+
+    <header class="mobile-header">
+        <div class="logo-section-mobile">
+            <img src="imagenes/LOGO OIL TECHpng (1).png" alt="Logo" style="width: 30px; height: 30px; object-fit: contain;">
+            <span>Oil Tech</span>
+        </div>
+        <button id="sidebarToggle" class="btn-sidebar-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+    </header>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="logo-section">
+            <img src="imagenes/LOGO OIL TECHpng (1).png" alt="Logo" style="width: 50px; height: 50px; object-fit: contain;">
+            <h2>Oil Tech</h2>
+            <p style="font-size: 0.8rem; color: #777;">Panel de Admin</p>
+        </div>
+        <ul class="nav-links">
+            <li class="active" onclick="switchView('dashboard')"><i class="fas fa-home"></i> <span>Inicio</span></li>
+            <li onclick="switchView('quotations')"><i class="fas fa-file-invoice"></i> <span>Cotizaciones</span></li>
+            <li onclick="switchView('sales')"><i class="fas fa-shopping-bag"></i> <span>Ventas Realizadas</span></li>
+            <li onclick="switchView('products')"><i class="fas fa-box"></i> <span>Inventario</span></li>
+            <li onclick="getAnalytics() ; switchView('analytics')"><i class="fas fa-chart-line"></i>
+                <span>Analíticas</span>
+            </li>
+            <li onclick="switchView('security')"><i class="fas fa-lock"></i> <span>Seguridad</span></li>
+        </ul>
+
+        <div class="logout-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> <span>Cerrar Sesión</span>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div id="toast-container" class="toast-container"></div>
+
+        <div id="interactiveModal" class="modal">
+            <div class="modal-content" style="max-width: 400px;">
+                <h3 id="interactiveModalTitle">Título</h3>
+                <p id="interactiveModalMessage" style="margin: 15px 0; color: #666;"></p>
+                <div id="interactiveModalInputContainer" style="display: none; margin-bottom: 20px;">
+                    <input type="text" id="interactiveModalInput" style="width: 100%;" placeholder="Ingresa valor...">
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button class="btn-action btn-cancel" style="width: auto; padding: 10px 20px;"
+                        onclick="closeModal('interactiveModal')">Cancelar</button>
+                    <button class="btn-primary" id="interactiveModalConfirmBtn"
+                        style="width: auto; padding: 10px 20px;">Confirmar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Overview -->
+        <div id="dashboard" class="section-view active">
+            <div class="section-header">
+                <h2>Resumen General</h2>
+                <button class="btn-primary" onclick="loadDashboardData()"><i class="fas fa-sync-alt"></i>
+                    Actualizar</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon bg-blue"><i class="fas fa-dollar-sign"></i></div>
+                    <div class="stat-info">
+                        <h3 id="totalQuoted">$0</h3>
+                        <p>Total Cotizado</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon bg-green"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-info">
+                        <h3 id="totalPurchased">$0</h3>
+                        <p>Ventas Realizadas</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon bg-orange"><i class="fas fa-box-open"></i></div>
+                    <div class="stat-info">
+                        <h3 id="totalProducts">0</h3>
+                        <p>Productos Activos</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Ventas Confirmadas Recientes</h3>
+                <div style="overflow-x: auto;">
+                    <table id="recentSalesTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Total</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quotations View -->
+        <div id="quotations" class="section-view">
+            <div class="section-header">
+                <h2>Gestión de Cotizaciones</h2>
+                <button class="btn-primary" onclick="loadQuotations()"><i class="fas fa-sync-alt"></i>
+                    Refrescar</button>
+            </div>
+            <div class="card">
+                <div style="overflow-x: auto;">
+                    <table id="quotationsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Contacto</th>
+                                <th>Total Estimado</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quotation Details Modal -->
+        <div id="quotationDetailsModal" class="modal">
+            <div class="modal-content" style="max-width: 800px;">
+                <span class="close" onclick="closeModal('quotationDetailsModal')">&times;</span>
+                <h3>Detalles de Cotización #<span id="modalQuoteId"></span></h3>
+
+                <div id="editQuoteControls"
+                    style="display: none; margin-bottom: 15px; background: #f0f8ff; padding: 10px; border-radius: 5px;">
+                    <h4>Agregar Producto</h4>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <input type="text" id="quoteProductSearch" placeholder="Buscar producto..."
+                            onkeyup="searchProductsForQuote(this.value)" style="flex: 1;">
+                        <div id="quoteProductSuggestions"
+                            style="position: absolute; background: white; border: 1px solid #ddd; max-height: 200px; overflow-y: auto; z-index: 1000; width: 60%; margin-top: 40px; display: none;">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 10px; display: flex; justify-content: flex-end; gap: 10px;">
+                    <button id="btnEnableEdit" class="btn-primary" onclick="enableEditQuoteItems()">Modificar
+                        Productos</button>
+                    <button id="btnSaveEdit" class="btn-primary" style="display: none; background-color: #28a745;"
+                        onclick="saveQuoteItems()">Guardar Cambios</button>
+                    <button id="btnCancelEdit" class="btn-action btn-cancel"
+                        style="display: none; width: auto; padding: 10px 20px;"
+                        onclick="cancelEditQuoteItems()">Cancelar</button>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table id="modalItemsTable">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Opción</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unit.</th>
+                                <th class="edit-col" style="display: none;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sales View (Purchased only) -->
+        <div id="sales" class="section-view">
+            <div class="section-header">
+                <h2>Historial de Ventas</h2>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <div class="stat-badge bg-green"
+                        style="padding: 5px 15px; border-radius: 20px; color: white; font-weight: bold;">
+                        Total: <span id="salesFilteredTotal">$0</span>
+                    </div>
+                    <button class="btn-primary" onclick="loadSales()"><i class="fas fa-sync-alt"></i> Refrescar</button>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom: 20px;">
+                <div class="form-grid"
+                    style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: flex-end;">
+                    <div class="form-group">
+                        <label style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px;">Buscar
+                            Cliente / Contacto</label>
+                        <input type="text" id="salesSearch" placeholder="Nombre o teléfono..."
+                            onkeyup="filterSalesTable()">
+                    </div>
+                    <div class="form-group">
+                        <label style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px;">Fecha
+                            Inicio</label>
+                        <input type="date" id="salesDateStart" onchange="filterSalesTable()">
+                    </div>
+                    <div class="form-group">
+                        <label style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px;">Fecha
+                            Fin</label>
+                        <input type="date" id="salesDateEnd" onchange="filterSalesTable()">
+                    </div>
+                    <button class="btn-action btn-cancel" style="width: auto; height: 40px;"
+                        onclick="clearSalesFilters()">Limpiar</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div style="overflow-x: auto;">
+                    <table id="salesTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Contacto</th>
+                                <th>Total Venta</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products View -->
+        <div id="products" class="section-view">
+            <div class="section-header">
+                <h2>Inventario de Productos</h2>
+                <button class="btn-primary" onclick="toggleProductForm()">+ Nuevo Producto</button>
+            </div>
+
+            <div class="card">
+                <div class="product-filters-grid">
+                    <div class="form-group">
+                        <label style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px;">Buscar</label>
+                        <input type="text" id="productSearch" placeholder="Nombre, código, marca o tags..."
+                            onkeyup="filterProducts()">
+                    </div>
+                    <div class="form-group">
+                        <label style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px;">Categoría</label>
+                        <select id="productFilterCategory" onchange="filterProducts()">
+                            <option value="">Todas las categorías</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px;">Precio mín.</label>
+                        <input type="number" id="productPriceMin" placeholder="0" oninput="filterProducts()">
+                    </div>
+                    <div class="form-group">
+                        <label style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px;">Precio máx.</label>
+                        <input type="number" id="productPriceMax" placeholder="500000" oninput="filterProducts()">
+                    </div>
+                    <div class="form-group">
+                        <label style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px;">Ordenar</label>
+                        <select id="productSort" onchange="filterProducts()">
+                            <option value="name_asc">Nombre (A-Z)</option>
+                            <option value="name_desc">Nombre (Z-A)</option>
+                            <option value="price_asc">Precio (menor a mayor)</option>
+                            <option value="price_desc">Precio (mayor a menor)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="product-filters-actions">
+                    <button class="btn-action btn-cancel" style="width: auto; height: 38px;"
+                        onclick="clearProductFilters()">Limpiar</button>
+                    <div class="product-count-badge">Mostrando <span id="productsFilteredCount">0</span> de <span
+                            id="productsTotalCount">0</span></div>
+                </div>
+            </div>
+
+            <div class="card" id="productFormCard" style="display: none; background: #f8f9fa;">
+                <h3>Agregar / Editar Producto</h3>
+                <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                    <input type="hidden" id="prodId">
+                    <div style="display: none;"><input type="text" id="prodCode" placeholder="Código"></div>
+                    <div class="fg">
+                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Nombre del Producto</label>
+                        <input type="text" id="prodName" placeholder="Ej: Aceite Hidráulico ISO 68">
+                    </div>
+                    <div class="fg">
+                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Categoría Industrial</label>
+                        <div style="display: flex; gap: 5px;">
+                            <select id="prodCategory" style="flex: 1;" onchange="onCategoryChange(this.value)">
+                                <option value="">Seleccione Categoría</option>
+                            </select>
+                            <button class="btn-primary" style="width: auto; padding: 0 10px;" onclick="openCategoryModal()"
+                                title="Nueva Categoría">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <input type="number" id="prodPrice" placeholder="Precio (numérico)">
+                    <input type="text" id="prodPriceText" placeholder="Texto Precio (ej: Desde $20.000)">
+                </div>
+                <div class="form-grid">
+                    <div class="img-grid">
+                        <div class="img-inside-grid">
+                            <input type="text" id="prodImage" placeholder="URL Imagen (se llena automáticamente)" style="flex: 1;">
+                            <label for="prodImageFile" class="btn-primary">
+                                <i class="fas fa-upload"></i> Subir imagen
+                            </label>
+                            <input type="file" id="prodImageFile" accept="image/*" style="display: none;" 
+                                onchange="uploadImageToCloudinary(this)">
+                        </div>
+                        <div class="img-upload-status" id="imageUploadStatus">
+                            <i class="fas fa-spinner fa-spin"></i> Subiendo imagen...
+                        </div>
+                        <div id="imagePreviewContainer" style="display: none;">
+                            <img class="image-preview" id="imagePreview" src="" alt="Vista previa">
+                        </div>
+                    </div>
+                    <input type="text" id="prodBrands" placeholder="Marcas (ej: LG, Samsung)">
+                </div>
+                <div class="form-grid">
+                    <input type="text" id="prodTags" placeholder="Tags de búsqueda">
+                    <textarea id="prodOptions" placeholder="Presentaciones (separadas por | ej: Tambor|Caneca|Cuarto)" rows="1"></textarea>
+                </div>
+                <button class="btn-primary" onclick="saveProduct()">Guardar Producto</button>
+                <button class="btn-action btn-cancel" style="width: auto; padding: 10px;"
+                    onclick="toggleProductForm()">Cancelar</button>
+            </div>
+
+            <!-- New Category Modal -->
+            <div id="categoryModal" class="modal">
+                <div class="modal-content" style="max-width: 400px;">
+                    <span class="close" onclick="closeModal('categoryModal')">&times;</span>
+                    <h3>Nueva Categoría</h3>
+                    <div class="form-grid" style="grid-template-columns: 1fr; gap: 10px; margin-top: 15px;">
+                        <input type="text" id="newCatName" placeholder="Nombre de la categoría (ej: aire)">
+                        <textarea id="newCatTags" placeholder="Tags por defecto (separados por espacio)"
+                            rows="3"></textarea>
+                        <button class="btn-primary" onclick="saveCategory()">Crear Categoría</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div style="overflow-x: auto;">
+                    <table id="productsTable">
+                        <thead>
+                            <tr>
+                                <th>Imagen</th>
+                                <th>Nombre</th>
+                                <th>Categoría</th>
+                                <th>Presentaciones</th>
+                                <th>Precio (Base)</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics View -->
+        <div id="analytics" class="section-view">
+            <div class="section-header">
+                <h2>Analíticas Detalladas</h2>
+                <button class="btn-primary" onclick="getAnalytics()"><i class="fas fa-sync-alt"></i> Actualizar</button>
+            </div>
+            <div class="analytics-grid">
+                <div class="card">
+                    <h3>Top 5 Productos Más Cotizados</h3>
+                    <ul id="topProductsList" style="list-style: none; padding: 0;"></ul>
+                </div>
+                <div class="card">
+                    <h3>Tendencia de Ventas (Diaria)</h3>
+                    <div class="chart-container">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Security View -->
+        <div id="security" class="section-view">
+            <div class="section-header">
+                <h2>Seguridad y Perfil</h2>
+            </div>
+            <div class="card" style="max-width: 500px;">
+                <h3>Cambiar Contraseña de Administrador</h3>
+                <p style="color: #666; margin-bottom: 20px; font-size: 0.9rem;">Actualiza tu clave de acceso al panel.
+                </p>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>Nueva Contraseña</label>
+                    <input type="password" id="newPassword" placeholder="Mínimo 6 caracteres">
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>Confirmar Contraseña</label>
+                    <input type="password" id="confirmPassword" placeholder="Repite la contraseña">
+                </div>
+                <button class="btn-primary" onclick="changePassword()">Actualizar Contraseña</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+
+</html>

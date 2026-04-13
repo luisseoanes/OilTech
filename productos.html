@@ -6,12 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Productos | Oil Tech de Colombia S.A.S.</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="productos.css">
-</head>
-
-<body>
+    <link rel="stylesheet" href="css/carrito.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <!-- TOPBAR -->
     <div class="topbar">
@@ -22,14 +23,11 @@
         </div>
     </div>
 
-    <!-- NAV -->
+
     <nav id="main-nav">
         <a class="nav-logo" href="index.html">
-            <div class="nav-logo-mark"><span>OT</span></div>
-            <div class="nav-logo-text">
-                <div class="nav-logo-title">Oil Tech</div>
-                <div class="nav-logo-sub">de Colombia S.A.S.</div>
-            </div>
+            <img src="imagenes/LOGO OIL TECHpng (1).png" alt="Oil Tech Logo"
+                style="height: 48px; width: auto; object-fit: contain;">
         </a>
         <ul class="nav-links">
             <li><a href="index.html#nosotros">Nosotros</a></li>
@@ -60,142 +58,17 @@
         <!-- GRIDS DE CATEGORÍAS -->
 
         <!-- Automotriz -->
-        <div class="subcat-grid active" id="cat-automotriz">
-            <div class="subcat-card" onclick="openModal('Automotriz', 'Pesados', '🚚')">
-                <div class="subcat-icon">🚚</div>
-                <div class="subcat-title">Pesados</div>
-                <div class="subcat-desc">Flotas, camiones y maquinaria de carga pesada.</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Automotriz', 'Livianos', '🚗')">
-                <div class="subcat-icon">🚗</div>
-                <div class="subcat-title">Livianos</div>
-                <div class="subcat-desc">Automóviles de pasajeros, SUVs y transporte ligero.</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Automotriz', 'Motos', '🏍️')">
-                <div class="subcat-icon">🏍️</div>
-                <div class="subcat-title">Motos</div>
-                <div class="subcat-desc">Motocicletas de 2 y 4 tiempos, scooters.</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Automotriz', 'Complementarios', '🛡️')">
-                <div class="subcat-icon">🛡️</div>
-                <div class="subcat-title">Complementarios</div>
-                <div class="subcat-desc">Refrigerantes, aditivos y líquidos de frenos.</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Automotriz', 'Agroindustrial', '🚜')">
-                <div class="subcat-icon">🚜</div>
-                <div class="subcat-title">Agroindustrial</div>
-                <div class="subcat-desc">Tractores y maquinaria para el sector agrícola.</div>
-            </div>
-        </div>
-
+        <div class="subcat-grid active" id="cat-automotriz"></div>
         <!-- Industrial -->
-        <div class="subcat-grid" id="cat-industrial">
-            <div class="subcat-card" onclick="openModal('Industrial', 'Hidráulicos', '🛢️')">
-                <div class="subcat-icon">🛢️</div>
-                <div class="subcat-title">Hidráulicos</div>
-                <div class="subcat-desc">Fluidos de transferencia de potencia y sistemas de control.</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Industrial', 'Mecanizado', '🏭')">
-                <div class="subcat-icon">🏭</div>
-                <div class="subcat-title">Mecanizado</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Industrial', 'Engranajes', '⚙️')">
-                <div class="subcat-icon">⚙️</div>
-                <div class="subcat-title">Engranajes</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Industrial', 'Maquinaria y Equipo', '🏗️')">
-                <div class="subcat-icon">🏗️</div>
-                <div class="subcat-title">Maquinaria y Equipo</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Industrial', 'Bases', '🧪')">
-                <div class="subcat-icon">🧪</div>
-                <div class="subcat-title">Bases</div>
-            </div>
-        </div>
-
+        <div class="subcat-grid" id="cat-industrial"></div>
         <!-- Grasas -->
-        <div class="subcat-grid" id="cat-grasas">
-            <div class="subcat-card" onclick="openModal('Grasas', 'Múltiples Propósitos', '🎯')">
-                <div class="subcat-icon">🎯</div>
-                <div class="subcat-title">Múltiples Propósitos</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Grasas', 'Extrema Presión', '⚡')">
-                <div class="subcat-icon">⚡</div>
-                <div class="subcat-title">Extrema Presión</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Grasas', 'Alta Temperatura', '🔥')">
-                <div class="subcat-icon">🔥</div>
-                <div class="subcat-title">Alta Temperatura</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Grasas', 'Grado Alimenticio', '🍽️')">
-                <div class="subcat-icon">🍽️</div>
-                <div class="subcat-title">Grado Alimenticio</div>
-            </div>
-        </div>
-
+        <div class="subcat-grid" id="cat-grasas"></div>
         <!-- Seguridad -->
-        <div class="subcat-grid" id="cat-seguridad">
-            <div class="subcat-card" onclick="openModal('Seguridad Industrial', 'Protección de Cabeza', '🪖')">
-                <div class="subcat-icon">🪖</div>
-                <div class="subcat-title">Protección de Cabeza</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Seguridad Industrial', 'Protección Visual', '🥽')">
-                <div class="subcat-icon">🥽</div>
-                <div class="subcat-title">Protección Visual</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Seguridad Industrial', 'Protección de Manos', '🧤')">
-                <div class="subcat-icon">🧤</div>
-                <div class="subcat-title">Protección de Manos</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Seguridad Industrial', 'Trabajo en Alturas', '🧗‍♂️')">
-                <div class="subcat-icon">🧗‍♂️</div>
-                <div class="subcat-title">Trabajo en Alturas</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Seguridad Industrial', 'Calzado', '🥾')">
-                <div class="subcat-icon">🥾</div>
-                <div class="subcat-title">Calzado Industrial</div>
-            </div>
-        </div>
-
+        <div class="subcat-grid" id="cat-seguridad"></div>
         <!-- Limpieza -->
-        <div class="subcat-grid" id="cat-limpieza">
-            <div class="subcat-card" onclick="openModal('Limpieza', 'Desengrasantes', '🧼')">
-                <div class="subcat-icon">🧼</div>
-                <div class="subcat-title">Desengrasantes</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Limpieza', 'Jabones Industriales', '🧴')">
-                <div class="subcat-icon">🧴</div>
-                <div class="subcat-title">Jabones Industriales</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Limpieza', 'Desinfectantes', '🛡️')">
-                <div class="subcat-icon">🛡️</div>
-                <div class="subcat-title">Desinfectantes</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Limpieza', 'Solventes Dieléctricos', '⚡')">
-                <div class="subcat-icon">⚡</div>
-                <div class="subcat-title">Solventes Dieléctricos</div>
-            </div>
-        </div>
-
+        <div class="subcat-grid" id="cat-limpieza"></div>
         <!-- Herramientas -->
-        <div class="subcat-grid" id="cat-herramientas">
-            <div class="subcat-card" onclick="openModal('Herramientas', 'Herramientas Manuales', '🔧')">
-                <div class="subcat-icon">🔧</div>
-                <div class="subcat-title">Manuales</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Herramientas', 'Bombas Manuales', '💧')">
-                <div class="subcat-icon">💧</div>
-                <div class="subcat-title">Bombas Manuales</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Herramientas', 'Bombas Neumáticas', '💨')">
-                <div class="subcat-icon">💨</div>
-                <div class="subcat-title">Bombas Neumáticas</div>
-            </div>
-            <div class="subcat-card" onclick="openModal('Herramientas', 'Mangueras y Acoples', '🪢')">
-                <div class="subcat-icon">🪢</div>
-                <div class="subcat-title">Mangueras y Acoples</div>
-            </div>
-        </div>
+        <div class="subcat-grid" id="cat-herramientas"></div>
     </main>
 
     <!-- Modal Detalle Subcategoría -->
@@ -209,13 +82,13 @@
                     <div class="modal-title" id="d-title">Subcategoría</div>
                 </div>
             </div>
-            
+
             <p class="modal-desc">
-                Seleccione el tamaño y la marca que le interesa para iniciar la cotización directa por WhatsApp.
+                Seleccione la variante o presentación que le interesa para iniciar la cotización directa por WhatsApp.
             </p>
 
             <div class="modal-section">
-                <h4>Tamaños Disponibles</h4>
+                <h4>Presentaciones Disponibles</h4>
                 <div class="chip-group" id="size-chips">
                     <div class="chip" onclick="toggleChip(this)">Caneca</div>
                     <div class="chip" onclick="toggleChip(this)">Tambor</div>
@@ -238,14 +111,53 @@
             </div>
 
             <div class="modal-footer">
-                <button class="btn-whatsapp" onclick="sendWhatsApp()">
-                    Envíanos un WhatsApp
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824z" />
-                        <path d="M12.031 2C6.494 2 2 6.495 2 12.033c0 1.956.51 3.842 1.48 5.51L2 22l4.582-1.203c1.597.893 3.425 1.365 5.449 1.365h.001c5.536 0 10.033-4.496 10.033-10.032C22.065 6.494 17.568 2 12.031 2zM12 20.254c-1.637 0-3.24-.439-4.646-1.273l-.334-.198-3.411.895.912-3.324-.216-.345c-.915-1.463-1.398-3.167-1.398-4.939 0-4.524 3.682-8.205 8.204-8.205 4.523 0 8.203 3.681 8.203 8.205s-3.68 8.205-8.203 8.205z" />
-                    </svg>
+                <button class="btn-whatsapp" onclick="addToCartFromModal()"
+                    style="background-color: var(--black); box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
+                    Añadir a Cotización
+                    <i class="fas fa-plus" style="margin-left: 10px;"></i>
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Shopping Cart UI -->
+    <div class="cart-float" onclick="toggleCart()">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count" id="cartCount">0</span>
+    </div>
+
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>Tu Cotización</h3>
+            <button onclick="toggleCart()" class="close-cart">×</button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="cart-empty">
+                <i class="fas fa-shopping-basket" style="font-size: 40px; margin-bottom: 10px;"></i>
+                <p>Tu carrito está vacío</p>
+            </div>
+        </div>
+
+        <div class="cart-form" style="padding: 0 20px; margin-bottom: 20px;">
+            <div style="margin-bottom: 15px;">
+                <label for="quoteName"
+                    style="display: block; margin-bottom: 5px; font-size: 0.9rem; font-weight: 600;">Nombre</label>
+                <input type="text" id="quoteName" placeholder="Tu nombre"
+                    style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;">
+            </div>
+            <div>
+                <label for="quoteContact"
+                    style="display: block; margin-bottom: 5px; font-size: 0.9rem; font-weight: 600;">Contacto</label>
+                <input type="text" id="quoteContact" placeholder="Teléfono o Email"
+                    style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;">
+            </div>
+        </div>
+
+        <div class="cart-footer">
+            <button class="btn-whatsapp" id="btnSubmitQuote" onclick="sendBatchQuote()"
+                style="width: 100%; justify-content: center; border-radius: 8px; font-size: 0.9rem;">
+                <i class="fab fa-whatsapp"></i> Solicitar Cotización
+            </button>
         </div>
     </div>
 
@@ -286,11 +198,13 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <div class="footer-copy">© 2025 Oil Tech de Colombia S.A.S. · Todos los derechos reservados · NIT: 900.xxx.xxx-x</div>
+            <div class="footer-copy">© 2025 Oil Tech de Colombia S.A.S. · Todos los derechos reservados · NIT:
+                900.xxx.xxx-x</div>
             <div class="footer-tagline">"En OIL TECH cuidamos el rendimiento de su maquinaria."</div>
         </div>
     </footer>
 
+    <script src="js/productos.js"></script>
     <script>
         // Pestañas
         const tabs = document.querySelectorAll('.tab-btn');
@@ -300,7 +214,7 @@
             tab.addEventListener('click', () => {
                 tabs.forEach(t => t.classList.remove('active'));
                 grids.forEach(g => g.classList.remove('active'));
-                
+
                 tab.classList.add('active');
                 document.getElementById('cat-' + tab.dataset.target).classList.add('active');
             });
@@ -319,59 +233,10 @@
             nav.classList.toggle('scrolled', window.scrollY > 20);
         });
 
-        // Modal Logic
-        const overlay = document.getElementById('detailModal');
-        const dTitle = document.getElementById('d-title');
-        const dCategory = document.getElementById('d-category');
-        const dIcon = document.getElementById('d-icon');
-        let currentCategory = '';
-        let currentSubcat = '';
-
-        function openModal(category, subcat, icon) {
-            currentCategory = category;
-            currentSubcat = subcat;
-            dCategory.textContent = category;
-            dTitle.textContent = subcat;
-            dIcon.textContent = icon;
-            
-            // Reset chips
-            document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
-            overlay.classList.add('active');
-        }
-
-        function closeModal() {
-            overlay.classList.remove('active');
-        }
-
-        function toggleChip(chip) {
-            chip.classList.toggle('selected');
-        }
-
-        function sendWhatsApp() {
-            const phoneNumber = '573000000000'; // Número de WA aquí
-            let message = `Hola de nuevo, me gustaría cotizar para la categoría de *${currentCategory}* en la especialidad *${currentSubcat}*.\n\n`;
-
-            const selectedSizes = Array.from(document.getElementById('size-chips').querySelectorAll('.selected')).map(c => c.textContent);
-            const selectedBrands = Array.from(document.getElementById('brand-chips').querySelectorAll('.selected')).map(c => c.textContent);
-
-            if(selectedSizes.length > 0) {
-                message += `*Tamaños preferidos:* ${selectedSizes.join(', ')}.\n`;
-            }
-            if(selectedBrands.length > 0) {
-                message += `*Marcas de interés:* ${selectedBrands.join(', ')}.\n`;
-            }
-            
-            if(selectedSizes.length === 0 && selectedBrands.length === 0) {
-                message += "Me podrían enviar el catálogo disponibles de esta línea, por favor.";
-            }
-
-            const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-            window.open(url, '_blank');
-        }
-
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) closeModal();
         });
     </script>
-</body>
+    </body>
+
 </html>
