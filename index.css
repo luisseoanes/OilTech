@@ -15,7 +15,7 @@
     --bg3: #F3F4F6;
     --glass-bg: rgba(255, 255, 255, 0.85);
     --glass-border: rgba(255, 255, 255, 0.4);
-    --shadow-sm: 0 4px 6px rgba(0,0,0,0.05);
+    --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
     --shadow-md: 0 8px 24px rgba(227, 6, 19, 0.08);
     --shadow-lg: 0 20px 40px rgba(227, 6, 19, 0.15);
 }
@@ -84,8 +84,8 @@ nav {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
+    background: #2B2B2B;
+    border-bottom: 1px solid;
     padding: 0 72px;
     display: flex;
     align-items: center;
@@ -157,7 +157,7 @@ nav.scrolled {
     font-weight: 600;
     letter-spacing: 1.2px;
     text-transform: uppercase;
-    color: var(--mid);
+    color: rgba(255, 255, 255, 0.85);
     text-decoration: none;
     border-bottom: 3px solid transparent;
     transition: color .2s, border-color .2s;
@@ -659,7 +659,8 @@ nav.scrolled {
 }
 
 .product-card:hover .img-wrapper img {
-    transform: scale(1.08); /* Hover zoom */
+    transform: scale(1.08);
+    /* Hover zoom */
 }
 
 .product-card-content {
@@ -1335,6 +1336,7 @@ footer {
         gap: 32px;
     }
 }
+
 /* Glassmorphism Classes */
 .glass-card {
     background: rgba(20, 20, 20, 0.45);
@@ -1343,12 +1345,22 @@ footer {
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 24px;
     padding: 60px 50px;
-    box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
 }
 
-.product-card.featured { background: #1a1a1a; color: white; border: none; }
-.product-card.featured .pc-title { color: white; }
-.product-card.featured .pc-desc { color: rgba(255,255,255,0.7); }
+.product-card.featured {
+    background: #1a1a1a;
+    color: white;
+    border: none;
+}
+
+.product-card.featured .pc-title {
+    color: white;
+}
+
+.product-card.featured .pc-desc {
+    color: rgba(255, 255, 255, 0.7);
+}
 
 @media (max-width: 768px) {
     .product-card.featured {
@@ -1446,12 +1458,19 @@ footer {
     transition: all 0.2s;
 }
 
-.btn-trust:hover, .btn-trust-outline:hover {
+.btn-trust:hover,
+.btn-trust-outline:hover {
     transform: translateY(-3px);
 }
 
 @media (max-width: 992px) {
-    .trust-badges { grid-template-columns: 1fr; }
-    .trust-contact-banner { flex-direction: column; text-align: center; gap: 30px; }
-}
+    .trust-badges {
+        grid-template-columns: 1fr;
+    }
 
+    .trust-contact-banner {
+        flex-direction: column;
+        text-align: center;
+        gap: 30px;
+    }
+}
