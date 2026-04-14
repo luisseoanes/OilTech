@@ -294,6 +294,12 @@ nav.scrolled {
     margin-bottom: 44px;
 }
 
+@media (max-width: 960px) {
+    .hero-sub {
+        font-size: 1.3rem !important;
+    }
+}
+
 .hero-actions {
     display: flex;
     gap: 16px;
