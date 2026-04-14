@@ -347,6 +347,15 @@ nav.scrolled {
     border-top: 1px solid var(--border);
 }
 
+@media (max-width: 960px) {
+    .hero-stat-row {
+        flex-direction: column;
+        gap: 24px;
+        align-items: center;
+    }
+
+}
+
 .hero-stat {
     flex: 1;
     padding-right: 28px;
@@ -535,8 +544,8 @@ nav.scrolled {
 
 .about-desc {
     font-family: 'Crimson Pro', serif;
-    font-size: 1.12rem;
-    font-weight: 300;
+    font-size: 1.4rem;
+    font-weight: 400;
     line-height: 1.85;
     color: var(--mid);
     margin-bottom: 16px;
@@ -617,10 +626,10 @@ nav.scrolled {
 
 .about-mission p {
     font-family: 'Crimson Pro', serif;
-    font-size: 1rem;
-    font-weight: 300;
+    font-size: 1.1rem;
+    font-weight: 400;
     line-height: 1.7;
-    color: rgba(255, 255, 255, 0.6);
+    color: white;
     font-style: italic;
 }
 
@@ -759,8 +768,8 @@ nav.scrolled {
 
 .pc-desc {
     font-family: 'Crimson Pro', serif;
-    font-size: 1rem;
-    font-weight: 300;
+    font-size: 1.1rem;
+    font-weight: 400;
     line-height: 1.75;
     color: var(--mid);
     margin-bottom: 24px;
