@@ -185,6 +185,56 @@ nav.scrolled {
     transform: translateY(-1px);
 }
 
+.nav-hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.nav-hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: #fff;
+}
+
+@media (max-width: 960px) {
+    .nav-hamburger {
+        display: flex;
+    }
+
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: 72px;
+        left: 0;
+        right: 0;
+        background: #2B2B2B;
+        flex-direction: column;
+        padding: 16px 0;
+    }
+
+    .nav-links.open {
+        display: flex;
+    }
+
+    .nav-links li a {
+        height: auto;
+        line-height: 1;
+        padding: 14px 24px;
+        border-bottom: none;
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    .nav-cta {
+        display: none;
+    }
+}
+
 /* ── HERO ── */
 .hero {
     display: grid;
@@ -1269,7 +1319,7 @@ footer {
 /* ── RESPONSIVE ── */
 @media (max-width: 960px) {
     .topbar {
-        padding: 8px 24px;
+        display: none;
     }
 
     nav {
