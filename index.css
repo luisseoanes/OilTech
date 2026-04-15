@@ -1575,4 +1575,50 @@ footer {
     .benefit-item h4 {
         margin-bottom: 4px;
     }
+
+    .contact-info-grid {
+        overflow: hidden;
+    }
+
+    .contact-info-item {
+        padding: 16px;
+    }
+
+    .ci-text span {
+        word-break: break-word;
+        font-size: 0.75rem;
+    }
+
+    .about,
+    .contact {
+        grid-template-columns: 1fr;
+        gap: 48px;
+        padding: 60px 24px;
+    }
+
+    section#contacto {
+        grid-template-columns: 1fr;
+        padding: 60px 24px;
+        gap: 32px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .trust-contact-banner {
+        padding: 32px 24px;
+        border-radius: 12px;
+    }
+
+    .tcb-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-trust,
+    .btn-trust-outline {
+        text-align: center;
+        width: 100%;
+    }
 }
