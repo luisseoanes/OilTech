@@ -1542,3 +1542,37 @@ footer {
         font-size: 1.4rem;
     }
 }
+
+@media (max-width: 960px) {
+    .benefits-grid {
+        grid-template-columns: 1fr;
+        border: none;
+        gap: 0;
+    }
+
+    .benefit-item {
+        display: grid;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 20px 0;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .benefit-item:last-child {
+        border-bottom: none;
+    }
+
+    .benefit-num {
+        display: none;
+    }
+
+    .benefit-icon-svg {
+        flex-shrink: 0;
+        margin-bottom: 0 !important;
+    }
+
+    .benefit-item h4 {
+        margin-bottom: 4px;
+    }
+}
