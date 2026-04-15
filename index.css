@@ -353,7 +353,6 @@ nav.scrolled {
         gap: 24px;
         align-items: center;
     }
-
 }
 
 .hero-stat {
@@ -1537,5 +1536,9 @@ footer {
         flex-direction: column;
         text-align: center;
         gap: 30px;
+    }
+
+    .section-h2 {
+        font-size: 1.4rem;
     }
 }
