@@ -33,6 +33,7 @@ class Product(Base):
     search_tags = Column(String) # Space separated search terms
     options = Column(String) # Pipe separated options like "3/8|1/2"
     description = Column(Text, nullable=True)
+    technical_sheet_url = Column(String, nullable=True) # URL to technical sheet PDF
 
 class Quotation(Base):
     __tablename__ = "quotations"

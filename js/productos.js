@@ -98,6 +98,21 @@ function openProductModal(product) {
         <div class="chip brand-chip" onclick="selectSingleChip(this, 'brand-chip')">${b}</div>
     `).join('') : '';
 
+    // Handle technical sheet
+    const technicalSheetSection = document.getElementById('technical-sheet-section');
+    const btnTechnicalSheet = document.getElementById('btn-technical-sheet');
+    
+    if (product.technical_sheet_url) {
+        technicalSheetSection.style.display = 'block';
+        btnTechnicalSheet.href = product.technical_sheet_url;
+        btnTechnicalSheet.onclick = function() {
+            window.open(product.technical_sheet_url, '_blank');
+            return false;
+        };
+    } else {
+        technicalSheetSection.style.display = 'none';
+    }
+
     // Auto select first options
     const firstSize = document.querySelector('.size-chip');
     if (firstSize) firstSize.classList.add('selected');

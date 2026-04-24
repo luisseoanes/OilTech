@@ -27,6 +27,7 @@ class ProductBase(BaseModel):
     search_tags: Optional[str] = None
     options: Optional[str] = None
     description: Optional[str] = None
+    technical_sheet_url: Optional[str] = None
 
 class ProductCreate(ProductBase):
     pass
