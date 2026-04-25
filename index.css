@@ -715,7 +715,7 @@ nav.scrolled {
 
 .product-card .img-wrapper {
     width: 100%;
-    height: 220px;
+    height: 308px;
     overflow: hidden;
 }
 
@@ -1386,7 +1386,11 @@ footer {
     }
 
     .products-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
+    }
+
+    .product-card .img-wrapper {
+        height: 220px;
     }
 
     .product-card.tall {
