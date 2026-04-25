@@ -85,7 +85,7 @@ nav {
     top: 0;
     z-index: 100;
     background: #2B2B2B;
-    border-bottom: 2px solid var(--red);
+    border-bottom: 2px solid #AA050E;
     padding: 0 72px;
     display: flex;
     align-items: center;
@@ -986,6 +986,9 @@ nav.scrolled {
     flex-shrink: 0;
 }
 
+.btn-text-mobile { display: none; }
+.btn-text-desktop { display: inline; }
+
 /* ── CTA STRIP ── */
 .cta-strip {
     background: var(--red);
@@ -1390,6 +1393,9 @@ footer {
         flex-direction: column;
         padding: 60px 24px;
     }
+
+    .btn-text-mobile { display: inline; }
+    .btn-text-desktop { display: none; }
 
     footer {
         padding: 48px 24px 32px;
