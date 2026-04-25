@@ -285,7 +285,7 @@ nav.scrolled {
 }
 
 .hero-sub {
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Inter', sans-serif;
     font-size: 1.22rem;
     font-weight: 300;
     line-height: 1.75;
@@ -542,7 +542,7 @@ nav.scrolled {
 }
 
 .about-desc {
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Inter', sans-serif;
     font-size: 1.4rem;
     font-weight: 400;
     line-height: 1.85;
@@ -624,7 +624,7 @@ nav.scrolled {
 }
 
 .about-mission p {
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Inter', sans-serif;
     font-size: 1.1rem;
     font-weight: 400;
     line-height: 1.7;
@@ -766,7 +766,7 @@ nav.scrolled {
 }
 
 .pc-desc {
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Inter', sans-serif;
     font-size: 1.1rem;
     font-weight: 400;
     line-height: 1.75;
@@ -954,7 +954,7 @@ nav.scrolled {
 }
 
 .linea-body p {
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Inter', sans-serif;
     font-size: 0.98rem;
     font-weight: 300;
     line-height: 1.75;
@@ -1020,7 +1020,7 @@ nav.scrolled {
 
 .cta-strip h2 span {
     display: block;
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Inter', sans-serif;
     font-size: clamp(0.95rem, 1.5vw, 1.1rem);
     font-weight: 300;
     font-style: italic;
@@ -1261,7 +1261,7 @@ footer {
 }
 
 .footer-brand p {
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Inter', sans-serif;
     font-size: 0.95rem;
     font-weight: 300;
     line-height: 1.75;
@@ -1312,7 +1312,7 @@ footer {
 }
 
 .footer-tagline {
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Inter', sans-serif;
     font-size: 0.9rem;
     font-style: italic;
     color: rgba(255, 255, 255, 0.25);

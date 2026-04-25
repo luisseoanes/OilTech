@@ -38,7 +38,7 @@
 }
 
 .productos-header p {
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Inter', sans-serif;
     font-size: 1.25rem;
     color: var(--mid);
     line-height: 1.6;
@@ -312,7 +312,7 @@
 }
 
 .modal-desc {
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Inter', sans-serif;
     color: var(--mid);
     margin-bottom: 32px;
     font-size: 1.1rem;
