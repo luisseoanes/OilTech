@@ -32,6 +32,10 @@ html {
     scroll-behavior: smooth;
 }
 
+h1, h2, h3, h4 {
+    text-transform: uppercase;
+}
+
 body {
     font-family: 'Montserrat', sans-serif;
     background: var(--bg);
@@ -252,7 +256,7 @@ nav.scrolled {
 }
 
 .hero-label {
-    font-size: 0.68rem;
+    font-size: 0.88rem;
     font-weight: 700;
     letter-spacing: 3px;
     text-transform: uppercase;
@@ -514,7 +518,7 @@ nav.scrolled {
 }
 
 .about-label {
-    font-size: 0.68rem;
+    font-size: 0.88rem;
     font-weight: 700;
     letter-spacing: 3px;
     text-transform: uppercase;
@@ -660,7 +664,7 @@ nav.scrolled {
 }
 
 .section-label {
-    font-size: 0.68rem;
+    font-size: 0.88rem;
     font-weight: 700;
     letter-spacing: 3px;
     text-transform: uppercase;
@@ -1135,7 +1139,7 @@ nav.scrolled {
 }
 
 .form-title {
-    font-size: 0.68rem;
+    font-size: 0.88rem;
     font-weight: 700;
     letter-spacing: 3px;
     text-transform: uppercase;
@@ -1335,6 +1339,14 @@ footer {
 
 /* ── RESPONSIVE ── */
 @media (max-width: 960px) {
+    h1, h2, h3, h4 {
+        text-transform: none;
+    }
+
+    .hero-label, .about-label, .section-label {
+        font-size: 0.68rem;
+    }
+
     .topbar {
         display: none;
     }
