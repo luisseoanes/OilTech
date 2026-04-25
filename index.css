@@ -30,6 +30,7 @@
 
 html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
 }
 
 h1, h2, h3, h4 {
@@ -912,7 +913,7 @@ nav.scrolled {
 .benefit-item p {
     font-size: 0.82rem;
     line-height: 1.7;
-    color: var(--soft);
+    color: #363636;
     font-weight: 400;
 }
 
@@ -1391,6 +1392,14 @@ footer {
 
     .product-card .img-wrapper {
         height: 220px;
+    }
+
+    .about-desc {
+        font-size: 1.12rem;
+    }
+
+    .benefit-item p {
+        font-size: 0.98rem;
     }
 
     .product-card.tall {
