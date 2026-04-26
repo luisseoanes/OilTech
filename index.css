@@ -963,7 +963,7 @@ nav.scrolled {
     font-size: 0.98rem;
     font-weight: 300;
     line-height: 1.75;
-    color: var(--mid);
+    color: #1A1A1A;
     margin-bottom: 20px;
 }
 
@@ -975,9 +975,9 @@ nav.scrolled {
 }
 
 .linea-list li {
-    font-size: 0.75rem;
+    font-size: 0.94rem;
     font-weight: 500;
-    color: var(--soft);
+    color: #1A1A1A;
     display: flex;
     align-items: flex-start;
     gap: 10px;
@@ -1400,6 +1400,10 @@ footer {
 
     .benefit-item p {
         font-size: 0.98rem;
+    }
+
+    .linea-list li {
+        font-size: 0.75rem;
     }
 
     .product-card.tall {
