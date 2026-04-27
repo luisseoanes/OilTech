@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encuéntranos — Oil Tech de Colombia S.A.S.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="css/encuentranos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="imagenes/LogoHero.png">
+</head>
+
+<body>
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <div class="topbar-left">Colombia · Bogotá D.C. · <span>+13 años de experiencia</span></div>
+        <div class="topbar-right">
+            <a href="tel:+5760100000"><i class="fas fa-phone"></i> +57 (601) 000 0000</a>
+            <a href="mailto:ventas@oiltechdecolombia.com"><i class="fas fa-envelope"></i> ventas@oiltechdecolombia.com</a>
+        </div>
+    </div>
+
+    <!-- NAV -->
+    <nav id="main-nav">
+        <a class="nav-logo" href="index.html">
+            <img src="imagenes/LogoNavBar.png" alt="Oil Tech Logo"
+                style="height: 150px; width: auto; object-fit: contain; margin-top:1.8rem">
+        </a>
+        <ul class="nav-links">
+            <li><a href="index.html#nosotros">Nosotros</a></li>
+            <li><a href="productos.html">Productos</a></li>
+            <li><a href="index.html#lineas">Líneas</a></li>
+            <li><a href="index.html#contacto">Contacto</a></li>
+            <li><a href="encuentranos.html" class="active">Encuéntranos</a></li>
+        </ul>
+        <a class="nav-cta" href="index.html#contacto">Solicitar Cotización</a>
+        <button class="nav-hamburger" id="nav-hamburger" aria-label="Menú">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <!-- HERO -->
+    <section class="enc-hero">
+        <div class="enc-hero-content">
+            <div class="section-label">Distribución Nacional</div>
+            <h1>Encuéntranos en<br><span>todo Colombia</span></h1>
+            <p>
+                Desde Bogotá distribuimos lubricantes, EPP y productos de mantenimiento industrial
+                a todo el territorio nacional. Logística confiable, tiempos claros y soporte técnico en cada entrega.
+            </p>
+            <div class="enc-hero-badges">
+                <div class="enc-badge">
+                    <span class="enc-badge-dot" style="background:var(--red);"></span>
+                    Bogotá: 1 día hábil
+                </div>
+                <div class="enc-badge">
+                    <span class="enc-badge-dot" style="background:var(--orange);"></span>
+                    Colombia: 5 días hábiles
+                </div>
+                <div class="enc-badge">
+                    <span class="enc-badge-dot" style="background:var(--yellow);"></span>
+                    32 departamentos
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ZONE CARDS -->
+    <section class="enc-zones-section" id="zonas">
+        <div class="enc-zones-grid">
+            <div class="zone-card zone-bogota">
+                <div class="zone-badge">Zona 1 — Entrega Express</div>
+                <h3>Bogotá D.C.</h3>
+                <div class="zone-time">1 día hábil</div>
+                <p>Entrega directa dentro de Bogotá y municipios del área metropolitana. Despacho el mismo día para pedidos confirmados antes de las 2:00 p.m.</p>
+                <ul>
+                    <li>Entrega puerta a puerta en Bogotá</li>
+                    <li>Confirmación del pedido hasta las 2:00 p.m.</li>
+                    <li>Soacha, Chía, Cajicá y municipios cercanos</li>
+                    <li>Seguimiento del despacho vía WhatsApp</li>
+                    <li>Flete según peso y volumen del pedido</li>
+                </ul>
+            </div>
+            <div class="zone-card zone-nacional">
+                <div class="zone-badge">Zona 2 — Nacional</div>
+                <h3>Resto de Colombia</h3>
+                <div class="zone-time">5 días hábiles</div>
+                <p>Envíos a todo el territorio nacional mediante transportadoras especializadas con trazabilidad en tiempo real. Los tiempos pueden variar según la ciudad destino.</p>
+                <ul>
+                    <li>Medellín, Cali, Barranquilla, Cartagena</li>
+                    <li>Bucaramanga, Cúcuta, Pereira, Manizales</li>
+                    <li>Santa Marta, Villavicencio, Ibagué</li>
+                    <li>Zonas remotas: consultar tiempo y disponibilidad</li>
+                    <li>Embalaje industrial para protección del producto</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAP -->
+    <section class="enc-map-section">
+        <div class="enc-map-section-header">
+            <div>
+                <div class="section-label">Cobertura</div>
+                <h2>Mapa de <span>distribución</span><br>nacional</h2>
+            </div>
+            <div class="enc-map-legend">
+                <div class="legend-item">
+                    <span class="legend-dot" style="background:var(--red);"></span>
+                    Bogotá · 1 día hábil
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background:var(--orange);"></span>
+                    Nacional · 5 días hábiles
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot" style="background:#2B2B2B;"></span>
+                    Ciudad principal
+                </div>
+            </div>
+        </div>
+        <div id="colombia-map"></div>
+    </section>
+
+    <!-- PROCESS -->
+    <section class="enc-process" id="proceso">
+        <div class="enc-process-inner">
+            <div class="enc-process-header">
+                <div class="section-label">Cómo funciona</div>
+                <h2 class="section-h2">Proceso de <span>envío</span></h2>
+            </div>
+            <div class="process-steps">
+                <div class="process-step">
+                    <div class="process-step-num">01</div>
+                    <span class="process-step-icon"><i class="fas fa-clipboard-list"></i></span>
+                    <h4>Solicitud de cotización</h4>
+                    <p>Contáctenos con la referencia del producto, cantidad y ciudad de destino. Le respondemos en menos de 2 horas hábiles con precio y disponibilidad.</p>
+                    <div class="process-connector"></div>
+                </div>
+                <div class="process-step">
+                    <div class="process-step-num">02</div>
+                    <span class="process-step-icon"><i class="fas fa-check-double"></i></span>
+                    <h4>Confirmación del pedido</h4>
+                    <p>Una vez aprobada la cotización y confirmado el pago, su pedido entra en proceso de alistamiento en nuestras instalaciones en Bogotá.</p>
+                    <div class="process-connector"></div>
+                </div>
+                <div class="process-step">
+                    <div class="process-step-num">03</div>
+                    <span class="process-step-icon"><i class="fas fa-box-open"></i></span>
+                    <h4>Preparación y embalaje</h4>
+                    <p>El equipo técnico alista, verifica y embala cada pedido con los estándares de protección requeridos para productos industriales.</p>
+                    <div class="process-connector"></div>
+                </div>
+                <div class="process-step">
+                    <div class="process-step-num">04</div>
+                    <span class="process-step-icon"><i class="fas fa-truck-fast"></i></span>
+                    <h4>Despacho y entrega</h4>
+                    <p>Le enviamos el número de guía para seguimiento en tiempo real. Bogotá: entrega al día siguiente. Nacional: 3 a 5 días hábiles según destino.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- COVERAGE DETAILS -->
+    <section class="enc-coverage">
+        <div class="enc-coverage-inner">
+            <div class="section-label">Cobertura detallada</div>
+            <h2 class="section-h2">Ciudades y <span style="color:var(--red);">condiciones</span> de envío</h2>
+            <div class="enc-coverage-grid">
+                <div class="enc-coverage-col">
+                    <h3>Principales destinos nacionales</h3>
+                    <p>Cobertura en los 32 departamentos del país. A continuación las ciudades con despacho regular:</p>
+                    <div class="cities-grid">
+                        <div class="city-chip">Medellín</div>
+                        <div class="city-chip">Cali</div>
+                        <div class="city-chip">Barranquilla</div>
+                        <div class="city-chip">Cartagena</div>
+                        <div class="city-chip">Bucaramanga</div>
+                        <div class="city-chip">Cúcuta</div>
+                        <div class="city-chip">Pereira</div>
+                        <div class="city-chip">Manizales</div>
+                        <div class="city-chip">Santa Marta</div>
+                        <div class="city-chip">Ibagué</div>
+                        <div class="city-chip">Pasto</div>
+                        <div class="city-chip">Armenia</div>
+                        <div class="city-chip">Villavicencio</div>
+                        <div class="city-chip">Montería</div>
+                        <div class="city-chip">Neiva</div>
+                        <div class="city-chip">Valledupar</div>
+                        <div class="city-chip">Sincelejo</div>
+                        <div class="city-chip">Popayán</div>
+                    </div>
+                    <div class="info-note" style="margin-top:20px;">
+                        <strong>Zonas remotas:</strong> Para destinos de difícil acceso (Amazonas, Guainía, Vaupés, etc.) consulte disponibilidad y tiempo de entrega con nuestro equipo comercial.
+                    </div>
+                </div>
+                <div class="enc-coverage-col">
+                    <h3>Condiciones de envío</h3>
+                    <ul class="info-list">
+                        <li>Pedido mínimo para envío nacional: consultar según producto y destino.</li>
+                        <li>El flete es calculado según peso, volumen y ciudad de destino — se informa en la cotización.</li>
+                        <li>Trabajamos con transportadoras certificadas: Servientrega, TCC, Coordinadora y Envia.</li>
+                        <li>Para pedidos de gran volumen se coordina transporte dedicado con condiciones especiales.</li>
+                        <li>Embalaje reforzado para tambores, canecas y productos peligrosos conforme a normativa IATA / ADR.</li>
+                        <li>Las hojas de seguridad (MSDS) se incluyen físicamente con cada despacho de productos químicos.</li>
+                        <li>Horario de corte para despacho: lunes a viernes hasta las 2:00 p.m.</li>
+                        <li>Los tiempos de entrega son estimados en días hábiles y pueden variar por condiciones climáticas o de orden público.</li>
+                    </ul>
+                    <div class="info-note">
+                        <strong>¿Necesita entrega urgente?</strong> Consulte disponibilidad de servicio de mensajería express para Bogotá y ciudades principales. Sujeto a disponibilidad y costo adicional.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="enc-cta">
+        <div class="enc-cta-text">
+            <h2>¿Listo para recibir<br>su pedido en <span>todo Colombia</span>?</h2>
+            <p>Solicite su cotización hoy y nuestro equipo le confirma disponibilidad, flete y tiempo de entrega.</p>
+        </div>
+        <div class="enc-cta-btns">
+            <a class="btn-red" href="index.html#contacto">Solicitar cotización</a>
+            <a class="btn-outline-white" href="https://wa.me/573000000000" target="_blank">WhatsApp <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-top">
+            <div class="footer-brand">
+                <div class="footer-logo-mark"><img src="imagenes/LogoHero.png" alt="Oil Tech Logo" style="height: 100%; width: auto; object-fit: contain;"></div>
+                <p>"Lubricación, protección y confianza para la industria colombiana."</p>
+            </div>
+            <div class="footer-col">
+                <h5>Portafolio</h5>
+                <ul>
+                    <li><a href="productos.html">Lubricantes Industriales</a></li>
+                    <li><a href="productos.html">Grasas Industriales</a></li>
+                    <li><a href="productos.html">Seguridad Industrial</a></li>
+                    <li><a href="productos.html">Limpieza Industrial</a></li>
+                    <li><a href="productos.html">Herramientas Técnicas</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h5>Empresa</h5>
+                <ul>
+                    <li><a href="index.html#nosotros">Quiénes somos</a></li>
+                    <li><a href="index.html#nosotros">Misión y visión</a></li>
+                    <li><a href="index.html#lineas">Líneas de solución</a></li>
+                    <li><a href="index.html#contacto">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h5>Contacto</h5>
+                <ul>
+                    <li><a href="tel:+5760100000">+57 (601) 000 0000</a></li>
+                    <li><a href="mailto:ventas@oiltechdecolombia.com">ventas@oiltechdecolombia.com</a></li>
+                    <li><a href="#">Bogotá D.C., Colombia</a></li>
+                    <li><a href="encuentranos.html">Cobertura Nacional</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h5>Encuéntranos</h5>
+                <ul>
+                    <li><a href="encuentranos.html">Mapa de cobertura</a></li>
+                    <li><a href="#zonas">Zonas de entrega</a></li>
+                    <li><a href="#proceso">Proceso de envío</a></li>
+                    <li><a href="encuentranos.html">Bogotá: 1 día hábil</a></li>
+                    <li><a href="encuentranos.html">Nacional: 5 días hábiles</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="footer-copy">© 2025 Oil Tech de Colombia S.A.S. · Todos los derechos reservados · NIT: 900.xxx.xxx-x</div>
+            <div class="footer-tagline">"En OIL TECH cuidamos el rendimiento de su maquinaria."</div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Nav scroll behavior
+        const nav = document.getElementById('main-nav');
+        window.addEventListener('scroll', () => {
+            nav.classList.toggle('scrolled', window.scrollY > 20);
+        });
+        document.getElementById('nav-hamburger').addEventListener('click', () => {
+            document.querySelector('.nav-links').classList.toggle('open');
+        });
+
+        // Leaflet map of Colombia
+        const map = L.map('colombia-map', {
+            center: [4.5, -74.0],
+            zoom: 6,
+            scrollWheelZoom: false,
+            zoomControl: true
+        });
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Fix for blank map tiles on load
+        map.whenReady(() => {
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 250);
+        });
+
+        // Bogotá zone — red highlight
+        const bogotaCircle = L.circle([4.711, -74.0721], {
+            color: '#E30613',
+            fillColor: '#E30613',
+            fillOpacity: 0.18,
+            radius: 45000,
+            weight: 2
+        }).addTo(map);
+
+        bogotaCircle.bindPopup(`
+            <div class="popup-zone-bogota" style="font-family:'Montserrat',sans-serif;padding:4px 0;">
+                <b style="font-size:0.9rem;">Bogotá D.C.</b><br>
+                <span style="font-size:0.75rem;color:#808080;">Zona de entrega express</span><br>
+                <span class="popup-zone-tag" style="background:#fdeced;color:#E30613;font-size:0.6rem;font-weight:700;letter-spacing:1px;padding:3px 8px;margin-top:6px;display:inline-block;">1 DÍA HÁBIL</span>
+            </div>
+        `);
+
+        // Bogotá marker
+        const bogotaIcon = L.divIcon({
+            className: '',
+            html: `<div style="width:14px;height:14px;border-radius:50%;background:#E30613;border:3px solid #fff;box-shadow:0 2px 6px rgba(227,6,19,0.5);"></div>`,
+            iconSize: [14, 14],
+            iconAnchor: [7, 7]
+        });
+        L.marker([4.711, -74.0721], { icon: bogotaIcon }).addTo(map).bindPopup(`
+            <b style="font-family:'Montserrat',sans-serif;">Bogotá D.C.</b><br>
+            <span style="font-size:0.75rem;font-family:'Montserrat',sans-serif;color:#E30613;font-weight:700;">Sede principal · 1 día hábil</span>
+        `);
+
+        // National cities
+        const nationalIcon = L.divIcon({
+            className: '',
+            html: `<div style="width:10px;height:10px;border-radius:50%;background:#FFA200;border:2px solid #fff;box-shadow:0 1px 4px rgba(255,162,0,0.4);"></div>`,
+            iconSize: [10, 10],
+            iconAnchor: [5, 5]
+        });
+
+        const cities = [
+            { name: 'Medellín',      lat: 6.244,  lng: -75.574 },
+            { name: 'Cali',          lat: 3.437,  lng: -76.522 },
+            { name: 'Barranquilla',  lat: 10.964, lng: -74.796 },
+            { name: 'Cartagena',     lat: 10.391, lng: -75.479 },
+            { name: 'Bucaramanga',   lat: 7.119,  lng: -73.122 },
+            { name: 'Cúcuta',        lat: 7.894,  lng: -72.507 },
+            { name: 'Pereira',       lat: 4.814,  lng: -75.696 },
+            { name: 'Manizales',     lat: 5.068,  lng: -75.518 },
+            { name: 'Santa Marta',   lat: 11.240, lng: -74.199 },
+            { name: 'Ibagué',        lat: 4.438,  lng: -75.232 },
+            { name: 'Pasto',         lat: 1.214,  lng: -77.279 },
+            { name: 'Villavicencio', lat: 4.142,  lng: -73.627 },
+            { name: 'Montería',      lat: 8.757,  lng: -75.881 },
+            { name: 'Neiva',         lat: 2.935,  lng: -75.282 },
+            { name: 'Valledupar',    lat: 10.477, lng: -73.250 },
+            { name: 'Armenia',       lat: 4.534,  lng: -75.681 },
+            { name: 'Popayán',       lat: 2.441,  lng: -76.606 },
+            { name: 'Sincelejo',     lat: 9.305,  lng: -75.397 },
+        ];
+
+        cities.forEach(city => {
+            L.marker([city.lat, city.lng], { icon: nationalIcon })
+                .addTo(map)
+                .bindPopup(`
+                    <b style="font-family:'Montserrat',sans-serif;">${city.name}</b><br>
+                    <span style="font-size:0.75rem;font-family:'Montserrat',sans-serif;color:#FFA200;font-weight:700;">5 días hábiles</span>
+                `);
+        });
+    </script>
+</body>
+
+</html>

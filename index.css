@@ -1235,6 +1235,42 @@ nav.scrolled {
     transform: translateY(-2px);
 }
 
+/* ── CONTACT MAP ── */
+.contact-map-wrap {
+    margin-top: 20px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.contact-map-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--soft);
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+}
+
+.contact-map-link {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--red);
+    padding: 10px 14px;
+    text-decoration: none;
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+    transition: background .2s, color .2s;
+}
+
+.contact-map-link:hover {
+    background: var(--red-light);
+}
+
 /* ── FOOTER ── */
 footer {
     background: var(--black);
@@ -1243,8 +1279,8 @@ footer {
 
 .footer-top {
     display: grid;
-    grid-template-columns: 1.5fr 1fr 1fr 1fr;
-    gap: 48px;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
+    gap: 40px;
     padding-bottom: 48px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -1252,12 +1288,11 @@ footer {
 .footer-brand {}
 
 .footer-logo-mark {
-    width: 40px;
-    height: 40px;
-    background: var(--red);
+    width: 120px;
+    height: 60px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     margin-bottom: 18px;
 }
 
@@ -1433,6 +1468,16 @@ footer {
     .footer-top {
         grid-template-columns: 1fr 1fr;
         gap: 32px;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
+
+    .footer-tagline {
+        font-size: 0.8rem;
     }
 }
 
@@ -1668,5 +1713,25 @@ footer {
     .btn-trust-outline {
         text-align: center;
         width: 100%;
+    }
+
+    .footer-top {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .footer-brand {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .footer-logo-mark {
+        justify-content: center;
+    }
+
+    .footer-brand p {
+        margin: 0 auto;
     }
 }
