@@ -7,7 +7,7 @@
     <title>Oil Tech de Colombia S.A.S. — Lubricación Industrial</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="index.css">
 </head>
@@ -45,16 +45,21 @@
     <section class="hero"
         style="background: linear-gradient(rgba(10, 10, 10, 0.6), rgba(10, 10, 10, 0.3)), url('imagenes/hero_industrial.png') center/cover no-repeat; display: flex; align-items: center; justify-content: center; min-height: 90vh;">
         <div class="hero-left glass-card" style="max-width: 800px; text-align: center; margin: 0 auto; color: white;">
-            <img src="imagenes/LogoHero.png" alt="Oil Tech de Colombia"
-                style="height: clamp(120px, 18vw, 220px); width: auto; display: block; margin: 0 auto 8px auto; filter: drop-shadow(0 4px 24px rgba(0,0,0,0.4));">
+            <h1 class="hero-h1"
+                style="color: white; font-size: clamp(2.2rem, 5vw, 4rem); margin-bottom: 32px; line-height: 1.15;">
+                SOLUCIONES DE <span style="color: var(--yellow);">LUBRICACIÓN</span><br>PARA LA <span
+                    style="color: var(--yellow);">INDUSTRIA</span>
+            </h1>
             <p class="hero-sub"
                 style="color: rgba(255,255,255,0.9); max-width: 600px; margin: 0 auto 40px auto; font-size: 1.6rem; font-weight: 400;">
                 Distribuimos lubricantes, grasas, EPP y productos de mantenimiento industrial en todo el territorio
                 nacional, respaldados por más de 13 años de experiencia.
             </p>
             <div class="hero-actions" style="justify-content: center;">
-                <a class="btn-primary" href="productos.html" style="background: var(--yellow); color: var(--black);">Ver
-                    Portafolio Visual</a>
+                <a class="btn-primary" href="productos.html" style="background: var(--yellow); color: var(--black);">
+                    <span class="btn-text-desktop">Ver Portafolio Visual</span>
+                    <span class="btn-text-mobile">Portafolio</span>
+                </a>
                 <a class="btn-outline" href="#contacto" style="border-color: white; color: white;">Contáctenos</a>
             </div>
 
@@ -102,7 +107,8 @@
     <section class="about reveal" id="nosotros">
         <div>
             <div class="about-label">Quiénes somos</div>
-            <h2>Más de 13 años<br>al servicio de la<br>industria colombiana</h2>
+            <h2>Más de <span style="color:var(--red);">13 años</span><br>al servicio de la<br><span
+                    style="color:var(--red);">industria</span> colombiana</h2>
             <p class="about-desc">
                 Oil Tech de Colombia S.A.S. fue constituida en 2013 con la misión de apoyar el desarrollo industrial del
                 país. Contamos con un departamento técnico de ingenieros químicos especializados que garantizan la
@@ -112,15 +118,6 @@
                 Nuestra visión es ser uno de los principales proveedores de productos para el mantenimiento y limpieza
                 de maquinaria industrial, reconocidos por servicio, calidad y compromiso con nuestros clientes.
             </p>
-            <div class="about-tags">
-                <span class="tag">ISO 32 / 46 / 68 / 100</span>
-                <span class="tag">Grado Alimenticio</span>
-                <span class="tag">Extrema Presión</span>
-                <span class="tag">Alta Temperatura</span>
-                <span class="tag">Lubricación Centralizada</span>
-                <span class="tag">Sintéticos</span>
-                <span class="tag">Dieléctricos</span>
-            </div>
         </div>
         <div class="about-right">
             <div class="about-metric">
@@ -158,13 +155,13 @@
         <div class="products-header" style="max-width: 1200px; margin: 0 auto 56px auto;">
             <div>
                 <div class="section-label">Portafolio Premium</div>
-                <h2 class="section-h2">Catálogo Visual<br>de Soluciones</h2>
+                <h2 class="section-h2">Catálogo Visual<br>de <span style="color:var(--red);">Soluciones</span></h2>
             </div>
             <a class="btn-outline" href="#contacto" style="font-size:0.72rem;padding:12px 22px;">Cotizar ahora →</a>
         </div>
 
         <div class="products-grid"
-            style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px;">
+            style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
 
             <!-- Lubricantes -->
             <div class="product-card featured"
@@ -244,7 +241,8 @@
     <!-- BENEFICIOS -->
     <section class="benefits reveal">
         <div class="section-label">¿Por qué Oil Tech?</div>
-        <h2 class="section-h2" style="margin-bottom:0;">Ventajas que nos distinguen</h2>
+        <h2 class="section-h2" style="margin-bottom:0;"><span style="color:var(--red);">Ventajas</span> que nos
+            distinguen</h2>
         <div class="benefits-grid">
             <div class="benefit-item">
                 <div class="benefit-num">01</div>
@@ -284,7 +282,7 @@
     <!-- LINEAS -->
     <section class="lineas reveal" id="lineas">
         <div class="section-label">Especificaciones</div>
-        <h2 class="section-h2">Detalle de nuestras<br>líneas de solución</h2>
+        <h2 class="section-h2">Detalle de nuestras<br>líneas de <span style="color:var(--red);">solución</span></h2>
         <div class="lineas-grid">
 
             <div class="linea-card">
@@ -358,7 +356,10 @@
             ¿Listo para optimizar<br>su operación industrial?
         </h2>
         <div class="cta-strip-btns">
-            <a class="btn-white" href="#contacto">Solicitar Cotización</a>
+            <a class="btn-white" href="#contacto">
+                <span class="btn-text-desktop">Solicitar Cotización</span>
+                <span class="btn-text-mobile">Cotizar</span>
+            </a>
             <a class="btn-white-out" href="https://wa.me/573000000000" target="_blank">WhatsApp</a>
         </div>
     </div>
@@ -367,7 +368,8 @@
     <section class="contact reveal" id="contacto">
         <div class="contact-left">
             <div class="section-label">Contáctenos</div>
-            <h2 class="section-h2" style="margin-bottom:0;">Hablemos de<br>su proyecto</h2>
+            <h2 class="section-h2" style="margin-bottom:0;">Hablemos de<br>su <span
+                    style="color:var(--red);">proyecto</span></h2>
             <div class="contact-info-grid" style="margin-top:36px;">
                 <div class="contact-info-item">
                     <div class="ci-icon"><svg width="24" height="24" fill="var(--red)" viewBox="0 0 24 24">

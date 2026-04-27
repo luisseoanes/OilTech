@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Comportamiento esperado
+## Expected behavior
 
 Challenge the developer's way of thinking, don't validate it. When a plan or technical decision is proposed:
 

@@ -30,6 +30,11 @@
 
 html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+    text-transform: uppercase;
 }
 
 body {
@@ -85,12 +90,12 @@ nav {
     top: 0;
     z-index: 100;
     background: #2B2B2B;
-    border-bottom: 1px solid;
+    border-bottom: 2px solid #AA050E;
     padding: 0 72px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 72px;
+    height: 86px;
     transition: box-shadow .3s;
 }
 
@@ -151,8 +156,8 @@ nav.scrolled {
 .nav-links li a {
     display: block;
     padding: 0 22px;
-    height: 72px;
-    line-height: 72px;
+    height: 86px;
+    line-height: 86px;
     font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 1.2px;
@@ -252,7 +257,7 @@ nav.scrolled {
 }
 
 .hero-label {
-    font-size: 0.68rem;
+    font-size: 0.88rem;
     font-weight: 700;
     letter-spacing: 3px;
     text-transform: uppercase;
@@ -285,7 +290,7 @@ nav.scrolled {
 }
 
 .hero-sub {
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Inter', sans-serif;
     font-size: 1.22rem;
     font-weight: 300;
     line-height: 1.75;
@@ -514,7 +519,7 @@ nav.scrolled {
 }
 
 .about-label {
-    font-size: 0.68rem;
+    font-size: 0.88rem;
     font-weight: 700;
     letter-spacing: 3px;
     text-transform: uppercase;
@@ -542,7 +547,7 @@ nav.scrolled {
 }
 
 .about-desc {
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Inter', sans-serif;
     font-size: 1.4rem;
     font-weight: 400;
     line-height: 1.85;
@@ -624,7 +629,7 @@ nav.scrolled {
 }
 
 .about-mission p {
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Inter', sans-serif;
     font-size: 1.1rem;
     font-weight: 400;
     line-height: 1.7;
@@ -660,7 +665,7 @@ nav.scrolled {
 }
 
 .section-label {
-    font-size: 0.68rem;
+    font-size: 0.88rem;
     font-weight: 700;
     letter-spacing: 3px;
     text-transform: uppercase;
@@ -711,7 +716,7 @@ nav.scrolled {
 
 .product-card .img-wrapper {
     width: 100%;
-    height: 220px;
+    height: 308px;
     overflow: hidden;
 }
 
@@ -766,7 +771,7 @@ nav.scrolled {
 }
 
 .pc-desc {
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Inter', sans-serif;
     font-size: 1.1rem;
     font-weight: 400;
     line-height: 1.75;
@@ -908,7 +913,7 @@ nav.scrolled {
 .benefit-item p {
     font-size: 0.82rem;
     line-height: 1.7;
-    color: var(--soft);
+    color: #363636;
     font-weight: 400;
 }
 
@@ -954,11 +959,11 @@ nav.scrolled {
 }
 
 .linea-body p {
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Inter', sans-serif;
     font-size: 0.98rem;
     font-weight: 300;
     line-height: 1.75;
-    color: var(--mid);
+    color: #1A1A1A;
     margin-bottom: 20px;
 }
 
@@ -970,9 +975,9 @@ nav.scrolled {
 }
 
 .linea-list li {
-    font-size: 0.75rem;
+    font-size: 0.94rem;
     font-weight: 500;
-    color: var(--soft);
+    color: #1A1A1A;
     display: flex;
     align-items: flex-start;
     gap: 10px;
@@ -985,6 +990,9 @@ nav.scrolled {
     font-weight: 700;
     flex-shrink: 0;
 }
+
+.btn-text-mobile { display: none; }
+.btn-text-desktop { display: inline; }
 
 /* ── CTA STRIP ── */
 .cta-strip {
@@ -1020,7 +1028,7 @@ nav.scrolled {
 
 .cta-strip h2 span {
     display: block;
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Inter', sans-serif;
     font-size: clamp(0.95rem, 1.5vw, 1.1rem);
     font-weight: 300;
     font-style: italic;
@@ -1132,7 +1140,7 @@ nav.scrolled {
 }
 
 .form-title {
-    font-size: 0.68rem;
+    font-size: 0.88rem;
     font-weight: 700;
     letter-spacing: 3px;
     text-transform: uppercase;
@@ -1261,7 +1269,7 @@ footer {
 }
 
 .footer-brand p {
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Inter', sans-serif;
     font-size: 0.95rem;
     font-weight: 300;
     line-height: 1.75;
@@ -1312,7 +1320,7 @@ footer {
 }
 
 .footer-tagline {
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Inter', sans-serif;
     font-size: 0.9rem;
     font-style: italic;
     color: rgba(255, 255, 255, 0.25);
@@ -1332,6 +1340,14 @@ footer {
 
 /* ── RESPONSIVE ── */
 @media (max-width: 960px) {
+    h1, h2, h3, h4 {
+        text-transform: none;
+    }
+
+    .hero-label, .about-label, .section-label {
+        font-size: 0.68rem;
+    }
+
     .topbar {
         display: none;
     }
@@ -1371,7 +1387,23 @@ footer {
     }
 
     .products-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
+    }
+
+    .product-card .img-wrapper {
+        height: 220px;
+    }
+
+    .about-desc {
+        font-size: 1.12rem;
+    }
+
+    .benefit-item p {
+        font-size: 0.98rem;
+    }
+
+    .linea-list li {
+        font-size: 0.75rem;
     }
 
     .product-card.tall {
@@ -1390,6 +1422,9 @@ footer {
         flex-direction: column;
         padding: 60px 24px;
     }
+
+    .btn-text-mobile { display: inline; }
+    .btn-text-desktop { display: none; }
 
     footer {
         padding: 48px 24px 32px;
