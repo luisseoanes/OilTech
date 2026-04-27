@@ -1,7 +1,7 @@
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(rgba(240, 240, 240, 0.9), rgba(240, 240, 240, 0.9)), 
-                        url('../imagenes/LOGO OIL TECHpng (1).png') repeat;
+                        url('../imagenes/LogoNavBar.png') repeat;
             background-size: 250px auto;
             height: 100vh;
             display: flex;

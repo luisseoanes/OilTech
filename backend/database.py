@@ -6,7 +6,7 @@ import os
 
 # Default to local file, but allow override via environment variable for Railway Volumes
 # Railway Volume Mount Path usually needs to be absolute
-VOLUME_PATH = os.getenv("RAILWAY_VOLUME_MOUNT_PATH", ".")
+VOLUME_PATH = os.getenv("RAILWAY_VOLUME_MOUNT_PATH", os.path.dirname(__file__))
 DB_NAME = "oiltech.db"
 
 # Construct the full path.
