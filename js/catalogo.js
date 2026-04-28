@@ -79,7 +79,7 @@ function populateFilters() {
 
 function renderProduct(product) {
     return `
-    <article class="catalog-card" data-id="${product.id}" data-price="${product.price}">
+    <article class="catalog-card" data-id="${product.id}">
         <div class="catalog-image" onclick="openLightbox('${product.image_url}')" style="cursor: zoom-in;">
             <img src="${product.image_url}" alt="${product.name}" onerror="this.src='images/placeholder.jpg'">
         </div>
@@ -258,7 +258,6 @@ function addToCart(product, option = null, overrideQty = null) {
             id: product.id,
             name: product.name,
             price: product.price_text,
-            price_raw: product.price, // Store raw DB price as fallback
             option: selectedOption,
             quantity: quantity
         };
@@ -387,15 +386,7 @@ async function sendBatchQuote() {
         if (priceMatch) {
             price = parseFloat(priceMatch[1].replace(/\./g, ''));
         }
-        if (!price && item.price) {
-            const basePriceMatch = item.price.match(/\$\s*([\d.]+)/);
-            if (basePriceMatch) {
-                price = parseFloat(basePriceMatch[1].replace(/\./g, ''));
-            }
-        }
-        if (!price) {
-            price = item.price_raw || 0;
-        }
+        if (!price) price = 0;
         totalEstimated += (price * item.quantity);
         return {
             product_id: item.id,

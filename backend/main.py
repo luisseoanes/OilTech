@@ -35,6 +35,10 @@ def apply_migrations():
             print("Migrating: Adding 'subcategory' column to products")
             cursor.execute("ALTER TABLE products ADD COLUMN subcategory TEXT")
             conn.commit()
+        if "price" in product_columns:
+            print("Migrating: Dropping 'price' column from products")
+            cursor.execute("ALTER TABLE products DROP COLUMN price")
+            conn.commit()
 
         conn.close()
     except Exception as e:
@@ -148,7 +152,9 @@ def read_products(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
 
 @app.post("/products/", response_model=schemas.Product)
 def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
-    db_product = models.Product(**product.dict())
+    data = product.dict()
+    data["search_tags"] = ",".join(data["name"].split())
+    db_product = models.Product(**data)
     db.add(db_product)
     db.commit()
     db.refresh(db_product)
@@ -159,8 +165,10 @@ def update_product(product_id: int, product: schemas.ProductCreate, db: Session 
     db_product = db.query(models.Product).filter(models.Product.id == product_id).first()
     if db_product is None:
         raise HTTPException(status_code=404, detail="Product not found")
-    
-    for key, value in product.dict().items():
+
+    data = product.dict()
+    data["search_tags"] = ",".join(data["name"].split())
+    for key, value in data.items():
         setattr(db_product, key, value)
     
     db.commit()

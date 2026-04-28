@@ -20,8 +20,7 @@ class ProductBase(BaseModel):
     name: str
     code: Optional[str] = None
     category: str
-    price: float
-    price_text: str
+    price_text: Optional[str] = None
     image_url: Optional[str] = None
     brands: Optional[str] = None
     search_tags: Optional[str] = None

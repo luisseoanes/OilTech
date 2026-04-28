@@ -170,7 +170,6 @@ function addToCart(product, option = null, quantity = 1) {
             id: product.id,
             name: product.name,
             price: product.price_text,
-            price_raw: product.price,
             option: option,
             quantity: quantity
         };
@@ -245,8 +244,8 @@ async function sendBatchQuote() {
 
     let totalEstimated = 0;
     const items = cart.map(item => {
-        let price = item.price_raw || 0;
-        totalEstimated += (price * item.quantity);
+        let price = 0;
+        totalEstimated += 0;
         return {
             product_id: item.id,
             product_name: item.name,

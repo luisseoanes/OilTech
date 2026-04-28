@@ -397,7 +397,7 @@ function selectProductForQuote(product) {
         product_name: product.name,
         quantity: 1,
         option: product.options ? product.options.split('|')[0] : '',
-        price: product.price
+        price: 0
     };
 
     window.currentQuoteItems.push(newItem);
@@ -679,7 +679,6 @@ function filterProducts() {
         const brands = (p.brands || '').toLowerCase();
         const tags = (p.search_tags || '').toLowerCase();
         const options = (p.options || '').toLowerCase();
-        const priceVal = Number(p.price) || 0;
 
         const matchesQuery = !query ||
             name.includes(query) ||
@@ -699,8 +698,6 @@ function filterProducts() {
     const sorted = [...filtered].sort((a, b) => {
         if (sort === 'name_asc') return (a.name || '').localeCompare(b.name || '', 'es', { sensitivity: 'base' });
         if (sort === 'name_desc') return (b.name || '').localeCompare(a.name || '', 'es', { sensitivity: 'base' });
-        if (sort === 'price_asc') return (Number(a.price) || 0) - (Number(b.price) || 0);
-        if (sort === 'price_desc') return (Number(b.price) || 0) - (Number(a.price) || 0);
         return 0;
     });
 
@@ -810,7 +807,6 @@ async function saveProduct() {
         name: document.getElementById('prodName').value,
         code: document.getElementById('prodCode').value,
         category: document.getElementById('prodCategory').value,
-        price: parseFloat(document.getElementById('prodPrice').value) || 0,
         price_text: document.getElementById('prodPriceText').value,
         image_url: document.getElementById('prodImage').value,
         brands: document.getElementById('prodBrands').value,
@@ -866,7 +862,6 @@ async function editProduct(product) {
     await loadCategories();
     document.getElementById('prodCategory').value = product.category;
 
-    document.getElementById('prodPrice').value = product.price;
     document.getElementById('prodPriceText').value = product.price_text;
     document.getElementById('prodImage').value = product.image_url;
     document.getElementById('prodBrands').value = product.brands;

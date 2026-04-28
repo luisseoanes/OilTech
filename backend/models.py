@@ -26,8 +26,7 @@ class Product(Base):
     code = Column(String, index=True, nullable=True)
     name = Column(String, index=True)
     category = Column(String, index=True) # aire, refrigeracion, lavado, electricidad, consumibles
-    price = Column(Float) # Store as float for simplicity, consider Decimal for serious financial apps
-    price_text = Column(String) # For display purposes like "Desde $22.000 COP"
+    price_text = Column(String) # For display purposes like "Cotizar"
     image_url = Column(String)
     brands = Column(String) # Space separated brands for filtering
     search_tags = Column(String) # Space separated search terms
