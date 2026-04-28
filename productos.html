@@ -217,59 +217,12 @@
     </div>
 
     <!-- FOOTER -->
-    <footer>
-        <div class="footer-top">
-            <div class="footer-brand">
-                <div class="footer-logo-mark"><img src="imagenes/LogoHero.png" alt="Oil Tech Logo" style="height: 100%; width: auto; object-fit: contain;"></div>
-                <p>"Lubricación, protección y confianza para la industria colombiana."</p>
-            </div>
-            <div class="footer-col">
-                <h5>Portafolio</h5>
-                <ul>
-                    <li><a href="productos.html">Lubricantes Industriales</a></li>
-                    <li><a href="productos.html">Grasas Industriales</a></li>
-                    <li><a href="productos.html">Seguridad Industrial</a></li>
-                    <li><a href="productos.html">Limpieza Industrial</a></li>
-                    <li><a href="productos.html">Herramientas Técnicas</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h5>Empresa</h5>
-                <ul>
-                    <li><a href="index.html#nosotros">Quiénes somos</a></li>
-                    <li><a href="index.html#nosotros">Misión y visión</a></li>
-                    <li><a href="index.html#lineas">Líneas de solución</a></li>
-                    <li><a href="index.html#contacto">Contacto</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h5>Contacto</h5>
-                <ul>
-                    <li><a href="tel:+5760100000">+57 (601) 000 0000</a></li>
-                    <li><a href="mailto:ventas@oiltechdecolombia.com">ventas@oiltechdecolombia.com</a></li>
-                    <li><a href="#">Bogotá D.C., Colombia</a></li>
-                    <li><a href="#">Cobertura Nacional</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <div class="footer-copy">© 2025 Oil Tech de Colombia S.A.S. · Todos los derechos reservados · NIT:
-                900.xxx.xxx-x</div>
-            <div class="footer-tagline">"En OIL TECH cuidamos el rendimiento de su maquinaria."</div>
-        </div>
-    </footer>
-
-    <!-- Floating Social Media -->
-    <div class="social-floating">
-        <a href="https://www.instagram.com/oiltechdecolombia.sas?igsh=MXRrMzhwa3JjdHY2ag==" class="social-btn instagram" target="_blank" rel="noopener noreferrer">
-            <i class="fab fa-instagram"></i>
-            <span class="tooltip">Instagram</span>
-        </a>
-        <a href="https://www.linkedin.com/in/oiltechdecolombiasas" class="social-btn linkedin" target="_blank" rel="noopener noreferrer">
-            <i class="fab fa-linkedin-in"></i>
-            <span class="tooltip">LinkedIn</span>
-        </a>
-    </div>
+    <div id="footer-placeholder"></div>
+    <script>
+        fetch('components/footer.html')
+            .then(r => r.text())
+            .then(html => { document.getElementById('footer-placeholder').innerHTML = html; });
+    </script>
 
     <script src="js/productos.js"></script>
     <script>

@@ -638,7 +638,6 @@ function renderProductsTable(products) {
                 <td style="font-weight: 600; color: var(--black);">${p.name}</td>
                 <td><span class="badge" style="background: #e9f5ff; color: #007bff; text-transform: capitalize;">${p.category}</span></td>
                 <td style="font-size: 0.85rem; color: #666; max-width: 200px;">${options}</td>
-                <td style="font-weight: 700;">${p.price_text}</td>
                 <td>
                     <button class="btn-action btn-edit" title="Editar" onclick='editProduct(${JSON.stringify(p).replace(/'/g, "&#39;")})'><i class="fas fa-edit"></i></button>
                     <button class="btn-action btn-delete" title="Eliminar" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button>
@@ -660,16 +659,10 @@ function filterProducts() {
 
     const searchEl = document.getElementById('productSearch');
     const categoryEl = document.getElementById('productFilterCategory');
-    const minPriceEl = document.getElementById('productPriceMin');
-    const maxPriceEl = document.getElementById('productPriceMax');
     const sortEl = document.getElementById('productSort');
 
     const query = (searchEl ? searchEl.value : '').trim().toLowerCase();
     const category = categoryEl ? categoryEl.value : '';
-    const minPriceRaw = minPriceEl ? minPriceEl.value : '';
-    const maxPriceRaw = maxPriceEl ? maxPriceEl.value : '';
-    const minPrice = minPriceRaw === '' ? NaN : parseFloat(minPriceRaw);
-    const maxPrice = maxPriceRaw === '' ? NaN : parseFloat(maxPriceRaw);
     const sort = sortEl ? sortEl.value : 'name_asc';
 
     const filtered = window.allProducts.filter(p => {
@@ -677,7 +670,7 @@ function filterProducts() {
         const code = (p.code || '').toLowerCase();
         const categoryText = (p.category || '').toLowerCase();
         const brands = (p.brands || '').toLowerCase();
-        const tags = (p.search_tags || '').toLowerCase();
+        const tagList = (p.search_tags || '').toLowerCase().split(',').map(t => t.trim());
         const options = (p.options || '').toLowerCase();
 
         const matchesQuery = !query ||
@@ -685,14 +678,12 @@ function filterProducts() {
             code.includes(query) ||
             categoryText.includes(query) ||
             brands.includes(query) ||
-            tags.includes(query) ||
+            tagList.some(tag => tag.startsWith(query)) ||
             options.includes(query);
 
         const matchesCategory = !category || (p.category || '') === category;
-        const matchesMin = isNaN(minPrice) || priceVal >= minPrice;
-        const matchesMax = isNaN(maxPrice) || priceVal <= maxPrice;
 
-        return matchesQuery && matchesCategory && matchesMin && matchesMax;
+        return matchesQuery && matchesCategory;
     });
 
     const sorted = [...filtered].sort((a, b) => {
