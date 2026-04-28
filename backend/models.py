@@ -34,6 +34,7 @@ class Product(Base):
     options = Column(String) # Pipe separated options like "3/8|1/2"
     description = Column(Text, nullable=True)
     technical_sheet_url = Column(String, nullable=True) # URL to technical sheet PDF
+    subcategory = Column(String, nullable=True, index=True)
 
 class Quotation(Base):
     __tablename__ = "quotations"
