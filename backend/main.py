@@ -28,6 +28,14 @@ def apply_migrations():
             print("Migrating: Adding 'reference' column to quotations")
             cursor.execute("ALTER TABLE quotations ADD COLUMN reference TEXT")
             conn.commit()
+
+        cursor.execute("PRAGMA table_info(products)")
+        product_columns = [col[1] for col in cursor.fetchall()]
+        if "subcategory" not in product_columns:
+            print("Migrating: Adding 'subcategory' column to products")
+            cursor.execute("ALTER TABLE products ADD COLUMN subcategory TEXT")
+            conn.commit()
+
         conn.close()
     except Exception as e:
         print(f"Migration error: {e}")

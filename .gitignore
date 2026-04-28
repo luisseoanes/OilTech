@@ -1,0 +1,80 @@
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+pip-wheel-metadata/
+
+# ── Entornos virtuales ──
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# ── Variables de entorno ──
+.env
+.env.*
+!.env.example
+
+# ── Base de datos SQLite ──
+*.db
+*.sqlite
+*.sqlite3
+
+# ── Sistema operativo — macOS ──
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# ── Sistema operativo — Windows ──
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# ── Sistema operativo — Linux ──
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ── IDEs — VS Code ──
+.vscode/
+!.vscode/extensions.json
+
+# ── IDEs — JetBrains (PyCharm, WebStorm) ──
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# ── IDEs — Vim / Neovim ──
+*.swp
+*.swo
+*.swn
+Session.vim
+.netrwhist
+
+# ── IDEs — Sublime Text ──
+*.sublime-project
+*.sublime-workspace
+
+# ── Logs ──
+*.log
+logs/
+
+# ── Railway / deployment ──
+.railway/

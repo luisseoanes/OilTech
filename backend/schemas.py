@@ -28,6 +28,7 @@ class ProductBase(BaseModel):
     options: Optional[str] = None
     description: Optional[str] = None
     technical_sheet_url: Optional[str] = None
+    subcategory: Optional[str] = None
 
 class ProductCreate(ProductBase):
     pass
