@@ -195,17 +195,16 @@
 
 .subcat-card {
     background: #ffffff;
-    border-radius: 16px;
-    padding: 40px 32px;
+    border-radius: 20px;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     cursor: pointer;
     transition: all .4s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     border: 1px solid rgba(0, 0, 0, 0.04);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
     overflow: hidden;
+    height: 400px; /* Fixed height for consistency */
 }
 
 /* Acento rojo superior */
@@ -229,25 +228,36 @@
     opacity: 1;
 }
 
-.subcat-icon {
-    width: 64px;
-    height: 64px;
-    background: var(--bg2);
-    border-radius: 16px;
+.subcat-img-wrapper {
+    width: 100%;
+    height: 50%; /* Half of the card */
+    background: #f8f9fa;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 1.8rem;
-    margin-bottom: 24px;
-    color: var(--black);
-    transition: transform .4s cubic-bezier(0.16, 1, 0.3, 1), background .4s ease;
-    border: 1px solid var(--border);
+    overflow: hidden;
+    position: relative;
+    border-bottom: 1px solid var(--border);
 }
 
-.subcat-card:hover .subcat-icon {
-    transform: scale(1.1) rotate(-5deg);
-    background: var(--red-light);
-    border-color: var(--red-mid);
+.subcat-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.subcat-card:hover .subcat-img-wrapper img {
+    transform: scale(1.1);
+}
+
+.subcat-content {
+    padding: 24px;
+    height: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    background: #fff;
 }
 
 .subcat-title {

@@ -62,11 +62,13 @@ function renderGrids() {
         
         grid.innerHTML = catProducts.map(p => `
             <div class="subcat-card" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
-                <div class="subcat-icon">
-                    <img src="${p.image_url}" alt="${p.name}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;" onerror="this.style.display='none'">
+                <div class="subcat-img-wrapper">
+                    <img src="${p.image_url}" alt="${p.name}" onerror="this.src='https://placehold.co/400x400?text=Sin+Imagen'">
                 </div>
-                <div class="subcat-title">${p.name}</div>
-                <div class="subcat-desc">${p.description || ''}</div>
+                <div class="subcat-content">
+                    <div class="subcat-title">${p.name}</div>
+                    <div class="subcat-desc">${p.description || ''}</div>
+                </div>
             </div>
         `).join('');
     });
