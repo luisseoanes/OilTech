@@ -3,7 +3,7 @@
 from sqlalchemy import Boolean, Column, Integer, String, Float, Text, ForeignKey, DateTime, JSON
 from sqlalchemy.orm import relationship
 import datetime
-from database import Base
+from .database import Base
 
 class User(Base):
     __tablename__ = "users"
@@ -23,10 +23,8 @@ class Product(Base):
     __tablename__ = "products"
 
     id = Column(Integer, primary_key=True, index=True)
-    code = Column(String, index=True, nullable=True)
     name = Column(String, index=True)
     category = Column(String, index=True) # aire, refrigeracion, lavado, electricidad, consumibles
-    price_text = Column(String) # For display purposes like "Cotizar"
     image_url = Column(String)
     brands = Column(String) # Space separated brands for filtering
     search_tags = Column(String) # Space separated search terms

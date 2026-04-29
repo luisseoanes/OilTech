@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from fastapi.security import OAuth2PasswordRequestForm
-import models, schemas, database, auth
+from . import models, schemas, database, auth
 
 # Create tables
 models.Base.metadata.create_all(bind=database.engine)
@@ -38,6 +38,14 @@ def apply_migrations():
         if "price" in product_columns:
             print("Migrating: Dropping 'price' column from products")
             cursor.execute("ALTER TABLE products DROP COLUMN price")
+            conn.commit()
+        if "code" in product_columns:
+            print("Migrating: Dropping 'code' column from products")
+            cursor.execute("ALTER TABLE products DROP COLUMN code")
+            conn.commit()
+        if "price_text" in product_columns:
+            print("Migrating: Dropping 'price_text' column from products")
+            cursor.execute("ALTER TABLE products DROP COLUMN price_text")
             conn.commit()
 
         conn.close()

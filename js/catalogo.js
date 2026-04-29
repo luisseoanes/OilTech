@@ -257,7 +257,6 @@ function addToCart(product, option = null, overrideQty = null) {
         const item = {
             id: product.id,
             name: product.name,
-            price: product.price_text,
             option: selectedOption,
             quantity: quantity
         };

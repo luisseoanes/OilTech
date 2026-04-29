@@ -1,6 +1,8 @@
 // admin.js
 
-const API_URL = 'https://oiltech-production.up.railway.app';
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:8000'
+    : 'https://almacenrefrielectricos-production.up.railway.app';
 
 // Configuracion para Cloudinary
 
@@ -382,7 +384,7 @@ async function searchProductsForQuote(query) {
             const suggestions = document.getElementById('quoteProductSuggestions');
             suggestions.innerHTML = filtered.map(p => `
                 <div style="padding: 10px; cursor: pointer; border-bottom: 1px solid #eee;" onclick='selectProductForQuote(${JSON.stringify(p)})'>
-                    <strong>${p.name}</strong> - ${p.price_text}
+                    <strong>${p.name}</strong>
                 </div>
             `).join('');
             suggestions.style.display = 'block';
@@ -798,7 +800,6 @@ async function saveProduct() {
         name: document.getElementById('prodName').value,
         code: document.getElementById('prodCode').value,
         category: document.getElementById('prodCategory').value,
-        price_text: document.getElementById('prodPriceText').value,
         image_url: document.getElementById('prodImage').value,
         brands: document.getElementById('prodBrands').value,
         search_tags: document.getElementById('prodTags').value,
@@ -853,7 +854,6 @@ async function editProduct(product) {
     await loadCategories();
     document.getElementById('prodCategory').value = product.category;
 
-    document.getElementById('prodPriceText').value = product.price_text;
     document.getElementById('prodImage').value = product.image_url;
     document.getElementById('prodBrands').value = product.brands;
     document.getElementById('prodTags').value = product.search_tags;

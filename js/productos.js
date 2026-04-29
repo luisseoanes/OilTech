@@ -1,4 +1,6 @@
-const API_URL = 'https://oiltech-production.up.railway.app'; // Update this if API changes
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:8000'
+    : 'https://almacenrefrielectricos-production.up.railway.app';
 
 let allProducts = [];
 
@@ -171,7 +173,6 @@ function addToCart(product, option = null, quantity = 1) {
         const item = {
             id: product.id,
             name: product.name,
-            price: product.price_text,
             option: option,
             quantity: quantity
         };
