@@ -1,6 +1,6 @@
 // admin.js
 
-const API_URL = 'http://localhost:8000';
+const API_URL = 'https://oiltech-production.up.railway.app';
 
 // Configuracion para Cloudinary
 

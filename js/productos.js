@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8000'; // Update this if API changes
+const API_URL = 'https://oiltech-production.up.railway.app'; // Update this if API changes
 
 let allProducts = [];
 
