@@ -42,6 +42,10 @@
     background-color: #E30613;
 }
 
+.social-btn.whatsapp {
+    background-color: #E30613;
+}
+
 /* Tooltip styles */
 .social-btn .tooltip {
     position: absolute;

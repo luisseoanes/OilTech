@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from fastapi.security import OAuth2PasswordRequestForm
-import models, schemas, database, auth
+from . import models, schemas, database, auth
 
 # Create tables
 models.Base.metadata.create_all(bind=database.engine)
