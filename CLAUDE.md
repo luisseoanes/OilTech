@@ -19,13 +19,21 @@ OilTech is an e-commerce/catalog site for industrial lubricants, PPE, and tools.
 ## Running the Backend
 
 ```bash
-# From the project root
-uvicorn backend.main:app --reload --port 8000
+source venv/bin/activate
+uvicorn backend.main:app --reload
 ```
 
 The backend auto-seeds the admin user (`admin` / `admin123`) and default categories on startup. It also runs SQLite migrations on every startup via `apply_migrations()` in `main.py`.
 
 The database path is controlled by the `RAILWAY_VOLUME_MOUNT_PATH` env var (defaults to `./oiltech.db` locally).
+
+## Running the Frontend Locally
+
+```bash
+# Serve with HTTP — fetch() for component injection breaks with file://
+python3 -m http.server 5500
+# Then open http://localhost:5500/index.html
+```
 
 ## Frontend
 
@@ -39,6 +47,10 @@ const API_URL = window.location.hostname === 'localhost' || window.location.host
 ```
 Note: `js/admin.js` currently hardcodes `http://localhost:8000` — it must be updated if the admin panel needs to work in production.
 
+## Local Database
+
+The server uses `backend/oiltech.db`, NOT the root `oiltech.db` (which is empty). When running scripts against the DB locally, always target `backend/oiltech.db`.
+
 ## Architecture
 
 ```
@@ -49,6 +61,7 @@ backend/
   database.py  — SQLAlchemy engine setup, DB path resolution
   auth.py      — JWT auth (python-jose), bcrypt password hashing, OAuth2
 
+components/    — Shared HTML components (footer.html injected via fetch)
 css/           — Per-page stylesheets (admin, catalogo, carrito, login)
 js/            — Per-page JS (admin, catalogo, login, productos, index)
 imagenes/      — Static assets
@@ -66,8 +79,18 @@ login.html     — Admin login
 
 **Railway deployment:** The DB is persisted via a Railway Volume mounted at `RAILWAY_VOLUME_MOUNT_PATH`. Admin endpoints `/admin/upload-db` and `/admin/download-db` exist for manual DB migration between environments.
 
+**Footer component:** Extracted to `components/footer.html`, injected via `fetch()` in each page. Edit only that file for footer changes.
+
+**Product.search_tags:** Auto-generated on create/update from `product.name` (words split by spaces, joined by commas). Do not expect the admin UI to send this field.
+
+**Product.price removed:** The `price` (Float) column was dropped. Only `price_text` (String display label) remains.
+
+**SQLite DROP COLUMN:** Requires SQLite ≥ 3.35. Migration in `apply_migrations()` handles it idempotently.
+
 ## Key Constraints
 
 - `SECRET_KEY` in `auth.py` is hardcoded — must be moved to an environment variable before production.
+- `bcrypt` must be pinned to `==4.0.1` — newer versions break `passlib` with an `__about__` AttributeError on `/token`.
 - No frontend build pipeline; CSS/JS changes are live immediately.
 - SQLite is used for simplicity; no ORM migrations framework (migrations are manual `ALTER TABLE` statements in `apply_migrations()`).
+- `js/admin.js` hardcodes `http://localhost:8000` — must be updated for production admin access.
