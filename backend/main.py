@@ -48,6 +48,13 @@ def apply_migrations():
             cursor.execute("ALTER TABLE products DROP COLUMN price_text")
             conn.commit()
 
+        cursor.execute("PRAGMA table_info(quotations)")
+        quotation_columns = [col[1] for col in cursor.fetchall()]
+        if "total_estimated" in quotation_columns:
+            print("Migrating: Dropping 'total_estimated' column from quotations")
+            cursor.execute("ALTER TABLE quotations DROP COLUMN total_estimated")
+            conn.commit()
+
         conn.close()
     except Exception as e:
         print(f"Migration error: {e}")
@@ -200,14 +207,17 @@ def create_quotation(quotation: schemas.QuotationCreate, db: Session = Depends(g
     db.add(db_quotation)
     db.commit()
     db.refresh(db_quotation)
+    db_quotation.reference = f"COT-{db_quotation.id:06d}"
+    db.commit()
+    db.refresh(db_quotation)
     return db_quotation
 
 @app.get("/stats", response_model=schemas.AnalyticsStats)
 def get_stats(db: Session = Depends(get_db)):
     quotations = db.query(models.Quotation).all()
     
-    total_quoted = sum(q.total_estimated for q in quotations)
-    total_purchased = sum(q.total_estimated for q in quotations if q.status == "Purchased")
+    total_quoted = db.query(models.Quotation).count()
+    total_purchased = db.query(models.Quotation).filter(models.Quotation.status == "Purchased").count()
     
     # Calculate top products
     product_counts = {}
@@ -224,16 +234,16 @@ def get_stats(db: Session = Depends(get_db)):
         for name, count in sorted(product_counts.items(), key=lambda item: item[1], reverse=True)[:5]
     ]
 
-    # Calculate sales history (purchased only)
+    # Calculate sales history (purchased only — count per day)
     sales_by_date = {}
     for q in quotations:
         if q.status == "Purchased":
             date_str = q.created_at.strftime("%Y-%m-%d")
-            sales_by_date[date_str] = sales_by_date.get(date_str, 0) + q.total_estimated
-            
+            sales_by_date[date_str] = sales_by_date.get(date_str, 0) + 1
+
     sales_history = [
-        schemas.SalesData(date=date, amount=amount)
-        for date, amount in sorted(sales_by_date.items())
+        schemas.SalesData(date=date, amount=float(count))
+        for date, count in sorted(sales_by_date.items())
     ]
     
     return schemas.AnalyticsStats(
@@ -258,19 +268,6 @@ def update_quotation_status(quotation_id: int, status: str, db: Session = Depend
     db.commit()
     return {"ok": True}
 
-@app.put("/quotations/{quotation_id}/total")
-def update_quotation_total(quotation_id: int, total: float, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
-    db_quotation = db.query(models.Quotation).filter(models.Quotation.id == quotation_id).first()
-    if db_quotation is None:
-        raise HTTPException(status_code=404, detail="Quotation not found")
-    
-    # Allow updating total only if status is Pending
-    if db_quotation.status != "Pending":
-         raise HTTPException(status_code=400, detail="Cannot update total for confirmed or cancelled quotations")
-
-    db_quotation.total_estimated = total
-    db.commit()
-    return {"ok": True, "new_total": total}
 
 
 import shutil
@@ -339,12 +336,8 @@ def update_quotation_items(quotation_id: int, items: List[schemas.QuotationItem]
     items_json = [item.dict() for item in items]
     db_quotation.items = items_json
     
-    # Recalculate total
-    new_total = sum(item.price * item.quantity for item in items)
-    db_quotation.total_estimated = new_total
-    
     db.commit()
-    return {"ok": True, "new_total": new_total}
+    return {"ok": True}
 
 
 @app.put("/admin/change-password")

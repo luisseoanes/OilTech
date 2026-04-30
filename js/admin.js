@@ -148,7 +148,6 @@ async function loadDashboardData() {
                     <tr>
                         <td>#${q.id}</td>
                         <td>${q.customer_name}</td>
-                        <td>${q.total_estimated.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}</td>
                         <td>${new Date(q.created_at).toLocaleDateString()}</td>
                         <td><span class="status-badge status-purchased">Completada</span></td>
                     </tr>
@@ -177,7 +176,6 @@ async function loadQuotations() {
                         <td>#${q.id}</td>
                         <td>${q.customer_name}</td>
                         <td>${q.customer_contact}</td>
-                        <td>${q.total_estimated.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}</td>
                         <td>${new Date(q.created_at).toLocaleDateString()}</td>
                         <td>
                             <span class="status-badge status-${q.status.toLowerCase()}">${q.status}</span>
@@ -185,7 +183,6 @@ async function loadQuotations() {
                         <td>
                             ${q.status === 'Pending' ? `
                                 <button class="btn-action bg-blue" title="Ver Productos" onclick='viewQuotationItems(${JSON.stringify(q).replace(/'/g, "&#39;")})'><i class="fas fa-eye"></i></button>
-                                <button class="btn-action btn-edit" title="Editar Precio" onclick="editQuotationPrice(${q.id}, ${q.total_estimated})"><i class="fas fa-edit"></i></button>
                                 <button class="btn-action btn-approve" title="Marcar como Comprado" onclick="updateStatus(${q.id}, 'Purchased')"><i class="fas fa-check"></i></button>
                                 <button class="btn-action btn-cancel" title="Cancelar Cotización" onclick="updateStatus(${q.id}, 'Cancelled')"><i class="fas fa-times"></i></button>
                             ` : `
@@ -220,15 +217,12 @@ function renderSalesTable(sales) {
                     <td>#${q.id}</td>
                     <td>${q.customer_name}</td>
                     <td>${q.customer_contact}</td>
-                    <td>${(q.total_estimated || 0).toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}</td>
                     <td>${new Date(q.created_at).toLocaleDateString()}</td>
                     <td><span class="status-badge status-purchased">Completada</span></td>
                 </tr>
             `).join('');
 
-    // Update Total
-    const total = sales.reduce((sum, q) => sum + (q.total_estimated || 0), 0);
-    document.getElementById('salesFilteredTotal').textContent = total.toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
+    document.getElementById('salesFilteredTotal').textContent = sales.length;
 }
 
 function filterSalesTable() {
@@ -438,30 +432,6 @@ function closeModal(modalId) {
     document.getElementById(modalId).style.display = "none";
 }
 
-async function editQuotationPrice(id, currentPrice) {
-    showPrompt("Editar Precio", "Ingrese el nuevo valor total de la venta:", currentPrice, async (newPrice) => {
-        const priceValue = parseFloat(newPrice);
-        if (isNaN(priceValue) || priceValue < 0) {
-            showToast("Por favor ingrese un valor numérico válido.", 'warning');
-            return;
-        }
-
-        try {
-            const response = await fetchWithAuth(`${API_URL}/quotations/${id}/total?total=${priceValue}`, { method: 'PUT' });
-            if (response.ok) {
-                showToast("Precio actualizado correctamente");
-                loadQuotations();
-                loadDashboardData(); // Refresh stats
-            } else {
-                const err = await response.json();
-                showToast("Error al actualizar: " + err.detail, 'error');
-            }
-        } catch (error) {
-            console.error('Error updating price', error);
-            showToast("Error de conexión", 'error');
-        }
-    });
-}
 
 // Window onclick to close modal
 window.onclick = function (event) {

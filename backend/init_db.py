@@ -356,7 +356,6 @@ def init_database():
             customer_contact TEXT,
             reference TEXT,
             items JSON,
-            total_estimated REAL,
             status TEXT DEFAULT 'Pending',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )

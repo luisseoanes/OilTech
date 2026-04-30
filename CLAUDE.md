@@ -39,13 +39,12 @@ python3 -m http.server 5500
 
 The frontend is plain HTML/CSS/JS — no build step, no bundler. Open the HTML files directly in a browser or serve them statically.
 
-**API URL switching** (in `js/catalogo.js`, `js/productos.js`, etc.):
+**API URL switching** — todos los archivos JS (`admin.js`, `productos.js`, `catalogo.js`) usan el patrón dinámico:
 ```js
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:8000'
     : 'https://almacenrefrielectricos-production.up.railway.app';
 ```
-Note: `js/admin.js` currently hardcodes `http://localhost:8000` — it must be updated if the admin panel needs to work in production.
 
 ## Local Database
 
@@ -83,7 +82,13 @@ login.html     — Admin login
 
 **Product.search_tags:** Auto-generated on create/update from `product.name` (words split by spaces, joined by commas). Do not expect the admin UI to send this field.
 
-**Product.price removed:** The `price` (Float) column was dropped. Only `price_text` (String display label) remains.
+**Columnas eliminadas de Product:** `price`, `code` y `price_text` fueron eliminadas. Esquema actual: `id, name, category, image_url, brands, search_tags, options, description, technical_sheet_url, subcategory`.
+
+**Quotation.reference:** Generado en el backend como `COT-{id:06d}` al crear. No enviarlo desde el frontend.
+
+**Quotation.total_estimated eliminado:** Removido completamente. Las cotizaciones solo tienen `items`, `reference` y `status`.
+
+**js/constants.js:** Constantes globales compartidas entre páginas. Actualmente contiene `BRAND_LOGOS` (carrusel de `productos.html`).
 
 **SQLite DROP COLUMN:** Requires SQLite ≥ 3.35. Migration in `apply_migrations()` handles it idempotently.
 
@@ -93,4 +98,4 @@ login.html     — Admin login
 - `bcrypt` must be pinned to `==4.0.1` — newer versions break `passlib` with an `__about__` AttributeError on `/token`.
 - No frontend build pipeline; CSS/JS changes are live immediately.
 - SQLite is used for simplicity; no ORM migrations framework (migrations are manual `ALTER TABLE` statements in `apply_migrations()`).
-- `js/admin.js` hardcodes `http://localhost:8000` — must be updated for production admin access.
+- **Backend imports (CRÍTICO):** Los archivos del backend usan imports relativos (`from . import models`, `from .database import Base`). El linter del editor los revierte a absolutos al guardar, rompiendo uvicorn. Si el backend falla con `ModuleNotFoundError: No module named 'models'`, corregir en `main.py`, `auth.py` y `models.py`.

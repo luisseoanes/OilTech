@@ -374,47 +374,36 @@ async function sendBatchQuote() {
     const btn = document.querySelector('.cart-footer .btn-whatsapp');
     const originalText = btn.innerHTML;
 
-    // Generate a quick random reference (4 chars)
-    const ref = 'REF-' + Math.random().toString(36).substring(2, 6).toUpperCase();
-
-    // Prepare payload for backend
-    let totalEstimated = 0;
-    const items = cart.map(item => {
-        let price = 0;
-        const priceMatch = item.option ? item.option.match(/\$\s*([\d.]+)/) : null;
-        if (priceMatch) {
-            price = parseFloat(priceMatch[1].replace(/\./g, ''));
-        }
-        if (!price) price = 0;
-        totalEstimated += (price * item.quantity);
-        return {
-            product_id: item.id,
-            product_name: item.name,
-            quantity: item.quantity,
-            option: item.option,
-            price: price
-        };
-    });
+    const items = cart.map(item => ({
+        product_id: item.id,
+        product_name: item.name,
+        quantity: item.quantity,
+        option: item.option,
+        price: 0
+    }));
 
     const quotationData = {
         customer_name: name,
         customer_contact: contact,
-        items: items,
-        total_estimated: totalEstimated,
-        reference: ref
+        items: items
     };
 
-    // 1. SAVE IN BACKGROUND (no await)
-    // keepalive: true ensures the request finishes even if we redirect
-    fetch(`${API_URL}/quotations/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(quotationData),
-        keepalive: true
-    }).catch(err => console.error('Background save failed:', err));
+    let ref = '';
+    try {
+        const res = await fetch(`${API_URL}/quotations/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(quotationData)
+        });
+        if (res.ok) {
+            const saved = await res.json();
+            ref = saved.reference || '';
+        }
+    } catch (err) {
+        console.error('Error saving quotation:', err);
+    }
 
-    // 2. IMMEDIATE REDIRECT (The 1-Click experience)
-    let message = `Hola, soy ${name}. Me gustaría cotizar estos productos (Ref: ${ref}):\n\n`;
+    let message = `Hola, soy ${name}. Me gustaría cotizar estos productos${ref ? ` (Ref: ${ref})` : ''}:\n\n`;
     cart.forEach((item, index) => {
         const qtyText = item.quantity > 1 ? ` (Cant: ${item.quantity})` : '';
         message += `${index + 1}. ${item.name} - ${item.option}${qtyText}\n`;
