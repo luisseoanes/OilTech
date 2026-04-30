@@ -16,22 +16,37 @@ class Category(CategoryBase):
     class Config:
         from_attributes = True
 
+class SubcategoryBase(BaseModel):
+    name: str
+    category_id: int
+
+class SubcategoryCreate(SubcategoryBase):
+    pass
+
+class Subcategory(SubcategoryBase):
+    id: int
+    category_name: Optional[str] = None
+    class Config:
+        from_attributes = True
+
 class ProductBase(BaseModel):
     name: str
-    category: str
+    category_id: Optional[int] = None
+    subcategory_id: Optional[int] = None
+    price_text: Optional[str] = None
     image_url: Optional[str] = None
     brands: Optional[str] = None
     search_tags: Optional[str] = None
-    options: Optional[str] = None
     description: Optional[str] = None
     technical_sheet_url: Optional[str] = None
-    subcategory: Optional[str] = None
 
 class ProductCreate(ProductBase):
     pass
 
 class Product(ProductBase):
     id: int
+    category_name: Optional[str] = None
+    subcategory_name: Optional[str] = None
 
     class Config:
         from_attributes = True

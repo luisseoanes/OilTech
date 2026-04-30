@@ -78,13 +78,6 @@
 
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon bg-blue"><i class="fas fa-dollar-sign"></i></div>
-                    <div class="stat-info">
-                        <h3 id="totalQuoted">$0</h3>
-                        <p>Total Cotizado</p>
-                    </div>
-                </div>
-                <div class="stat-card">
                     <div class="stat-icon bg-green"><i class="fas fa-check-circle"></i></div>
                     <div class="stat-info">
                         <h3 id="totalPurchased">$0</h3>
@@ -134,7 +127,6 @@
                                 <th>ID</th>
                                 <th>Cliente</th>
                                 <th>Contacto</th>
-                                <th>Total Estimado</th>
                                 <th>Fecha</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
@@ -257,18 +249,21 @@
             <div class="card">
                 <div class="product-filters-grid">
                     <div class="form-group">
-                        <label style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px;">Buscar</label>
+                        <label
+                            style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px;">Buscar</label>
                         <input type="text" id="productSearch" placeholder="Nombre, código, marca o tags..."
                             onkeyup="filterProducts()">
                     </div>
                     <div class="form-group">
-                        <label style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px;">Categoría</label>
+                        <label
+                            style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px;">Categoría</label>
                         <select id="productFilterCategory" onchange="filterProducts()">
                             <option value="">Todas las categorías</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px;">Ordenar</label>
+                        <label
+                            style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px;">Ordenar</label>
                         <select id="productSort" onchange="filterProducts()">
                             <option value="name_asc">Nombre (A-Z)</option>
                             <option value="name_desc">Nombre (Z-A)</option>
@@ -293,24 +288,31 @@
                         <input type="text" id="prodName" placeholder="Ej: Aceite Hidráulico ISO 68">
                     </div>
                     <div class="fg">
-                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Categoría Industrial</label>
+                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Categoría</label>
                         <div style="display: flex; gap: 5px;">
                             <select id="prodCategory" style="flex: 1;" onchange="onCategoryChange(this.value)">
                                 <option value="">Seleccione Categoría</option>
                             </select>
-                            <button class="btn-primary" style="width: auto; padding: 0 10px;" onclick="openCategoryModal()"
-                                title="Nueva Categoría">+</button>
+                            <button class="btn-primary" style="width: auto; padding: 0 10px;"
+                                onclick="openCategoryModal()" title="Nueva Categoría">+</button>
                         </div>
+                    </div>
+                    <div class="fg">
+                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Subcategoría</label>
+                        <select id="prodSubcategory" style="width: 100%;">
+                            <option value="">Seleccione Subcategoría</option>
+                        </select>
                     </div>
                 </div>
                 <div class="form-grid">
                     <div class="img-grid">
                         <div class="img-inside-grid">
-                            <input type="text" id="prodImage" placeholder="URL Imagen (se llena automáticamente)" style="flex: 1;">
+                            <input type="text" id="prodImage" placeholder="URL Imagen (se llena automáticamente)"
+                                style="flex: 1;">
                             <label for="prodImageFile" class="btn-primary">
                                 <i class="fas fa-upload"></i> Subir imagen
                             </label>
-                            <input type="file" id="prodImageFile" accept="image/*" style="display: none;" 
+                            <input type="file" id="prodImageFile" accept="image/*" style="display: none;"
                                 onchange="uploadImageToCloudinary(this)">
                         </div>
                         <div class="img-upload-status" id="imageUploadStatus">
@@ -324,7 +326,6 @@
                 </div>
                 <div class="form-grid">
                     <input type="text" id="prodTags" placeholder="Tags de búsqueda">
-                    <textarea id="prodOptions" placeholder="Presentaciones (separadas por | ej: Tambor|Caneca|Cuarto)" rows="1"></textarea>
                 </div>
                 <button class="btn-primary" onclick="saveProduct()">Guardar Producto</button>
                 <button class="btn-action btn-cancel" style="width: auto; padding: 10px;"

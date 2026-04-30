@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from fastapi.security import OAuth2PasswordRequestForm
-from . import models, schemas, database, auth
+import models, schemas, database, auth
 
 # Create tables
 models.Base.metadata.create_all(bind=database.engine)
@@ -43,9 +43,29 @@ def apply_migrations():
             print("Migrating: Dropping 'code' column from products")
             cursor.execute("ALTER TABLE products DROP COLUMN code")
             conn.commit()
-        if "price_text" in product_columns:
-            print("Migrating: Dropping 'price_text' column from products")
-            cursor.execute("ALTER TABLE products DROP COLUMN price_text")
+        if "options" in product_columns:
+            print("Migrating: Dropping 'options' column from products")
+            cursor.execute("ALTER TABLE products DROP COLUMN options")
+            conn.commit()
+        if "category" in product_columns:
+            print("Migrating: Dropping 'category' column from products")
+            cursor.execute("ALTER TABLE products DROP COLUMN category")
+            conn.commit()
+        if "category_id" not in product_columns:
+            print("Migrating: Adding 'category_id' column to products")
+            cursor.execute("ALTER TABLE products ADD COLUMN category_id INTEGER REFERENCES categories(id)")
+            conn.commit()
+        if "price_text" not in product_columns:
+            print("Migrating: Adding 'price_text' column to products")
+            cursor.execute("ALTER TABLE products ADD COLUMN price_text TEXT")
+            conn.commit()
+        if "subcategory" in product_columns:
+            print("Migrating: Dropping 'subcategory' TEXT column from products")
+            cursor.execute("ALTER TABLE products DROP COLUMN subcategory")
+            conn.commit()
+        if "subcategory_id" not in product_columns:
+            print("Migrating: Adding 'subcategory_id' column to products")
+            cursor.execute("ALTER TABLE products ADD COLUMN subcategory_id INTEGER REFERENCES subcategories(id)")
             conn.commit()
 
         cursor.execute("PRAGMA table_info(quotations)")
@@ -84,12 +104,11 @@ def seed_categories():
         count = db.query(models.Category).count()
         if count == 0:
             initial = [
-                {"name": "automotriz", "tags": "pesados livianos motos complementarios agroindustrial"},
-                {"name": "industrial", "tags": "hidraulicos mecanizado engranajes maquinaria equipo bases"},
-                {"name": "grasas", "tags": "multiples propositos extrema presion alta temperatura grado alimenticio"},
-                {"name": "seguridad", "tags": "cabeza visual manos alturas calzado"},
-                {"name": "limpieza", "tags": "desengrasantes jabones desinfectantes solventes"},
-                {"name": "herramientas", "tags": "manuales bombas mangueras acoples"}
+                {"name": "Lubricantes Industriales", "tags": "lubricantes aceites hidraulico ISO32 ISO46 ISO68 ISO100 compresores engranajes sintetico termico dielectrico reductores corte neumatico"},
+                {"name": "Grasas Industriales", "tags": "grasas rodamientos altapresion maquinariapesada lubricacioncentralizada"},
+                {"name": "Seguridad Industrial (EPP)", "tags": "EPP seguridad guantes botas arnes eslingas proteccionauditiva gafas overol chalecoreflectivo careta"},
+                {"name": "Productos de Limpieza y Mantenimiento", "tags": "limpieza mantenimiento alcoholindustrial amoniocu jabones limpiavidrios"},
+                {"name": "Herramientas y Suministros Técnicos", "tags": "herramientas suministros bombas acoples bandas filtros componenteselectricos"}
             ]
             for cat in initial:
                 db_cat = models.Category(**cat)
@@ -100,6 +119,52 @@ def seed_categories():
         db.close()
 
 seed_categories()
+
+def seed_subcategories():
+    db = database.SessionLocal()
+    try:
+        if db.query(models.Subcategory).count() > 0:
+            return
+        subcategories = {
+            "Lubricantes Industriales": [
+                "Aceite hidráulico ISO 32", "Aceite hidráulico ISO 46",
+                "Aceite hidráulico ISO 68", "Aceite hidráulico ISO 100",
+                "Aceites para compresores", "Aceites para engranajes industriales",
+                "Aceites sintéticos", "Aceites térmicos", "Aceites dieléctricos",
+                "Aceites para reductores", "Aceites de corte", "Aceites solubles",
+                "Aceites para mantenimiento neumático"
+            ],
+            "Grasas Industriales": [
+                "Rodamientos", "Equipos industriales",
+                "Maquinaria pesada", "Sistemas de lubricación centralizada"
+            ],
+            "Seguridad Industrial (EPP)": [
+                "Guantes industriales", "Botas de seguridad", "Arnés de seguridad",
+                "Eslingas y líneas de vida", "Protectores auditivos", "Gafas de seguridad",
+                "Overoles industriales", "Chalecos reflectivos", "Caretas de protección"
+            ],
+            "Productos de Limpieza y Mantenimiento": [
+                "Alcohol industrial", "Amonio cuaternario",
+                "Jabones industriales", "Limpiavidrios"
+            ],
+            "Herramientas y Suministros Técnicos": [
+                "Bombas industriales", "Acoples y conexiones", "Boquillas",
+                "Bandas industriales", "Filtros", "Abrazaderas", "Arandelas",
+                "Herramientas manuales", "Componentes eléctricos", "Equipos para mantenimiento"
+            ]
+        }
+        for cat_name, subcat_names in subcategories.items():
+            cat = db.query(models.Category).filter(models.Category.name == cat_name).first()
+            if not cat:
+                continue
+            for name in subcat_names:
+                db.add(models.Subcategory(name=name, category_id=cat.id))
+        db.commit()
+        print("Auto-seeded subcategories")
+    finally:
+        db.close()
+
+seed_subcategories()
 
 app = FastAPI()
 
@@ -158,6 +223,22 @@ def create_category(category: schemas.CategoryCreate, db: Session = Depends(get_
     db.commit()
     db.refresh(db_cat)
     return db_cat
+
+# Subcategory Endpoints
+@app.get("/subcategories/", response_model=List[schemas.Subcategory])
+def read_subcategories(category_id: int = None, db: Session = Depends(get_db)):
+    query = db.query(models.Subcategory)
+    if category_id:
+        query = query.filter(models.Subcategory.category_id == category_id)
+    return query.all()
+
+@app.post("/subcategories/", response_model=schemas.Subcategory)
+def create_subcategory(subcategory: schemas.SubcategoryCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    db_subcat = models.Subcategory(**subcategory.dict())
+    db.add(db_subcat)
+    db.commit()
+    db.refresh(db_subcat)
+    return db_subcat
 
 # Product Endpoints
 @app.get("/products/", response_model=List[schemas.Product])

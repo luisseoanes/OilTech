@@ -1,4 +1,6 @@
-const API_URL = 'https://oiltech-production.up.railway.app';
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:8000'
+    : 'https://oiltech-production.up.railway.app';
 
 async function login() {
     const username = document.getElementById('username').value;

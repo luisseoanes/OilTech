@@ -53,14 +53,15 @@ async function loadProducts() {
 
 // Render dynamic subcategory cards based on backend products
 function renderGrids() {
-    const categories = ['automotriz', 'industrial', 'grasas', 'seguridad', 'limpieza', 'herramientas'];
-    
+    const categories = ['lubricantes-industriales', 'grasas-industriales', 'seguridad-industrial-epp', 'productos-de-limpieza-y-mantenimiento', 'herramientas-y-suministros-tecnicos'];
+
     categories.forEach(cat => {
         const grid = document.getElementById(`cat-${cat}`);
         if (!grid) return;
-        
-        // Filter products of this category
-        const catProducts = allProducts.filter(p => p.category.toLowerCase() === cat.toLowerCase());
+
+        const catProducts = allProducts.filter(p =>
+            (p.category_name || '').toLowerCase().replace(/[\s()]/g, '-').replace(/-+/g, '-') === cat
+        );
         
         grid.innerHTML = catProducts.map(p => `
             <div class="subcat-card" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
@@ -87,14 +88,10 @@ let currentProduct = null;
 
 function openProductModal(product) {
     currentProduct = product;
-    dCategory.textContent = product.category;
+    dCategory.textContent = product.category_name || '';
     dTitle.textContent = product.name;
     
-    // Set sizes (options)
-    const options = (product.options || '').split('|').filter(Boolean);
-    sizeChips.innerHTML = options.length ? options.map(opt => `
-        <div class="chip size-chip" onclick="selectSingleChip(this, 'size-chip')">${opt}</div>
-    `).join('') : '<div class="chip size-chip selected" onclick="selectSingleChip(this, \'size-chip\')">Estándar</div>';
+    sizeChips.innerHTML = '';
     
     // Set brands
     const brands = (product.brands || '').split(/[ ,]+/).filter(Boolean);

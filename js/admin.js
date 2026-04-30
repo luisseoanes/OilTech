@@ -132,7 +132,6 @@ async function loadDashboardData() {
         const response = await fetchWithAuth(`${API_URL}/stats`);
         const stats = await response.json();
 
-        document.getElementById('totalQuoted').textContent = stats.total_quoted.toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
         document.getElementById('totalPurchased').textContent = stats.total_purchased.toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
 
         // Load products count (need to fetch separately or add to stats, for now separate)
@@ -512,16 +511,15 @@ async function loadCategories() {
 
         const select = document.getElementById('prodCategory');
         if (select) {
-            // Keep "Seleccione" option
             select.innerHTML = '<option value="">Seleccione Categoría</option>' +
-                allCategories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+                allCategories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
         }
 
         const filterSelect = document.getElementById('productFilterCategory');
         if (filterSelect) {
             const currentValue = filterSelect.value;
             filterSelect.innerHTML = '<option value="">Todas las categorías</option>' +
-                allCategories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+                allCategories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
             if (currentValue) filterSelect.value = currentValue;
         }
     } catch (e) {
@@ -564,12 +562,24 @@ async function saveCategory() {
     }
 }
 
-function onCategoryChange(catName) {
-    const category = allCategories.find(c => c.name === catName);
+async function onCategoryChange(categoryId) {
+    const id = parseInt(categoryId);
+    const category = allCategories.find(c => c.id === id);
     if (category && category.tags) {
-        const tagsInput = document.getElementById('prodTags');
-        // Only set if tags are empty or if user wants governance (overwriting for now)
-        tagsInput.value = category.tags;
+        document.getElementById('prodTags').value = category.tags;
+    }
+
+    const subcatSelect = document.getElementById('prodSubcategory');
+    subcatSelect.innerHTML = '<option value="">Seleccione Subcategoría</option>';
+    if (!id) return;
+
+    try {
+        const response = await fetch(`${API_URL}/subcategories/?category_id=${id}`);
+        const subcats = await response.json();
+        subcatSelect.innerHTML = '<option value="">Seleccione Subcategoría</option>' +
+            subcats.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+    } catch(e) {
+        console.error('Error loading subcategories', e);
     }
 }
 
@@ -603,13 +613,11 @@ function renderProductsTable(products) {
     }
 
     tbody.innerHTML = products.map(p => {
-        const options = (p.options || '').split('|').filter(Boolean).join(', ') || 'Única';
         return `
             <tr>
                 <td><img src="${p.image_url}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;" onerror="this.style.display='none'"></td>
                 <td style="font-weight: 600; color: var(--black);">${p.name}</td>
-                <td><span class="badge" style="background: #e9f5ff; color: #007bff; text-transform: capitalize;">${p.category}</span></td>
-                <td style="font-size: 0.85rem; color: #666; max-width: 200px;">${options}</td>
+                <td><span class="badge" style="background: #e9f5ff; color: #007bff; text-transform: capitalize;">${p.category_name || ''}</span></td>
                 <td>
                     <button class="btn-action btn-edit" title="Editar" onclick='editProduct(${JSON.stringify(p).replace(/'/g, "&#39;")})'><i class="fas fa-edit"></i></button>
                     <button class="btn-action btn-delete" title="Eliminar" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button>
@@ -639,21 +647,17 @@ function filterProducts() {
 
     const filtered = window.allProducts.filter(p => {
         const name = (p.name || '').toLowerCase();
-        const code = (p.code || '').toLowerCase();
-        const categoryText = (p.category || '').toLowerCase();
+        const categoryText = (p.category_name || '').toLowerCase();
         const brands = (p.brands || '').toLowerCase();
         const tagList = (p.search_tags || '').toLowerCase().split(',').map(t => t.trim());
-        const options = (p.options || '').toLowerCase();
 
         const matchesQuery = !query ||
             name.includes(query) ||
-            code.includes(query) ||
             categoryText.includes(query) ||
             brands.includes(query) ||
-            tagList.some(tag => tag.startsWith(query)) ||
-            options.includes(query);
+            tagList.some(tag => tag.startsWith(query));
 
-        const matchesCategory = !category || (p.category || '') === category;
+        const matchesCategory = !category || String(p.category_id) === category;
 
         return matchesQuery && matchesCategory;
     });
@@ -768,15 +772,15 @@ async function saveProduct() {
     const id = document.getElementById('prodId').value;
     const product = {
         name: document.getElementById('prodName').value,
-        code: document.getElementById('prodCode').value,
-        category: document.getElementById('prodCategory').value,
+        category_id: parseInt(document.getElementById('prodCategory').value) || null,
+        subcategory_id: parseInt(document.getElementById('prodSubcategory').value) || null,
+        price_text: document.getElementById('prodPriceText').value,
         image_url: document.getElementById('prodImage').value,
         brands: document.getElementById('prodBrands').value,
         search_tags: document.getElementById('prodTags').value,
-        options: document.getElementById('prodOptions').value
     };
 
-    if (!product.category) {
+    if (!product.category_id) {
         showToast('Debe seleccionar una categoría', 'warning');
         return;
     }
@@ -822,12 +826,13 @@ async function editProduct(product) {
     document.getElementById('prodName').value = product.name;
 
     await loadCategories();
-    document.getElementById('prodCategory').value = product.category;
+    document.getElementById('prodCategory').value = product.category_id || '';
+    if (product.category_id) await onCategoryChange(product.category_id);
+    document.getElementById('prodSubcategory').value = product.subcategory_id || '';
 
-    document.getElementById('prodImage').value = product.image_url;
-    document.getElementById('prodBrands').value = product.brands;
-    document.getElementById('prodTags').value = product.search_tags;
-    document.getElementById('prodOptions').value = product.options;
+    document.getElementById('prodImage').value = product.image_url || '';
+    document.getElementById('prodBrands').value = product.brands || '';
+    document.getElementById('prodTags').value = product.search_tags || '';
 
     // Mostrar preview si ya tiene imagen
     const previewContainer = document.getElementById('imagePreviewContainer');

@@ -20,7 +20,7 @@ OilTech is an e-commerce/catalog site for industrial lubricants, PPE, and tools.
 
 ```bash
 source venv/bin/activate
-uvicorn backend.main:app --reload
+uvicorn main:app --reload
 ```
 
 The backend auto-seeds the admin user (`admin` / `admin123`) and default categories on startup. It also runs SQLite migrations on every startup via `apply_migrations()` in `main.py`.

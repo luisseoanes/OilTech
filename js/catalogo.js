@@ -58,7 +58,7 @@ function populateFilters() {
     const brands = new Set();
 
     allProducts.forEach(p => {
-        if (p.category) categories.add(p.category);
+        if (p.category_name) categories.add(p.category_name);
         if (p.brands) {
             // Split brands by space or comma and trim
             const bList = p.brands.split(/[ ,]+/).filter(Boolean);
@@ -69,7 +69,7 @@ function populateFilters() {
     // Populate Categories
     const sortedCats = Array.from(categories).sort();
     categorySelect.innerHTML = '<option value="all">Todas</option>' +
-        sortedCats.map(c => `<option value="${c}">${c.charAt(0).toUpperCase() + c.slice(1)}</option>`).join('');
+        sortedCats.map(c => `<option value="${c}">${c}</option>`).join('');
 
     // Populate Brands
     const sortedBrands = Array.from(brands).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
@@ -132,7 +132,7 @@ function filterCards() {
     const filtered = allProducts.filter(product => {
         const searchText = (product.name + ' ' + (product.code || '') + ' ' + product.search_tags).toLowerCase();
         const matchesQuery = !query || searchText.includes(query);
-        const matchesCategory = category === 'all' || product.category === category;
+        const matchesCategory = category === 'all' || product.category_name === category;
         const matchesBrand = brand === 'all' || product.brands.toLowerCase().includes(brand);
         return matchesQuery && matchesCategory && matchesBrand;
     });
@@ -191,18 +191,10 @@ const closeButtons = document.querySelectorAll('[data-close]');
 
 function openModal(product) {
     const title = product.name;
-    const options = (product.options || '').split('|').filter(Boolean);
 
     modalTitle.textContent = title;
-    modalPrice.textContent = ''; // Hidden for end user
-    modalOptions.innerHTML = options.length
-        ? options.map((option, index) => `
-                    <label class="modal-option">
-                        <input type="radio" name="opcion" ${index === 0 ? 'checked' : ''} value="${option}">
-                        ${option}
-                    </label>
-                `).join('')
-        : '<p class="modal-option">Consulta disponibilidad específica.</p>';
+    modalPrice.textContent = '';
+    modalOptions.innerHTML = '';
 
     // Reset quantity to 1
     const qtyInput = document.getElementById('modalQty');
