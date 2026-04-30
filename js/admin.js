@@ -6,8 +6,8 @@ const API_URL = window.location.hostname === 'localhost' || window.location.host
 
 // Configuracion para Cloudinary
 
-const CLOUDINARY_CLOUD_NAME = 'dxxicnipr';
-const CLOUDINARY_UPLOAD_PRESET = 'refrielectricos_unsigned';
+const CLOUDINARY_CLOUD_NAME = 'dvoeietxt';
+const CLOUDINARY_UPLOAD_PRESET = 'OilTechCMS';
 const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
 
 // Check Auth
@@ -53,6 +53,9 @@ function switchView(viewId) {
     if (viewId === 'sales') loadSales();
     if (viewId === 'products') loadProducts();
     if (viewId === 'dashboard') loadDashboardData();
+    if (viewId === 'categories') loadCategoriesView();
+    if (viewId === 'brands-mgmt') loadBrandsView();
+    if (viewId === 'presentations-mgmt') loadPresentationsView();
 }
 
 // Sidebar toggle for mobile
@@ -564,10 +567,6 @@ async function saveCategory() {
 
 async function onCategoryChange(categoryId) {
     const id = parseInt(categoryId);
-    const category = allCategories.find(c => c.id === id);
-    if (category && category.tags) {
-        document.getElementById('prodTags').value = category.tags;
-    }
 
     const subcatSelect = document.getElementById('prodSubcategory');
     subcatSelect.innerHTML = '<option value="">Seleccione Subcategoría</option>';
@@ -581,6 +580,82 @@ async function onCategoryChange(categoryId) {
     } catch(e) {
         console.error('Error loading subcategories', e);
     }
+}
+
+// --- BRANDS PICKER ---
+let allBrands = [];
+let selectedBrandIds = new Set();
+
+async function loadBrandsPicker(preselected = []) {
+    try {
+        if (!allBrands.length) {
+            const res = await fetch(`${API_URL}/brands/`);
+            allBrands = await res.json();
+        }
+        selectedBrandIds = new Set(preselected);
+        renderBrandsPicker();
+    } catch (e) {
+        console.error('Error loading brands', e);
+    }
+}
+
+function renderBrandsPicker() {
+    const container = document.getElementById('brandsPicker');
+    if (!container) return;
+    container.innerHTML = allBrands.map(b => `
+        <button type="button"
+            class="brand-pick-chip ${selectedBrandIds.has(b.id) ? 'selected' : ''}"
+            data-brand-id="${b.id}"
+            onclick="toggleBrandPick(${b.id})">
+            ${b.name}
+        </button>
+    `).join('');
+}
+
+function toggleBrandPick(brandId) {
+    if (selectedBrandIds.has(brandId)) {
+        selectedBrandIds.delete(brandId);
+    } else {
+        selectedBrandIds.add(brandId);
+    }
+    renderBrandsPicker();
+}
+
+// --- PRESENTATIONS PICKER ---
+let allPresentations = [];
+let selectedPresentationIds = new Set();
+
+async function loadPresentationsPicker(preselected = []) {
+    try {
+        const res = await fetch(`${API_URL}/presentations/`);
+        allPresentations = await res.json();
+        selectedPresentationIds = new Set(preselected);
+        renderPresentationsPicker();
+    } catch (e) {
+        console.error('Error loading presentations', e);
+    }
+}
+
+function renderPresentationsPicker() {
+    const container = document.getElementById('presentationsPicker');
+    if (!container) return;
+    container.innerHTML = allPresentations.map(p => `
+        <button type="button"
+            class="brand-pick-chip ${selectedPresentationIds.has(p.id) ? 'selected' : ''}"
+            data-presentation-id="${p.id}"
+            onclick="togglePresentationPick(${p.id})">
+            ${p.name}
+        </button>
+    `).join('');
+}
+
+function togglePresentationPick(presentationId) {
+    if (selectedPresentationIds.has(presentationId)) {
+        selectedPresentationIds.delete(presentationId);
+    } else {
+        selectedPresentationIds.add(presentationId);
+    }
+    renderPresentationsPicker();
 }
 
 // --- PRODUCTS ---
@@ -613,11 +688,15 @@ function renderProductsTable(products) {
     }
 
     tbody.innerHTML = products.map(p => {
+        const presentationBadges = (p.presentations || []).map(pr =>
+            `<span class="badge" style="background: #f0fff4; color: #28a745; margin: 2px;">${pr.name}</span>`
+        ).join('');
         return `
             <tr>
                 <td><img src="${p.image_url}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;" onerror="this.style.display='none'"></td>
                 <td style="font-weight: 600; color: var(--black);">${p.name}</td>
                 <td><span class="badge" style="background: #e9f5ff; color: #007bff; text-transform: capitalize;">${p.category_name || ''}</span></td>
+                <td>${presentationBadges || '<span style="color:#aaa;font-size:0.8rem;">—</span>'}</td>
                 <td>
                     <button class="btn-action btn-edit" title="Editar" onclick='editProduct(${JSON.stringify(p).replace(/'/g, "&#39;")})'><i class="fas fa-edit"></i></button>
                     <button class="btn-action btn-delete" title="Eliminar" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button>
@@ -648,7 +727,7 @@ function filterProducts() {
     const filtered = window.allProducts.filter(p => {
         const name = (p.name || '').toLowerCase();
         const categoryText = (p.category_name || '').toLowerCase();
-        const brands = (p.brands || '').toLowerCase();
+        const brands = (p.brands || []).map(b => b.name).join(' ').toLowerCase();
         const tagList = (p.search_tags || '').toLowerCase().split(',').map(t => t.trim());
 
         const matchesQuery = !query ||
@@ -695,12 +774,15 @@ function toggleProductForm() {
     if (!isShowing) {
         form.style.display = 'block';
         loadCategories();
+        loadBrandsPicker();
+        loadPresentationsPicker();
     } else {
         form.style.display = 'none';
-        // Limpiar preview de imagen
         document.getElementById('imagePreviewContainer').style.display = 'none';
         document.getElementById('imageUploadStatus').style.display = 'none';
         document.getElementById('prodImageFile').value = '';
+        selectedBrandIds = new Set();
+        selectedPresentationIds = new Set();
     }
 }
 
@@ -768,16 +850,73 @@ async function uploadImageToCloudinary(input) {
     }
 }
 
+async function uploadPdfToCloudinary(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+        showToast('Solo se permiten archivos PDF', 'warning');
+        input.value = '';
+        return;
+    }
+    if (file.size > 20 * 1024 * 1024) {
+        showToast('El PDF no puede superar 20MB', 'warning');
+        input.value = '';
+        return;
+    }
+
+    const statusEl = document.getElementById('pdfUploadStatus');
+    const successEl = document.getElementById('pdfUploadSuccess');
+    const urlInput = document.getElementById('prodTechSheet');
+
+    statusEl.style.display = 'flex';
+    successEl.style.display = 'none';
+    urlInput.value = '';
+
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+        formData.append('folder', 'fichas-tecnicas');
+
+        const response = await fetch(
+            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/raw/upload`,
+            { method: 'POST', body: formData }
+        );
+
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error?.message || 'Error al subir PDF');
+        }
+
+        const data = await response.json();
+        // Insert fl_attachment:false so the PDF opens in browser instead of downloading
+        const url = data.secure_url.replace('/upload/', '/upload/fl_attachment:false/');
+
+        urlInput.value = url;
+        statusEl.style.display = 'none';
+        successEl.style.display = 'flex';
+        document.getElementById('pdfFileName').textContent = file.name;
+        showToast('Ficha técnica subida correctamente', 'success');
+    } catch (error) {
+        console.error('Error subiendo PDF:', error);
+        statusEl.style.display = 'none';
+        showToast('Error al subir PDF: ' + error.message, 'error');
+        input.value = '';
+    }
+}
+
 async function saveProduct() {
     const id = document.getElementById('prodId').value;
     const product = {
         name: document.getElementById('prodName').value,
         category_id: parseInt(document.getElementById('prodCategory').value) || null,
         subcategory_id: parseInt(document.getElementById('prodSubcategory').value) || null,
-        price_text: document.getElementById('prodPriceText').value,
         image_url: document.getElementById('prodImage').value,
-        brands: document.getElementById('prodBrands').value,
-        search_tags: document.getElementById('prodTags').value,
+        brand_ids: [...selectedBrandIds],
+        presentation_ids: [...selectedPresentationIds],
+        description: document.getElementById('prodDescription').value.trim() || null,
+        technical_sheet_url: document.getElementById('prodTechSheet').value.trim() || null,
     };
 
     if (!product.category_id) {
@@ -810,6 +949,8 @@ async function saveProduct() {
             document.querySelectorAll('#productFormCard input, #productFormCard textarea, #productFormCard select').forEach(i => {
                 if (i.id !== 'prodCode' && i.id !== 'prodId') i.value = '';
             });
+            selectedBrandIds = new Set();
+            selectedPresentationIds = new Set();
             loadDashboardData(); // Update count
         } else {
             showToast('Error al guardar', 'error');
@@ -831,8 +972,15 @@ async function editProduct(product) {
     document.getElementById('prodSubcategory').value = product.subcategory_id || '';
 
     document.getElementById('prodImage').value = product.image_url || '';
-    document.getElementById('prodBrands').value = product.brands || '';
-    document.getElementById('prodTags').value = product.search_tags || '';
+    document.getElementById('prodDescription').value = product.description || '';
+    document.getElementById('prodTechSheet').value = product.technical_sheet_url || '';
+    const pdfSuccess = document.getElementById('pdfUploadSuccess');
+    const pdfStatus = document.getElementById('pdfUploadStatus');
+    if (pdfSuccess) pdfSuccess.style.display = 'none';
+    if (pdfStatus) pdfStatus.style.display = 'none';
+    document.getElementById('prodTechSheetFile').value = '';
+    await loadBrandsPicker(product.brands ? product.brands.map(b => b.id) : []);
+    await loadPresentationsPicker(product.presentations ? product.presentations.map(p => p.id) : []);
 
     // Mostrar preview si ya tiene imagen
     const previewContainer = document.getElementById('imagePreviewContainer');
@@ -898,6 +1046,522 @@ async function changePassword() {
         console.error(e);
         showToast('Error de conexión', 'error');
     }
+}
+
+// --- BRANDS MANAGEMENT VIEW ---
+async function loadBrandsView() {
+    try {
+        const res = await fetch(`${API_URL}/brands/`);
+        allBrands = await res.json();
+        renderBrandsTable();
+    } catch (e) {
+        console.error(e);
+        showToast('Error al cargar marcas', 'error');
+    }
+}
+
+function renderBrandsTable() {
+    const tbody = document.querySelector('#brandsTable tbody');
+    if (!tbody) return;
+
+    if (!allBrands.length) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#888;">No hay marcas creadas.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = allBrands.map(b => `
+        <tr>
+            <td>
+                ${b.image_url
+                    ? `<img src="${b.image_url}" alt="${b.name}" style="height:36px;max-width:90px;object-fit:contain;border-radius:4px;" onerror="this.style.display='none'">`
+                    : '<span style="color:#ccc;font-size:0.8rem;">Sin logo</span>'}
+            </td>
+            <td style="font-weight:600;">${b.name}</td>
+            <td>
+                <button class="btn-action btn-edit" title="Editar" onclick='openBrandModal(${b.id}, "${b.name.replace(/"/g,"&quot;")}", "${(b.image_url||'').replace(/"/g,"&quot;")}")'><i class="fas fa-edit"></i></button>
+                <button class="btn-action btn-delete" title="Eliminar" onclick="deleteBrandMgmt(${b.id}, '${b.name.replace(/'/g,"&#39;")}')"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function openBrandModal(id = null, name = '', imageUrl = '') {
+    document.getElementById('brandModalId').value = id || '';
+    document.getElementById('brandModalName').value = name;
+    document.getElementById('brandModalImageUrl').value = imageUrl;
+    document.getElementById('brandModalTitle').textContent = id ? 'Editar Marca' : 'Nueva Marca';
+    document.getElementById('brandLogoUploadStatus').style.display = 'none';
+    document.getElementById('brandLogoFile').value = '';
+
+    const preview = document.getElementById('brandLogoPreviewContainer');
+    const previewImg = document.getElementById('brandLogoPreview');
+    if (imageUrl) {
+        previewImg.src = imageUrl;
+        preview.style.display = 'block';
+    } else {
+        preview.style.display = 'none';
+    }
+
+    document.getElementById('brandModal').style.display = 'block';
+}
+
+async function uploadBrandLogo(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const maxSizeMB = 5;
+    if (file.size > maxSizeMB * 1024 * 1024) {
+        showToast(`El logo no puede superar ${maxSizeMB}MB`, 'warning');
+        input.value = '';
+        return;
+    }
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
+    if (!allowedTypes.includes(file.type)) {
+        showToast('Solo se permiten imágenes JPG, PNG, WEBP, GIF o SVG', 'warning');
+        input.value = '';
+        return;
+    }
+
+    const statusEl = document.getElementById('brandLogoUploadStatus');
+    const previewContainer = document.getElementById('brandLogoPreviewContainer');
+    const urlInput = document.getElementById('brandModalImageUrl');
+
+    statusEl.style.display = 'flex';
+    previewContainer.style.display = 'none';
+    urlInput.value = '';
+
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+        formData.append('folder', 'logos-marcas');
+
+        const response = await fetch(CLOUDINARY_UPLOAD_URL, { method: 'POST', body: formData });
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error?.message || 'Error al subir logo');
+        }
+
+        const data = await response.json();
+        urlInput.value = data.secure_url;
+        document.getElementById('brandLogoPreview').src = data.secure_url;
+        previewContainer.style.display = 'block';
+        statusEl.style.display = 'none';
+        showToast('Logo subido correctamente', 'success');
+    } catch (error) {
+        console.error(error);
+        statusEl.style.display = 'none';
+        showToast('Error al subir logo: ' + error.message, 'error');
+        input.value = '';
+    }
+}
+
+async function saveBrandMgmt() {
+    const id = document.getElementById('brandModalId').value;
+    const name = document.getElementById('brandModalName').value.trim();
+    const image_url = document.getElementById('brandModalImageUrl').value.trim() || null;
+
+    if (!name) {
+        showToast('El nombre es obligatorio', 'warning');
+        return;
+    }
+
+    const isEdit = !!id;
+    const url = isEdit ? `${API_URL}/brands/${id}` : `${API_URL}/brands/`;
+    const method = isEdit ? 'PUT' : 'POST';
+
+    try {
+        const response = await fetchWithAuth(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, image_url })
+        });
+
+        if (response.ok) {
+            showToast(isEdit ? 'Marca actualizada' : 'Marca creada');
+            closeModal('brandModal');
+            await loadBrandsView();
+            allBrands = [];
+        } else {
+            const err = await response.json().catch(() => ({}));
+            showToast(err.detail || 'Error al guardar', 'error');
+        }
+    } catch (e) {
+        console.error(e);
+        showToast('Error de conexión', 'error');
+    }
+}
+
+function deleteBrandMgmt(id, name) {
+    showConfirm(
+        'Eliminar marca',
+        `¿Eliminar "${name}"? Los productos que la tengan asignada perderán esta marca.`,
+        async () => {
+            try {
+                const response = await fetchWithAuth(`${API_URL}/brands/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    showToast('Marca eliminada');
+                    await loadBrandsView();
+                    allBrands = [];
+                } else {
+                    showToast('Error al eliminar', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('Error de conexión', 'error');
+            }
+        }
+    );
+}
+
+// --- CATEGORY MANAGEMENT ---
+let currentCatMgmtId = null;
+
+async function loadCategoriesView() {
+    await loadCategories();
+    renderCategoriesTable();
+    resetSubcatPanel();
+}
+
+function renderCategoriesTable() {
+    const tbody = document.querySelector('#categoriesTable tbody');
+    if (!tbody) return;
+
+    if (!allCategories.length) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#888;">No hay categorías creadas.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = allCategories.map(c => {
+        const safeName = c.name.replace(/'/g,"&#39;");
+        const safeTags = (c.tags||'').replace(/'/g,"&#39;");
+        return `
+        <tr onclick="onCatRowTap(${c.id}, '${safeName}', '${safeTags}')">
+            <td style="font-weight:600;">${c.name}</td>
+            <td style="color:#666;font-size:0.85rem;">${c.tags || '—'}</td>
+            <td class="cat-actions-col">
+                <button class="btn-action bg-blue" title="Ver subcategorías" onclick="event.stopPropagation();selectCategoryForSubcats(${c.id}, '${safeName}')"><i class="fas fa-list"></i></button>
+                <button class="btn-action btn-edit" title="Editar" onclick="event.stopPropagation();openCatMgmtModal(${c.id}, '${safeName}', '${safeTags}')"><i class="fas fa-edit"></i></button>
+                <button class="btn-action btn-delete" title="Eliminar" onclick="event.stopPropagation();deleteCatMgmt(${c.id}, '${safeName}')"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+function openCatMgmtModal(id = null, name = '', tags = '') {
+    currentCatMgmtId = id;
+    document.getElementById('catMgmtId').value = id || '';
+    document.getElementById('catMgmtName').value = name;
+    document.getElementById('catMgmtTags').value = tags;
+    document.getElementById('catMgmtTitle').textContent = id ? 'Editar Categoría' : 'Nueva Categoría';
+    document.getElementById('catMgmtModal').style.display = 'block';
+}
+
+async function saveCatMgmt() {
+    const id = document.getElementById('catMgmtId').value;
+    const name = document.getElementById('catMgmtName').value.trim();
+    const tags = document.getElementById('catMgmtTags').value.trim();
+
+    if (!name) {
+        showToast('El nombre es obligatorio', 'warning');
+        return;
+    }
+
+    const isEdit = !!id;
+    const url = isEdit ? `${API_URL}/categories/${id}` : `${API_URL}/categories/`;
+    const method = isEdit ? 'PUT' : 'POST';
+
+    try {
+        const response = await fetchWithAuth(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, tags })
+        });
+
+        if (response.ok) {
+            showToast(isEdit ? 'Categoría actualizada' : 'Categoría creada');
+            closeModal('catMgmtModal');
+            await loadCategoriesView();
+        } else {
+            const err = await response.json().catch(() => ({}));
+            showToast(err.detail || 'Error al guardar', 'error');
+        }
+    } catch (e) {
+        console.error(e);
+        showToast('Error de conexión', 'error');
+    }
+}
+
+function deleteCatMgmt(id, name) {
+    showConfirm(
+        'Eliminar categoría',
+        `¿Eliminar "${name}"? Sus productos quedarán sin categoría y sus subcategorías serán eliminadas.`,
+        async () => {
+            try {
+                const response = await fetchWithAuth(`${API_URL}/categories/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    showToast('Categoría eliminada');
+                    await loadCategoriesView();
+                } else {
+                    showToast('Error al eliminar', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('Error de conexión', 'error');
+            }
+        }
+    );
+}
+
+function openCtxMenu(label, actions) {
+    document.getElementById('ctxMenuLabel').textContent = label;
+    document.getElementById('ctxMenuActions').innerHTML = actions.map(a => `
+        <button class="ctx-menu-btn ${a.danger ? 'danger' : ''}" onclick="closeCtxMenu();${a.action}">
+            <i class="fas fa-${a.icon}"></i> ${a.label}
+        </button>
+    `).join('');
+    document.getElementById('ctxMenuOverlay').classList.add('open');
+    const menu = document.getElementById('ctxMenu');
+    menu.style.display = 'block';
+    requestAnimationFrame(() => menu.classList.add('open'));
+}
+
+function closeCtxMenu() {
+    const menu = document.getElementById('ctxMenu');
+    menu.classList.remove('open');
+    document.getElementById('ctxMenuOverlay').classList.remove('open');
+    setTimeout(() => { menu.style.display = 'none'; }, 250);
+}
+
+function onCatRowTap(id, name, tags) {
+    if (window.innerWidth > 768) return;
+    openCtxMenu(name, [
+        { icon: 'list', label: 'Ver subcategorías', action: `selectCategoryForSubcats(${id}, '${name}')` },
+        { icon: 'edit', label: 'Editar categoría',  action: `openCatMgmtModal(${id}, '${name}', '${tags}')` },
+        { icon: 'trash', label: 'Eliminar',         action: `deleteCatMgmt(${id}, '${name}')`, danger: true },
+    ]);
+}
+
+function onSubcatRowTap(id, name) {
+    if (window.innerWidth > 768) return;
+    openCtxMenu(name, [
+        { icon: 'edit',  label: 'Editar subcategoría', action: `openSubcatMgmtModal(${id}, '${name}')` },
+        { icon: 'trash', label: 'Eliminar',             action: `deleteSubcatMgmt(${id}, '${name}')`, danger: true },
+    ]);
+}
+
+// --- SUBCATEGORY MANAGEMENT ---
+let currentSubcatCategoryId = null;
+
+function resetSubcatPanel() {
+    currentSubcatCategoryId = null;
+    document.getElementById('subcatPanelTitle').textContent = 'Subcategorías';
+    document.getElementById('subcatPanelHint').style.display = 'block';
+    document.getElementById('subcategoriesTable').style.display = 'none';
+    document.getElementById('btnAddSubcat').style.display = 'none';
+}
+
+async function selectCategoryForSubcats(categoryId, categoryName) {
+    currentSubcatCategoryId = categoryId;
+    document.getElementById('subcatPanelTitle').textContent = `Subcategorías de "${categoryName}"`;
+    document.getElementById('subcatPanelHint').style.display = 'none';
+    document.getElementById('btnAddSubcat').style.display = 'inline-block';
+    document.getElementById('subcategoriesTable').style.display = 'table';
+
+    document.getElementById('subcategoriesPanel').scrollIntoView({ behavior: 'smooth' });
+    await renderSubcategoriesTable(categoryId);
+}
+
+async function renderSubcategoriesTable(categoryId) {
+    const tbody = document.querySelector('#subcategoriesTable tbody');
+    if (!tbody) return;
+
+    try {
+        const response = await fetch(`${API_URL}/subcategories/?category_id=${categoryId}`);
+        const subcats = await response.json();
+
+        if (!subcats.length) {
+            tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#888;">No hay subcategorías en esta categoría.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = subcats.map(s => {
+            const safeName = s.name.replace(/'/g,"&#39;");
+            return `
+            <tr onclick="onSubcatRowTap(${s.id}, '${safeName}')">
+                <td style="font-weight:600;">${s.name}</td>
+                <td class="cat-actions-col">
+                    <button class="btn-action btn-edit" title="Editar" onclick="event.stopPropagation();openSubcatMgmtModal(${s.id}, '${safeName}')"><i class="fas fa-edit"></i></button>
+                    <button class="btn-action btn-delete" title="Eliminar" onclick="event.stopPropagation();deleteSubcatMgmt(${s.id}, '${safeName}')"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
+        }).join('');
+    } catch (e) {
+        console.error(e);
+        tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#c00;">Error al cargar subcategorías.</td></tr>';
+    }
+}
+
+function openSubcatMgmtModal(id = null, name = '') {
+    document.getElementById('subcatMgmtId').value = id || '';
+    document.getElementById('subcatMgmtCategoryId').value = currentSubcatCategoryId || '';
+    document.getElementById('subcatMgmtName').value = name;
+    document.getElementById('subcatMgmtTitle').textContent = id ? 'Editar Subcategoría' : 'Nueva Subcategoría';
+    document.getElementById('subcatMgmtModal').style.display = 'block';
+}
+
+async function saveSubcatMgmt() {
+    const id = document.getElementById('subcatMgmtId').value;
+    const name = document.getElementById('subcatMgmtName').value.trim();
+    const categoryId = parseInt(document.getElementById('subcatMgmtCategoryId').value);
+
+    if (!name) {
+        showToast('El nombre es obligatorio', 'warning');
+        return;
+    }
+    if (!categoryId) {
+        showToast('No hay categoría seleccionada', 'error');
+        return;
+    }
+
+    const isEdit = !!id;
+    const url = isEdit ? `${API_URL}/subcategories/${id}` : `${API_URL}/subcategories/`;
+    const method = isEdit ? 'PUT' : 'POST';
+
+    try {
+        const response = await fetchWithAuth(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, category_id: categoryId })
+        });
+
+        if (response.ok) {
+            showToast(isEdit ? 'Subcategoría actualizada' : 'Subcategoría creada');
+            closeModal('subcatMgmtModal');
+            await renderSubcategoriesTable(categoryId);
+        } else {
+            const err = await response.json().catch(() => ({}));
+            showToast(err.detail || 'Error al guardar', 'error');
+        }
+    } catch (e) {
+        console.error(e);
+        showToast('Error de conexión', 'error');
+    }
+}
+
+function deleteSubcatMgmt(id, name) {
+    showConfirm(
+        'Eliminar subcategoría',
+        `¿Eliminar "${name}"? Los productos asignados a esta subcategoría quedarán sin subcategoría.`,
+        async () => {
+            try {
+                const response = await fetchWithAuth(`${API_URL}/subcategories/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    showToast('Subcategoría eliminada');
+                    await renderSubcategoriesTable(currentSubcatCategoryId);
+                } else {
+                    showToast('Error al eliminar', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('Error de conexión', 'error');
+            }
+        }
+    );
+}
+
+// --- PRESENTATIONS MANAGEMENT VIEW ---
+async function loadPresentationsView() {
+    try {
+        const res = await fetch(`${API_URL}/presentations/`);
+        allPresentations = await res.json();
+        renderPresentationsTable();
+    } catch (e) {
+        console.error(e);
+        showToast('Error al cargar presentaciones', 'error');
+    }
+}
+
+function renderPresentationsTable() {
+    const tbody = document.querySelector('#presentationsTable tbody');
+    if (!tbody) return;
+
+    if (!allPresentations.length) {
+        tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#888;">No hay presentaciones creadas.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = allPresentations.map(p => `
+        <tr>
+            <td style="font-weight:600;">${p.name}</td>
+            <td style="text-align:right;">
+                <button class="btn-action btn-edit" title="Editar" onclick='openPresentationModal(${p.id}, "${p.name.replace(/"/g,"&quot;")}")'><i class="fas fa-edit"></i></button>
+                <button class="btn-action btn-delete" title="Eliminar" onclick="deletePresentationMgmt(${p.id}, '${p.name.replace(/'/g,"&#39;")}')"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function openPresentationModal(id = null, name = '') {
+    document.getElementById('presentationModalId').value = id || '';
+    document.getElementById('presentationModalName').value = name;
+    document.getElementById('presentationModalTitle').textContent = id ? 'Editar Presentación' : 'Nueva Presentación';
+    document.getElementById('presentationModal').style.display = 'block';
+}
+
+async function savePresentationMgmt() {
+    const id = document.getElementById('presentationModalId').value;
+    const name = document.getElementById('presentationModalName').value.trim();
+
+    if (!name) {
+        showToast('El nombre es obligatorio', 'warning');
+        return;
+    }
+
+    const isEdit = !!id;
+    const url = isEdit ? `${API_URL}/presentations/${id}` : `${API_URL}/presentations/`;
+    const method = isEdit ? 'PUT' : 'POST';
+
+    try {
+        const response = await fetchWithAuth(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name })
+        });
+
+        if (response.ok) {
+            showToast(isEdit ? 'Presentación actualizada' : 'Presentación creada');
+            closeModal('presentationModal');
+            await loadPresentationsView();
+        } else {
+            const err = await response.json().catch(() => ({}));
+            showToast(err.detail || 'Error al guardar', 'error');
+        }
+    } catch (e) {
+        console.error(e);
+        showToast('Error de conexión', 'error');
+    }
+}
+
+function deletePresentationMgmt(id, name) {
+    showConfirm(
+        'Eliminar presentación',
+        `¿Eliminar "${name}"? Los productos que la tengan asignada perderán esta presentación.`,
+        async () => {
+            try {
+                const response = await fetchWithAuth(`${API_URL}/presentations/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    showToast('Presentación eliminada');
+                    await loadPresentationsView();
+                } else {
+                    showToast('Error al eliminar', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('Error de conexión', 'error');
+            }
+        }
+    );
 }
 
 // Init

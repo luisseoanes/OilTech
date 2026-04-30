@@ -39,42 +39,146 @@ function showToast(message, type = 'success') {
     }, 4000);
 }
 
-// Fetch products from backend
+// Fetch categories and products, then build tabs and grids dynamically
 async function loadProducts() {
     try {
-        const response = await fetch(`${API_URL}/products/`);
-        allProducts = await response.json();
-        renderGrids();
+        const [prodRes, catRes] = await Promise.all([
+            fetch(`${API_URL}/products/`),
+            fetch(`${API_URL}/categories/`)
+        ]);
+        allProducts = await prodRes.json();
+        const categories = await catRes.json();
+        buildTabsAndGrids(categories, allProducts);
     } catch (error) {
         console.error('Error loading products:', error);
-        // Fallback or show error
     }
 }
 
-// Render dynamic subcategory cards based on backend products
-function renderGrids() {
-    const categories = ['lubricantes-industriales', 'grasas-industriales', 'seguridad-industrial-epp', 'productos-de-limpieza-y-mantenimiento', 'herramientas-y-suministros-tecnicos'];
+function buildTabsAndGrids(categories, products) {
+    const tabsContainer = document.getElementById('tabs-container');
+    const gridsContainer = document.getElementById('grids-container');
 
-    categories.forEach(cat => {
-        const grid = document.getElementById(`cat-${cat}`);
-        if (!grid) return;
+    tabsContainer.innerHTML =
+        `<button class="tab-btn active" data-target="todos" onclick="switchTab('todos')">Todos</button>` +
+        categories.map(c =>
+            `<button class="tab-btn" data-target="cat-${c.id}" onclick="switchTab('cat-${c.id}')">${c.name}</button>`
+        ).join('');
 
-        const catProducts = allProducts.filter(p =>
-            (p.category_name || '').toLowerCase().replace(/[\s()]/g, '-').replace(/-+/g, '-') === cat
-        );
-        
-        grid.innerHTML = catProducts.map(p => `
-            <div class="subcat-card" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
-                <div class="subcat-img-wrapper">
-                    <img src="${p.image_url}" alt="${p.name}" onerror="this.src='https://placehold.co/400x400?text=Sin+Imagen'">
-                </div>
-                <div class="subcat-content">
-                    <div class="subcat-title">${p.name}</div>
-                    <div class="subcat-desc">${p.description || ''}</div>
-                </div>
-            </div>
-        `).join('');
+    gridsContainer.innerHTML =
+        `<div class="subcat-grid active" id="grid-todos"></div>` +
+        categories.map(c => `<div class="subcat-grid" id="grid-cat-${c.id}"></div>`).join('');
+
+    renderGrid('todos', products);
+    categories.forEach(c => {
+        renderGrid(`cat-${c.id}`, products.filter(p => p.category_id === c.id));
     });
+}
+
+function renderGrid(targetId, products) {
+    const grid = document.getElementById(`grid-${targetId}`);
+    if (!grid) return;
+
+    if (!products.length) {
+        grid.innerHTML = '<p style="text-align:center;color:#888;padding:40px 0;width:100%;grid-column:1/-1;">No hay productos en esta categoría.</p>';
+        return;
+    }
+
+    grid.innerHTML = products.map(p => `
+        <div class="subcat-card" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
+            <div class="subcat-img-wrapper">
+                <img src="${p.image_url}" alt="${p.name}" onerror="this.src='https://placehold.co/400x400?text=Sin+Imagen'">
+            </div>
+            <div class="subcat-content">
+                <div class="subcat-title">${p.name}</div>
+                <div class="subcat-desc">${p.description || ''}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+let selectedSubcats = new Set();
+let currentCategorySubcats = [];
+let currentGridTarget = null;
+
+async function switchTab(targetId) {
+    document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.subcat-grid').forEach(g => g.classList.remove('active'));
+    const tab = document.querySelector(`[data-target="${targetId}"]`);
+    const grid = document.getElementById(`grid-${targetId}`);
+    if (tab) tab.classList.add('active');
+    if (grid) grid.classList.add('active');
+
+    if (targetId === 'todos') {
+        clearSubcatBar();
+        return;
+    }
+
+    const catId = parseInt(targetId.replace('cat-', ''));
+    currentGridTarget = targetId;
+    await buildSubcatBar(catId);
+}
+
+async function buildSubcatBar(catId) {
+    try {
+        const res = await fetch(`${API_URL}/subcategories/?category_id=${catId}`);
+        const subcats = await res.json();
+        currentCategorySubcats = subcats;
+
+        if (!subcats.length) {
+            clearSubcatBar();
+            return;
+        }
+
+        selectedSubcats = new Set(subcats.map(s => s.id));
+        renderSubcatBar();
+    } catch (e) {
+        console.error(e);
+        clearSubcatBar();
+    }
+}
+
+function renderSubcatBar() {
+    const bar = document.getElementById('subcat-filter-bar');
+    bar.style.display = 'flex';
+    bar.innerHTML = currentCategorySubcats.map(s => {
+        const active = selectedSubcats.has(s.id);
+        return `<button class="subcat-chip ${active ? 'selected' : 'deselected'}" onclick="toggleSubcat(${s.id})">
+            ${s.name}
+            ${active ? `<span class="subcat-chip-x">✕</span>` : ''}
+        </button>`;
+    }).join('');
+
+    applySubcatFilter();
+}
+
+function toggleSubcat(subcatId) {
+    if (selectedSubcats.has(subcatId)) {
+        selectedSubcats.delete(subcatId);
+    } else {
+        selectedSubcats.add(subcatId);
+    }
+    renderSubcatBar();
+}
+
+function applySubcatFilter() {
+    if (!currentGridTarget) return;
+    const catId = parseInt(currentGridTarget.replace('cat-', ''));
+    const catProducts = allProducts.filter(p => p.category_id === catId);
+
+    const filtered = catProducts.filter(p =>
+        p.subcategory_id === null || p.subcategory_id === undefined || selectedSubcats.has(p.subcategory_id)
+    );
+
+    renderGrid(currentGridTarget, filtered);
+}
+
+function clearSubcatBar() {
+    const bar = document.getElementById('subcat-filter-bar');
+    bar.style.display = 'none';
+    bar.innerHTML = '';
+    selectedSubcats = new Set();
+    currentCategorySubcats = [];
+    currentGridTarget = null;
 }
 
 // Modal Logic
@@ -94,9 +198,9 @@ function openProductModal(product) {
     sizeChips.innerHTML = '';
     
     // Set brands
-    const brands = (product.brands || '').split(/[ ,]+/).filter(Boolean);
+    const brands = product.brands || [];
     brandChips.innerHTML = brands.length ? brands.map(b => `
-        <div class="chip brand-chip" onclick="selectSingleChip(this, 'brand-chip')">${b}</div>
+        <div class="chip brand-chip" onclick="selectSingleChip(this, 'brand-chip')">${b.name}</div>
     `).join('') : '';
 
     // Handle technical sheet

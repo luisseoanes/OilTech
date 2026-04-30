@@ -315,8 +315,9 @@ textarea {
     margin: 15% auto;
     padding: 20px;
     border: 1px solid #888;
-    width: 80%;
+    width: 90%;
     max-width: 600px;
+    box-sizing: border-box;
     border-radius: 10px;
 }
 
@@ -573,4 +574,105 @@ textarea {
     height: 200px;
     object-fit: cover;
     border-radius: 8px;
+}
+
+.brand-pick-chip {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    border: 1.5px solid #dee2e6;
+    background: transparent;
+    color: #666;
+}
+
+.brand-pick-chip:hover {
+    border-color: #adb5bd;
+    color: #333;
+}
+
+.brand-pick-chip.selected {
+    background: #212529;
+    border-color: #212529;
+    color: #fff;
+}
+
+/* ---- Context menu bottom sheet (mobile categories) ---- */
+.ctx-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 3000;
+}
+
+.ctx-menu {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-radius: 16px 16px 0 0;
+    padding: 20px 16px 32px;
+    z-index: 3001;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
+    transform: translateY(100%);
+    transition: transform .25s cubic-bezier(0.4,0,0.2,1);
+}
+
+.ctx-menu.open {
+    transform: translateY(0);
+}
+
+.ctx-overlay.open { display: block; }
+
+.ctx-menu-label {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #333;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.ctx-menu-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 14px 4px;
+    background: none;
+    border: none;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    text-align: left;
+}
+
+.ctx-menu-btn:last-child { border-bottom: none; }
+.ctx-menu-btn i { width: 20px; text-align: center; font-size: 1rem; }
+.ctx-menu-btn.danger { color: #dc3545; }
+.ctx-menu-btn:active { background: #f8f9fa; border-radius: 8px; }
+
+#categoriesTable .cat-actions-col:last-child,
+#subcategoriesTable .cat-actions-col:last-child {
+    text-align: right;
+    width: 1%;
+    white-space: nowrap;
+}
+
+/* Categories tables: mobile responsive */
+@media (max-width: 768px) {
+    .cat-actions-col { display: none; }
+
+    #categoriesTable th:nth-child(2),
+    #categoriesTable td:nth-child(2) { display: none; }
+
+    #categoriesTable tr,
+    #subcategoriesTable tr { cursor: pointer; }
 }

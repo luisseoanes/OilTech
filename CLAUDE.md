@@ -20,6 +20,7 @@ OilTech is an e-commerce/catalog site for industrial lubricants, PPE, and tools.
 
 ```bash
 source venv/bin/activate
+cd backend
 uvicorn main:app --reload
 ```
 
@@ -55,7 +56,7 @@ The server uses `backend/oiltech.db`, NOT the root `oiltech.db` (which is empty)
 ```
 backend/
   main.py      — FastAPI app, all routes, startup seeds and migrations
-  models.py    — SQLAlchemy ORM models (User, Category, Product, Quotation)
+  models.py    — SQLAlchemy ORM models (User, Category, Subcategory, Brand, Product, Quotation, product_brands junction)
   schemas.py   — Pydantic request/response schemas
   database.py  — SQLAlchemy engine setup, DB path resolution
   auth.py      — JWT auth (python-jose), bcrypt password hashing, OAuth2
@@ -74,23 +75,31 @@ login.html     — Admin login
 
 **Quotation model:** Quotation items are stored as a JSON column (list of dicts with `product_id`, `product_name`, `quantity`, `option`, `price`). Status values: `Pending`, `Purchased`, `Cancelled`.
 
-**Image uploads:** Product images use Cloudinary (cloud name `dxxicnipr`, unsigned upload preset `refrielectricos_unsigned`). The upload URL is constructed in `admin.js`.
+**Image uploads:** Cloudinary cloud `dvoeietxt`, unsigned preset `OilTechCMS`. Images → `/image/upload`, PDFs → `/raw/upload` with `fl_attachment:false` inserted after `/upload/`. All upload logic in `admin.js`.
 
 **Railway deployment:** The DB is persisted via a Railway Volume mounted at `RAILWAY_VOLUME_MOUNT_PATH`. Admin endpoints `/admin/upload-db` and `/admin/download-db` exist for manual DB migration between environments.
 
 **Footer component:** Extracted to `components/footer.html`, injected via `fetch()` in each page. Edit only that file for footer changes.
 
-**Product.search_tags:** Auto-generated on create/update from `product.name` (words split by spaces, joined by commas). Do not expect the admin UI to send this field.
-
-**Columnas eliminadas de Product:** `price`, `code` y `price_text` fueron eliminadas. Esquema actual: `id, name, category, image_url, brands, search_tags, options, description, technical_sheet_url, subcategory`.
+**Product schema actual:** `id, name, category_id, subcategory_id, image_url, search_tags, description, technical_sheet_url`. Brands via `product_brands` junction — send `brand_ids: List[int]`, receive `brands: List[Brand]`. Columnas eliminadas: `price`, `code`, `price_text`, `options`, `brands` (string).
 
 **Quotation.reference:** Generado en el backend como `COT-{id:06d}` al crear. No enviarlo desde el frontend.
 
 **Quotation.total_estimated eliminado:** Removido completamente. Las cotizaciones solo tienen `items`, `reference` y `status`.
 
-**js/constants.js:** Constantes globales compartidas entre páginas. Actualmente contiene `BRAND_LOGOS` (carrusel de `productos.html`).
+**js/constants.js:** Contains `BRAND_LOGOS` for the homepage carousel animation only. Brand data for products comes from `/brands/` API, not this file.
 
 **SQLite DROP COLUMN:** Requires SQLite ≥ 3.35. Migration in `apply_migrations()` handles it idempotently.
+
+**Brand model:** `Brand` table (`id, name, image_url`) linked to products via `product_brands` junction table (many-to-many). Seeded from `seed_brands()` on startup. CRUD at `/brands/`. Products send `brand_ids: List[int]` on create/update; response includes `brands: List[Brand]`.
+
+**Product create/update pattern:** `brand_ids` must be `data.pop("brand_ids", [])` before `models.Product(**data)` — it's a relationship, not a column.
+
+**Cloudinary PDF upload:** Use `/raw/upload` endpoint (not `/image/upload`). Insert `fl_attachment:false` after `/upload/` in the returned URL: `url.replace('/upload/', '/upload/fl_attachment:false/')`.
+
+**search_tags:** Never send from frontend. Backend auto-generates as `",".join(name.split())` on create/update.
+
+**Mobile table pattern:** Add `class="cat-actions-col"` to both `<th>` and `<td>` of any action column. CSS hides `.cat-actions-col` at `≤768px`. Row tap opens a bottom sheet (`openCtxMenu()`).
 
 ## Key Constraints
 

@@ -29,13 +29,36 @@ class Subcategory(SubcategoryBase):
     class Config:
         from_attributes = True
 
+class PresentationBase(BaseModel):
+    name: str
+
+class PresentationCreate(PresentationBase):
+    pass
+
+class Presentation(PresentationBase):
+    id: int
+    class Config:
+        from_attributes = True
+
+class BrandBase(BaseModel):
+    name: str
+    image_url: Optional[str] = None
+
+class BrandCreate(BrandBase):
+    pass
+
+class Brand(BrandBase):
+    id: int
+    class Config:
+        from_attributes = True
+
 class ProductBase(BaseModel):
     name: str
     category_id: Optional[int] = None
     subcategory_id: Optional[int] = None
-    price_text: Optional[str] = None
     image_url: Optional[str] = None
-    brands: Optional[str] = None
+    brand_ids: Optional[List[int]] = []
+    presentation_ids: Optional[List[int]] = []
     search_tags: Optional[str] = None
     description: Optional[str] = None
     technical_sheet_url: Optional[str] = None
@@ -47,6 +70,8 @@ class Product(ProductBase):
     id: int
     category_name: Optional[str] = None
     subcategory_name: Optional[str] = None
+    brands: List[Brand] = []
+    presentations: List[Presentation] = []
 
     class Config:
         from_attributes = True
@@ -68,7 +93,7 @@ class Quotation(QuotationCreate):
     id: int
     status: str
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 

@@ -54,23 +54,14 @@
             <div class="brands-carousel-track" id="brandsCarouselTrack"></div>
         </div>
 
-        <!-- TABS -->
-        <div class="productos-tabs reveal">
-            <button class="tab-btn active" data-target="lubricantes-industriales">Lubricantes</button>
-            <button class="tab-btn" data-target="grasas-industriales">Grasas</button>
-            <button class="tab-btn" data-target="seguridad-industrial-epp">Seguridad</button>
-            <button class="tab-btn" data-target="productos-de-limpieza-y-mantenimiento">Limpieza</button>
-            <button class="tab-btn" data-target="herramientas-y-suministros-tecnicos">Herramientas</button>
-        </div>
+        <!-- TABS (generados dinámicamente) -->
+        <div class="productos-tabs reveal" id="tabs-container"></div>
 
-        <!-- GRIDS DE CATEGORÍAS -->
+        <!-- FILTRO DE SUBCATEGORÍAS (se muestra/oculta dinámicamente) -->
+        <div class="subcat-filter-bar" id="subcat-filter-bar" style="display:none;"></div>
 
-        <!-- Automotriz -->
-        <div class="subcat-grid active" id="cat-lubricantes-industriales"></div>
-        <div class="subcat-grid" id="cat-grasas-industriales"></div>
-        <div class="subcat-grid" id="cat-seguridad-industrial-epp"></div>
-        <div class="subcat-grid" id="cat-productos-de-limpieza-y-mantenimiento"></div>
-        <div class="subcat-grid" id="cat-herramientas-y-suministros-tecnicos"></div>
+        <!-- GRIDS (generados dinámicamente) -->
+        <div id="grids-container"></div>
     </main>
 
     <!-- Modal Detalle Subcategoría -->
@@ -200,20 +191,6 @@
     </script>
     <script src="js/productos.js"></script>
     <script>
-        // Pestañas
-        const tabs = document.querySelectorAll('.tab-btn');
-        const grids = document.querySelectorAll('.subcat-grid');
-
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                grids.forEach(g => g.classList.remove('active'));
-
-                tab.classList.add('active');
-                document.getElementById('cat-' + tab.dataset.target).classList.add('active');
-            });
-        });
-
         // Revelar Elementos on scroll
         const reveals = document.querySelectorAll('.reveal');
         const obs = new IntersectionObserver((entries) => {

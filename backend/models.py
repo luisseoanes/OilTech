@@ -1,6 +1,6 @@
 # models.py
 
-from sqlalchemy import Boolean, Column, Integer, String, Float, Text, ForeignKey, DateTime, JSON
+from sqlalchemy import Boolean, Column, Integer, String, Float, Text, ForeignKey, DateTime, JSON, Table
 from sqlalchemy.orm import relationship
 import datetime
 from database import Base
@@ -30,6 +30,29 @@ class Subcategory(Base):
     def category_name(self):
         return self.category.name if self.category else None
 
+class Brand(Base):
+    __tablename__ = "brands"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, index=True)
+    image_url = Column(String)
+
+product_brands = Table(
+    "product_brands", Base.metadata,
+    Column("product_id", Integer, ForeignKey("products.id"), primary_key=True),
+    Column("brand_id", Integer, ForeignKey("brands.id"), primary_key=True),
+)
+
+class Presentation(Base):
+    __tablename__ = "presentations"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, index=True)
+
+product_presentations = Table(
+    "product_presentations", Base.metadata,
+    Column("product_id", Integer, ForeignKey("products.id"), primary_key=True),
+    Column("presentation_id", Integer, ForeignKey("presentations.id"), primary_key=True),
+)
+
 class Product(Base):
     __tablename__ = "products"
 
@@ -40,11 +63,11 @@ class Product(Base):
     subcategory_id = Column(Integer, ForeignKey("subcategories.id"), nullable=True, index=True)
     subcategory = relationship("Subcategory")
     image_url = Column(String)
-    brands = Column(String)
+    brands = relationship("Brand", secondary=product_brands)
+    presentations = relationship("Presentation", secondary=product_presentations)
     search_tags = Column(String)
     description = Column(Text, nullable=True)
     technical_sheet_url = Column(String, nullable=True)
-    price_text = Column(String, nullable=True)
 
     @property
     def category_name(self):
@@ -59,8 +82,8 @@ class Quotation(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     customer_name = Column(String)
-    customer_contact = Column(String) # Phone or Email
-    reference = Column(String, index=True, nullable=True) # Unique reference for 1-click flow
-    items = Column(JSON) # Store list of items as JSON: [{"product_id": 1, "quantity": 2, "option": "3/8"}, ...]
-    status = Column(String, default="Pending") # Pending, Purchased, Cancelled
+    customer_contact = Column(String)
+    reference = Column(String, index=True, nullable=True)
+    items = Column(JSON)
+    status = Column(String, default="Pending")
     created_at = Column(DateTime, default=datetime.datetime.utcnow)

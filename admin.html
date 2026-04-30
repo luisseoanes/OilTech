@@ -38,6 +38,9 @@
             <li onclick="switchView('quotations')"><i class="fas fa-file-invoice"></i> <span>Cotizaciones</span></li>
             <li onclick="switchView('sales')"><i class="fas fa-shopping-bag"></i> <span>Ventas Realizadas</span></li>
             <li onclick="switchView('products')"><i class="fas fa-box"></i> <span>Inventario</span></li>
+            <li onclick="switchView('categories')"><i class="fas fa-tags"></i> <span>Categorías</span></li>
+            <li onclick="switchView('brands-mgmt')"><i class="fas fa-certificate"></i> <span>Marcas</span></li>
+            <li onclick="switchView('presentations-mgmt')"><i class="fas fa-box-open"></i> <span>Presentaciones</span></li>
             <li onclick="getAnalytics() ; switchView('analytics')"><i class="fas fa-chart-line"></i>
                 <span>Analíticas</span>
             </li>
@@ -283,19 +286,15 @@
                 <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
                     <input type="hidden" id="prodId">
                     <div style="display: none;"><input type="text" id="prodCode" placeholder="Código"></div>
-                    <div class="fg">
+                    <div class="fg" style="grid-column: 1 / -1;">
                         <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Nombre del Producto</label>
                         <input type="text" id="prodName" placeholder="Ej: Aceite Hidráulico ISO 68">
                     </div>
                     <div class="fg">
                         <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Categoría</label>
-                        <div style="display: flex; gap: 5px;">
-                            <select id="prodCategory" style="flex: 1;" onchange="onCategoryChange(this.value)">
-                                <option value="">Seleccione Categoría</option>
-                            </select>
-                            <button class="btn-primary" style="width: auto; padding: 0 10px;"
-                                onclick="openCategoryModal()" title="Nueva Categoría">+</button>
-                        </div>
+                        <select id="prodCategory" style="width: 100%;" onchange="onCategoryChange(this.value)">
+                            <option value="">Seleccione Categoría</option>
+                        </select>
                     </div>
                     <div class="fg">
                         <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Subcategoría</label>
@@ -305,7 +304,8 @@
                     </div>
                 </div>
                 <div class="form-grid">
-                    <div class="img-grid">
+                    <div class="img-grid" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Imagen del Producto</label>
                         <div class="img-inside-grid">
                             <input type="text" id="prodImage" placeholder="URL Imagen (se llena automáticamente)"
                                 style="flex: 1;">
@@ -322,10 +322,38 @@
                             <img class="image-preview" id="imagePreview" src="" alt="Vista previa">
                         </div>
                     </div>
-                    <input type="text" id="prodBrands" placeholder="Marcas (ej: LG, Samsung)">
+                    <div class="fg" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Marcas disponibles</label>
+                        <div id="brandsPicker" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;"></div>
+                    </div>
+                    <div class="fg" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Presentaciones disponibles</label>
+                        <div id="presentationsPicker" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;"></div>
+                    </div>
                 </div>
-                <div class="form-grid">
-                    <input type="text" id="prodTags" placeholder="Tags de búsqueda">
+                <div class="form-grid" style="grid-template-columns: 1fr;">
+                    <div class="fg">
+                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Descripción del Producto</label>
+                        <textarea id="prodDescription" rows="4" placeholder="Descripción detallada del producto..." style="width: 100%; resize: vertical;"></textarea>
+                    </div>
+                </div>
+                <div class="form-grid" style="grid-template-columns: 1fr;">
+                    <div class="fg">
+                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Ficha Técnica (PDF)</label>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="text" id="prodTechSheet" placeholder="URL de la ficha técnica (se llena automáticamente)" style="flex: 1; min-width: 0;">
+                            <label for="prodTechSheetFile" class="btn-primary" style="cursor: pointer; white-space: nowrap; flex-shrink: 0;">
+                                <i class="fas fa-file-pdf"></i> Subir PDF
+                            </label>
+                            <input type="file" id="prodTechSheetFile" accept=".pdf,application/pdf" style="display: none;" onchange="uploadPdfToCloudinary(this)">
+                        </div>
+                        <div id="pdfUploadStatus" style="display: none; align-items: center; gap: 8px; margin-top: 8px; font-size: 0.85rem; color: #666;">
+                            <i class="fas fa-spinner fa-spin"></i> Subiendo PDF...
+                        </div>
+                        <div id="pdfUploadSuccess" style="display: none; align-items: center; gap: 8px; margin-top: 8px; font-size: 0.85rem; color: #28a745;">
+                            <i class="fas fa-check-circle"></i> <span id="pdfFileName"></span>
+                        </div>
+                    </div>
                 </div>
                 <button class="btn-primary" onclick="saveProduct()">Guardar Producto</button>
                 <button class="btn-action btn-cancel" style="width: auto; padding: 10px;"
@@ -364,6 +392,92 @@
             </div>
         </div>
 
+        <!-- Categories View -->
+        <div id="categories" class="section-view">
+            <div class="section-header">
+                <h2>Gestión de Categorías</h2>
+                <button class="btn-primary" onclick="openCatMgmtModal()">+ Nueva Categoría</button>
+            </div>
+
+            <div class="card">
+                <div style="overflow-x: auto;">
+                    <table id="categoriesTable">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th class="cat-actions-col">Tags</th>
+                                <th class="cat-actions-col">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card" id="subcategoriesPanel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 id="subcatPanelTitle" style="margin: 0;">Subcategorías</h3>
+                    <button class="btn-primary" id="btnAddSubcat" style="display: none;" onclick="openSubcatMgmtModal()">+ Nueva Subcategoría</button>
+                </div>
+                <p id="subcatPanelHint" style="color: #888; font-size: 0.9rem;">Selecciona una categoría para ver y gestionar sus subcategorías.</p>
+                <div style="overflow-x: auto;">
+                    <table id="subcategoriesTable" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th class="cat-actions-col">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Context Menu Bottom Sheet (mobile) -->
+        <div id="ctxMenuOverlay" class="ctx-overlay" onclick="closeCtxMenu()"></div>
+        <div id="ctxMenu" class="ctx-menu">
+            <div class="ctx-menu-label" id="ctxMenuLabel"></div>
+            <div id="ctxMenuActions"></div>
+        </div>
+
+        <!-- Category Mgmt Modal (create / edit) -->
+        <div id="catMgmtModal" class="modal">
+            <div class="modal-content" style="max-width: 420px;">
+                <span class="close" onclick="closeModal('catMgmtModal')">&times;</span>
+                <h3 id="catMgmtTitle">Nueva Categoría</h3>
+                <input type="hidden" id="catMgmtId">
+                <div class="form-grid" style="grid-template-columns: 1fr; gap: 12px; margin-top: 15px;">
+                    <div class="fg">
+                        <label style="font-size:0.8rem;font-weight:600;color:#555;">Nombre</label>
+                        <input type="text" id="catMgmtName" placeholder="Ej: lubricantes">
+                    </div>
+                    <div class="fg">
+                        <label style="font-size:0.8rem;font-weight:600;color:#555;">Tags de búsqueda (separados por espacio)</label>
+                        <textarea id="catMgmtTags" rows="3" placeholder="Ej: aceite lubricante industrial"></textarea>
+                    </div>
+                    <button class="btn-primary" onclick="saveCatMgmt()">Guardar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subcategory Mgmt Modal (create / edit) -->
+        <div id="subcatMgmtModal" class="modal">
+            <div class="modal-content" style="max-width: 420px;">
+                <span class="close" onclick="closeModal('subcatMgmtModal')">&times;</span>
+                <h3 id="subcatMgmtTitle">Nueva Subcategoría</h3>
+                <input type="hidden" id="subcatMgmtId">
+                <input type="hidden" id="subcatMgmtCategoryId">
+                <div class="form-grid" style="grid-template-columns: 1fr; gap: 12px; margin-top: 15px;">
+                    <div class="fg">
+                        <label style="font-size:0.8rem;font-weight:600;color:#555;">Nombre</label>
+                        <input type="text" id="subcatMgmtName" placeholder="Ej: ISO 68">
+                    </div>
+                    <button class="btn-primary" onclick="saveSubcatMgmt()">Guardar</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Analytics View -->
         <div id="analytics" class="section-view">
             <div class="section-header">
@@ -383,6 +497,97 @@
                 </div>
             </div>
         </div>
+        <!-- Brands Management View -->
+        <div id="brands-mgmt" class="section-view">
+            <div class="section-header">
+                <h2>Gestión de Marcas</h2>
+                <button class="btn-primary" onclick="openBrandModal()">+ Nueva Marca</button>
+            </div>
+            <div class="card">
+                <div style="overflow-x: auto;">
+                    <table id="brandsTable">
+                        <thead>
+                            <tr>
+                                <th>Logo</th>
+                                <th>Nombre</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Brand Modal (create / edit) -->
+        <div id="brandModal" class="modal">
+            <div class="modal-content" style="max-width: 440px;">
+                <span class="close" onclick="closeModal('brandModal')">&times;</span>
+                <h3 id="brandModalTitle">Nueva Marca</h3>
+                <input type="hidden" id="brandModalId">
+                <div class="form-grid" style="grid-template-columns: 1fr; gap: 14px; margin-top: 15px;">
+                    <div class="fg">
+                        <label style="font-size:0.8rem;font-weight:600;color:#555;">Nombre</label>
+                        <input type="text" id="brandModalName" placeholder="Ej: Shell">
+                    </div>
+                    <div class="fg">
+                        <label style="font-size:0.8rem;font-weight:600;color:#555;">Logo</label>
+                        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                            <input type="text" id="brandModalImageUrl" placeholder="URL del logo (se llena automáticamente)" style="flex:1;min-width:0;">
+                            <label for="brandLogoFile" class="btn-primary" style="cursor:pointer;white-space:nowrap;flex-shrink:0;">
+                                <i class="fas fa-upload"></i> Subir logo
+                            </label>
+                            <input type="file" id="brandLogoFile" accept="image/*" style="display:none;" onchange="uploadBrandLogo(this)">
+                        </div>
+                        <div id="brandLogoUploadStatus" style="display:none;align-items:center;gap:8px;margin-top:8px;font-size:0.85rem;color:#666;">
+                            <i class="fas fa-spinner fa-spin"></i> Subiendo logo...
+                        </div>
+                        <div id="brandLogoPreviewContainer" style="display:none;margin-top:10px;">
+                            <img id="brandLogoPreview" src="" alt="Preview" style="max-height:80px;max-width:200px;object-fit:contain;border:1px solid #e9ecef;border-radius:8px;padding:8px;background:#fff;">
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="saveBrandMgmt()">Guardar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Presentations Management View -->
+        <div id="presentations-mgmt" class="section-view">
+            <div class="section-header">
+                <h2>Gestión de Presentaciones</h2>
+                <button class="btn-primary" onclick="openPresentationModal()">+ Nueva Presentación</button>
+            </div>
+            <div class="card">
+                <div style="overflow-x: auto;">
+                    <table id="presentationsTable">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th style="text-align: right;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Presentation Modal (create / edit) -->
+        <div id="presentationModal" class="modal">
+            <div class="modal-content" style="max-width: 400px;">
+                <span class="close" onclick="closeModal('presentationModal')">&times;</span>
+                <h3 id="presentationModalTitle">Nueva Presentación</h3>
+                <input type="hidden" id="presentationModalId">
+                <div class="form-grid" style="grid-template-columns: 1fr; gap: 14px; margin-top: 15px;">
+                    <div class="fg">
+                        <label style="font-size:0.8rem;font-weight:600;color:#555;">Nombre</label>
+                        <input type="text" id="presentationModalName" placeholder="Ej: Galón, Tambor 55 gal, Cuñete 5 gal">
+                    </div>
+                    <button class="btn-primary" onclick="savePresentationMgmt()">Guardar</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Security View -->
         <div id="security" class="section-view">
             <div class="section-header">

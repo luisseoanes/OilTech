@@ -55,9 +55,9 @@ def apply_migrations():
             print("Migrating: Adding 'category_id' column to products")
             cursor.execute("ALTER TABLE products ADD COLUMN category_id INTEGER REFERENCES categories(id)")
             conn.commit()
-        if "price_text" not in product_columns:
-            print("Migrating: Adding 'price_text' column to products")
-            cursor.execute("ALTER TABLE products ADD COLUMN price_text TEXT")
+        if "price_text" in product_columns:
+            print("Migrating: Dropping 'price_text' column from products")
+            cursor.execute("ALTER TABLE products DROP COLUMN price_text")
             conn.commit()
         if "subcategory" in product_columns:
             print("Migrating: Dropping 'subcategory' TEXT column from products")
@@ -73,6 +73,61 @@ def apply_migrations():
         if "total_estimated" in quotation_columns:
             print("Migrating: Dropping 'total_estimated' column from quotations")
             cursor.execute("ALTER TABLE quotations DROP COLUMN total_estimated")
+            conn.commit()
+
+        # Re-fetch product columns after potential drops above
+        cursor.execute("PRAGMA table_info(products)")
+        product_columns = [col[1] for col in cursor.fetchall()]
+        if "brands" in product_columns:
+            print("Migrating: Dropping legacy 'brands' text column from products")
+            cursor.execute("ALTER TABLE products DROP COLUMN brands")
+            conn.commit()
+
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='brands'")
+        if not cursor.fetchone():
+            print("Migrating: Creating 'brands' table")
+            cursor.execute("""
+                CREATE TABLE brands (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT UNIQUE NOT NULL,
+                    image_url TEXT
+                )
+            """)
+            conn.commit()
+
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='product_brands'")
+        if not cursor.fetchone():
+            print("Migrating: Creating 'product_brands' junction table")
+            cursor.execute("""
+                CREATE TABLE product_brands (
+                    product_id INTEGER NOT NULL REFERENCES products(id),
+                    brand_id INTEGER NOT NULL REFERENCES brands(id),
+                    PRIMARY KEY (product_id, brand_id)
+                )
+            """)
+            conn.commit()
+
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='presentations'")
+        if not cursor.fetchone():
+            print("Migrating: Creating 'presentations' table")
+            cursor.execute("""
+                CREATE TABLE presentations (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT UNIQUE NOT NULL
+                )
+            """)
+            conn.commit()
+
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='product_presentations'")
+        if not cursor.fetchone():
+            print("Migrating: Creating 'product_presentations' junction table")
+            cursor.execute("""
+                CREATE TABLE product_presentations (
+                    product_id INTEGER NOT NULL REFERENCES products(id),
+                    presentation_id INTEGER NOT NULL REFERENCES presentations(id),
+                    PRIMARY KEY (product_id, presentation_id)
+                )
+            """)
             conn.commit()
 
         conn.close()
@@ -166,6 +221,36 @@ def seed_subcategories():
 
 seed_subcategories()
 
+def seed_brands():
+    db = database.SessionLocal()
+    try:
+        if db.query(models.Brand).count() > 0:
+            return
+        initial = [
+            {"name": "Shell",     "image_url": "https://images.icon-icons.com/2699/PNG/512/shell_logo_icon_168832.png"},
+            {"name": "Mobil",     "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Mobil_logo.svg/3840px-Mobil_logo.svg.png"},
+            {"name": "Terpel",    "image_url": "https://portalcolombia.terpel.com/static/images/terpel_logo_og.png"},
+            {"name": "Chevron",   "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Chevron_Logo.svg/960px-Chevron_Logo.svg.png"},
+            {"name": "Repsol",    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Repsol_logo.svg/1280px-Repsol_logo.svg.png"},
+            {"name": "3M",        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/3M_wordmark.svg/3840px-3M_wordmark.svg.png"},
+            {"name": "Castrol",   "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Castrol_logo_2023.svg/3840px-Castrol_logo_2023.svg.png"},
+            {"name": "Valvoline", "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Valvoline_company_logo.svg/1280px-Valvoline_company_logo.svg.png"},
+            {"name": "Gulf",      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/70/Gulf_logo.png"},
+            {"name": "Motul",     "image_url": "https://1000marcas.net/wp-content/uploads/2021/05/Logo-Motul.png"},
+            {"name": "MCR Safety","image_url": "https://ibtinc.com/wp-content/uploads/2022/12/MCR-Safety-logo.png"},
+            {"name": "Ansell",    "image_url": "https://upload.wikimedia.org/wikipedia/en/thumb/0/07/Ansell_logo.svg/3840px-Ansell_logo.svg.png"},
+            {"name": "Bosch",     "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c3/Bosch_logo.png"},
+            {"name": "ARO",       "image_url": "https://sumicali.com/cdn/shop/collections/ARO-Sumicali.png?crop=center&height=2048&v=1716414249&width=2048"},
+        ]
+        for b in initial:
+            db.add(models.Brand(**b))
+        db.commit()
+        print("Auto-seeded brands")
+    finally:
+        db.close()
+
+seed_brands()
+
 app = FastAPI()
 
 # CORS - Allow all for local development
@@ -224,6 +309,28 @@ def create_category(category: schemas.CategoryCreate, db: Session = Depends(get_
     db.refresh(db_cat)
     return db_cat
 
+@app.put("/categories/{category_id}", response_model=schemas.Category)
+def update_category(category_id: int, category: schemas.CategoryCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    db_cat = db.query(models.Category).filter(models.Category.id == category_id).first()
+    if not db_cat:
+        raise HTTPException(status_code=404, detail="Category not found")
+    db_cat.name = category.name
+    db_cat.tags = category.tags
+    db.commit()
+    db.refresh(db_cat)
+    return db_cat
+
+@app.delete("/categories/{category_id}")
+def delete_category(category_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    db_cat = db.query(models.Category).filter(models.Category.id == category_id).first()
+    if not db_cat:
+        raise HTTPException(status_code=404, detail="Category not found")
+    db.query(models.Product).filter(models.Product.category_id == category_id).update({"category_id": None, "subcategory_id": None})
+    db.query(models.Subcategory).filter(models.Subcategory.category_id == category_id).delete()
+    db.delete(db_cat)
+    db.commit()
+    return {"ok": True}
+
 # Subcategory Endpoints
 @app.get("/subcategories/", response_model=List[schemas.Subcategory])
 def read_subcategories(category_id: int = None, db: Session = Depends(get_db)):
@@ -240,6 +347,92 @@ def create_subcategory(subcategory: schemas.SubcategoryCreate, db: Session = Dep
     db.refresh(db_subcat)
     return db_subcat
 
+@app.put("/subcategories/{subcategory_id}", response_model=schemas.Subcategory)
+def update_subcategory(subcategory_id: int, subcategory: schemas.SubcategoryCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    db_subcat = db.query(models.Subcategory).filter(models.Subcategory.id == subcategory_id).first()
+    if not db_subcat:
+        raise HTTPException(status_code=404, detail="Subcategory not found")
+    db_subcat.name = subcategory.name
+    db_subcat.category_id = subcategory.category_id
+    db.commit()
+    db.refresh(db_subcat)
+    return db_subcat
+
+@app.delete("/subcategories/{subcategory_id}")
+def delete_subcategory(subcategory_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    db_subcat = db.query(models.Subcategory).filter(models.Subcategory.id == subcategory_id).first()
+    if not db_subcat:
+        raise HTTPException(status_code=404, detail="Subcategory not found")
+    db.query(models.Product).filter(models.Product.subcategory_id == subcategory_id).update({"subcategory_id": None})
+    db.delete(db_subcat)
+    db.commit()
+    return {"ok": True}
+
+# Brand Endpoints
+@app.get("/brands/", response_model=List[schemas.Brand])
+def read_brands(db: Session = Depends(get_db)):
+    return db.query(models.Brand).all()
+
+@app.post("/brands/", response_model=schemas.Brand)
+def create_brand(brand: schemas.BrandCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    db_brand = models.Brand(**brand.dict())
+    db.add(db_brand)
+    db.commit()
+    db.refresh(db_brand)
+    return db_brand
+
+@app.put("/brands/{brand_id}", response_model=schemas.Brand)
+def update_brand(brand_id: int, brand: schemas.BrandCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    db_brand = db.query(models.Brand).filter(models.Brand.id == brand_id).first()
+    if not db_brand:
+        raise HTTPException(status_code=404, detail="Brand not found")
+    db_brand.name = brand.name
+    db_brand.image_url = brand.image_url
+    db.commit()
+    db.refresh(db_brand)
+    return db_brand
+
+@app.delete("/brands/{brand_id}")
+def delete_brand(brand_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    db_brand = db.query(models.Brand).filter(models.Brand.id == brand_id).first()
+    if not db_brand:
+        raise HTTPException(status_code=404, detail="Brand not found")
+    db.delete(db_brand)
+    db.commit()
+    return {"ok": True}
+
+# Presentation Endpoints
+@app.get("/presentations/", response_model=List[schemas.Presentation])
+def read_presentations(db: Session = Depends(get_db)):
+    return db.query(models.Presentation).all()
+
+@app.post("/presentations/", response_model=schemas.Presentation)
+def create_presentation(presentation: schemas.PresentationCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    db_pres = models.Presentation(**presentation.dict())
+    db.add(db_pres)
+    db.commit()
+    db.refresh(db_pres)
+    return db_pres
+
+@app.put("/presentations/{presentation_id}", response_model=schemas.Presentation)
+def update_presentation(presentation_id: int, presentation: schemas.PresentationCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    db_pres = db.query(models.Presentation).filter(models.Presentation.id == presentation_id).first()
+    if not db_pres:
+        raise HTTPException(status_code=404, detail="Presentation not found")
+    db_pres.name = presentation.name
+    db.commit()
+    db.refresh(db_pres)
+    return db_pres
+
+@app.delete("/presentations/{presentation_id}")
+def delete_presentation(presentation_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    db_pres = db.query(models.Presentation).filter(models.Presentation.id == presentation_id).first()
+    if not db_pres:
+        raise HTTPException(status_code=404, detail="Presentation not found")
+    db.delete(db_pres)
+    db.commit()
+    return {"ok": True}
+
 # Product Endpoints
 @app.get("/products/", response_model=List[schemas.Product])
 def read_products(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -249,8 +442,14 @@ def read_products(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
 @app.post("/products/", response_model=schemas.Product)
 def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
     data = product.dict()
+    brand_ids = data.pop("brand_ids", []) or []
+    presentation_ids = data.pop("presentation_ids", []) or []
     data["search_tags"] = ",".join(data["name"].split())
     db_product = models.Product(**data)
+    if brand_ids:
+        db_product.brands = db.query(models.Brand).filter(models.Brand.id.in_(brand_ids)).all()
+    if presentation_ids:
+        db_product.presentations = db.query(models.Presentation).filter(models.Presentation.id.in_(presentation_ids)).all()
     db.add(db_product)
     db.commit()
     db.refresh(db_product)
@@ -263,10 +462,14 @@ def update_product(product_id: int, product: schemas.ProductCreate, db: Session 
         raise HTTPException(status_code=404, detail="Product not found")
 
     data = product.dict()
+    brand_ids = data.pop("brand_ids", []) or []
+    presentation_ids = data.pop("presentation_ids", []) or []
     data["search_tags"] = ",".join(data["name"].split())
     for key, value in data.items():
         setattr(db_product, key, value)
-    
+    db_product.brands = db.query(models.Brand).filter(models.Brand.id.in_(brand_ids)).all()
+    db_product.presentations = db.query(models.Presentation).filter(models.Presentation.id.in_(presentation_ids)).all()
+
     db.commit()
     db.refresh(db_product)
     return db_product
