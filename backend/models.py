@@ -87,3 +87,13 @@ class Quotation(Base):
     items = Column(JSON)
     status = Column(String, default="Pending")
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+class Sale(Base):
+    __tablename__ = "sales"
+
+    id = Column(Integer, primary_key=True, index=True)
+    quotation_id = Column(Integer, ForeignKey("quotations.id"), unique=True, nullable=False, index=True)
+    quotation = relationship("Quotation")
+    price = Column(Float, nullable=False)
+    items = Column(JSON)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)

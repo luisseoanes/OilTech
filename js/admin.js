@@ -172,27 +172,26 @@ async function loadQuotations() {
         const response = await fetchWithAuth(`${API_URL}/quotations/`);
         const quotations = await response.json();
 
+        window.quotationsMap = {};
+        quotations.forEach(q => { window.quotationsMap[q.id] = q; });
+
         const tbody = document.querySelector('#quotationsTable tbody');
         tbody.innerHTML = quotations.map(q => `
-                    <tr>
-                        <td>#${q.id}</td>
-                        <td>${q.customer_name}</td>
-                        <td>${q.customer_contact}</td>
-                        <td>${new Date(q.created_at).toLocaleDateString()}</td>
-                        <td>
-                            <span class="status-badge status-${q.status.toLowerCase()}">${q.status}</span>
-                        </td>
-                        <td>
-                            ${q.status === 'Pending' ? `
-                                <button class="btn-action bg-blue" title="Ver Productos" onclick='viewQuotationItems(${JSON.stringify(q).replace(/'/g, "&#39;")})'><i class="fas fa-eye"></i></button>
-                                <button class="btn-action btn-approve" title="Marcar como Comprado" onclick="updateStatus(${q.id}, 'Purchased')"><i class="fas fa-check"></i></button>
-                                <button class="btn-action btn-cancel" title="Cancelar Cotización" onclick="updateStatus(${q.id}, 'Cancelled')"><i class="fas fa-times"></i></button>
-                            ` : `
-                                <button class="btn-action bg-blue" title="Ver Productos" onclick='viewQuotationItems(${JSON.stringify(q).replace(/'/g, "&#39;")})'><i class="fas fa-eye"></i></button>
-                            `}
-                        </td>
-                    </tr>
-                `).join('');
+            <tr>
+                <td><strong>${q.reference || 'COT-' + String(q.id).padStart(6, '0')}</strong></td>
+                <td>${q.customer_name}</td>
+                <td>${q.customer_contact}</td>
+                <td>${new Date(q.created_at).toLocaleDateString('es-CO')}</td>
+                <td><span class="status-badge status-${q.status.toLowerCase()}">${q.status}</span></td>
+                <td>
+                    <button class="btn-action bg-blue" title="Ver detalle" onclick="viewQuotationItems(${q.id})"><i class="fas fa-eye"></i></button>
+                    ${q.status === 'Pending' ? `
+                        <button class="btn-action btn-approve" title="Marcar como Comprado" onclick="updateStatus(${q.id}, 'Purchased')"><i class="fas fa-check"></i></button>
+                        <button class="btn-action btn-cancel" title="Cancelar" onclick="updateStatus(${q.id}, 'Cancelled')"><i class="fas fa-times"></i></button>
+                    ` : ''}
+                </td>
+            </tr>
+        `).join('');
     } catch (error) {
         console.error('Error loading quotations', error);
     }
@@ -262,25 +261,34 @@ function clearSalesFilters() {
 
 
 async function updateStatus(id, status) {
-    if (!confirm(`¿Marcar cotización #${id} como ${status}?`)) return;
-    try {
-        await fetchWithAuth(`${API_URL}/quotations/${id}/status?status=${status}`, { method: 'PUT' });
-        // Reload current view context
-        loadQuotations();
-        loadSales(); // In case we switched
-        loadDashboardData(); // Refresh global stats
-    } catch (error) {
-        console.error('Error updating status', error);
-    }
+    const ref = window.quotationsMap?.[id]?.reference || 'COT-' + String(id).padStart(6, '0');
+    const label = status === 'Purchased' ? 'Comprado' : 'Cancelado';
+    showConfirm(
+        `Marcar como ${label}`,
+        `¿Cambiar el estado de ${ref} a "${label}"?`,
+        async () => {
+            try {
+                await fetchWithAuth(`${API_URL}/quotations/${id}/status?status=${status}`, { method: 'PUT' });
+                loadQuotations();
+                loadSales();
+                loadDashboardData();
+            } catch (error) {
+                console.error('Error updating status', error);
+                showToast('Error al actualizar estado', 'error');
+            }
+        }
+    );
 }
 
-function viewQuotationItems(quotation) {
-    document.getElementById('modalQuoteId').textContent = quotation.id;
+function viewQuotationItems(quotationId) {
+    const quotation = window.quotationsMap[quotationId];
+    if (!quotation) return;
+    document.getElementById('modalQuoteRef').textContent = quotation.reference || 'COT-' + String(quotation.id).padStart(6, '0');
+    window.currentQuoteId = quotation.id;
     const tbody = document.querySelector('#modalItemsTable tbody');
 
     let items = [];
     if (quotation.items) {
-        // Handle if items is string or object (SQLite JSON sometimes returns string)
         items = typeof quotation.items === 'string' ? JSON.parse(quotation.items) : quotation.items;
     }
 
@@ -288,16 +296,9 @@ function viewQuotationItems(quotation) {
     window.currentQuoteItems = items;
     window.originalQuoteItems = JSON.parse(JSON.stringify(items)); // Deep copy for cancel
 
-    renderEditItemsTable(items, false); // Render properly (read-only initially)
+    renderEditItemsTable(items);
 
     document.getElementById('quotationDetailsModal').style.display = "block";
-
-    // Reset edit state
-    document.getElementById('editQuoteControls').style.display = 'none';
-    document.getElementById('btnEnableEdit').style.display = 'inline-block';
-    document.getElementById('btnSaveEdit').style.display = 'none';
-    document.getElementById('btnCancelEdit').style.display = 'none';
-    document.querySelectorAll('.edit-col').forEach(el => el.style.display = 'none');
 }
 
 function enableEditQuoteItems() {
@@ -321,29 +322,12 @@ function cancelEditQuoteItems() {
     renderEditItemsTable(window.currentQuoteItems, false);
 }
 
-function renderEditItemsTable(items, isEditable) {
+function renderEditItemsTable(items) {
     const tbody = document.querySelector('#modalItemsTable tbody');
-    const headEditCol = document.querySelector('#modalItemsTable thead .edit-col');
-
-    if (isEditable) {
-        headEditCol.style.display = 'table-cell';
-    } else {
-        headEditCol.style.display = 'none';
-    }
-
-    tbody.innerHTML = items.map((item, index) => `
+    tbody.innerHTML = items.map(item => `
         <tr>
             <td>${item.product_name}</td>
-            <td>
-                ${isEditable ? `<input type="text" value="${item.option || ''}" onchange="updateQuoteItem(${index}, 'option', this.value)" style="width: 80px;">` : (item.option || '')}
-            </td>
-            <td>
-                ${isEditable ? `<input type="number" value="${item.quantity}" min="1" onchange="updateQuoteItem(${index}, 'quantity', this.value)" style="width: 60px;">` : item.quantity}
-            </td>
-            <td>${(item.price || 0).toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}</td>
-            <td class="edit-col" style="display: ${isEditable ? 'table-cell' : 'none'};">
-                <button class="btn-action btn-delete" onclick="removeQuoteItem(${index})"><i class="fas fa-trash"></i></button>
-            </td>
+            <td>${item.quantity}</td>
         </tr>
     `).join('');
 }
@@ -394,8 +378,7 @@ function selectProductForQuote(product) {
         product_id: product.id,
         product_name: product.name,
         quantity: 1,
-        option: product.options ? product.options.split('|')[0] : '',
-        price: 0
+        option: '',
     };
 
     window.currentQuoteItems.push(newItem);
@@ -407,7 +390,7 @@ function selectProductForQuote(product) {
 }
 
 async function saveQuoteItems() {
-    const id = document.getElementById('modalQuoteId').textContent;
+    const id = window.currentQuoteId;
     try {
         const response = await fetchWithAuth(`${API_URL}/quotations/${id}/items`, {
             method: 'PUT',

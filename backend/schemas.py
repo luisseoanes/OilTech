@@ -81,7 +81,6 @@ class QuotationItem(BaseModel):
     product_name: str
     quantity: int
     option: str
-    price: float
 
 class QuotationCreate(BaseModel):
     customer_name: str
@@ -92,6 +91,23 @@ class QuotationCreate(BaseModel):
 class Quotation(QuotationCreate):
     id: int
     status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class SaleItem(BaseModel):
+    product_id: int
+    product_name: str
+    quantity: int
+
+class SaleCreate(BaseModel):
+    quotation_id: int
+    price: float
+    items: List[SaleItem]
+
+class Sale(SaleCreate):
+    id: int
     created_at: datetime
 
     class Config:

@@ -64,57 +64,48 @@
         <div id="grids-container"></div>
     </main>
 
-    <!-- Modal Detalle Subcategoría -->
+    <!-- Lightbox -->
+    <div id="lightbox" onclick="closeLightbox()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:2000;align-items:center;justify-content:center;cursor:zoom-out;">
+        <img id="lightbox-img" src="" alt="" style="max-width:95vw;max-height:95vh;object-fit:contain;border-radius:8px;box-shadow:0 0 60px rgba(0,0,0,0.5);">
+    </div>
+
+    <!-- Modal Detalle Producto -->
     <div class="modal-overlay" id="detailModal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()">×</button>
             <div class="modal-header-wrapper">
-                <div class="modal-icon" id="d-icon"></div>
                 <div class="modal-title-group">
-                    <div class="modal-category" id="d-category">Categoría</div>
-                    <div class="modal-title" id="d-title">Subcategoría</div>
+                    <div class="modal-category" id="d-category"></div>
+                    <div class="modal-title" id="d-title"></div>
                 </div>
             </div>
 
-            <p class="modal-desc">
-                Seleccione la variante o presentación que le interesa para iniciar la cotización directa por WhatsApp.
-            </p>
-
-            <div class="modal-section">
-                <h4>Presentaciones Disponibles</h4>
-                <div class="chip-group" id="size-chips">
-                    <div class="chip" onclick="toggleChip(this)">Caneca</div>
-                    <div class="chip" onclick="toggleChip(this)">Tambor</div>
-                    <div class="chip" onclick="toggleChip(this)">Cuarto</div>
-                    <div class="chip" onclick="toggleChip(this)">Galón</div>
-                    <div class="chip" onclick="toggleChip(this)">Unidad</div>
-                </div>
+            <div id="d-image-wrapper" style="width:100%;border-radius:12px;overflow:hidden;margin-bottom:24px;display:none;">
+                <img id="d-image" src="" alt="" onclick="openLightbox(this.src)" style="width:100%;height:260px;object-fit:cover;transform:scale(0.92);transform-origin:center;cursor:zoom-in;">
             </div>
 
-            <div class="modal-section">
-                <h4>Marcas Manejadas</h4>
-                <div class="chip-group" id="brand-chips">
-                    <div class="chip" onclick="toggleChip(this)">Mobil</div>
-                    <div class="chip" onclick="toggleChip(this)">Shell</div>
-                    <div class="chip" onclick="toggleChip(this)">Terpel</div>
-                    <div class="chip" onclick="toggleChip(this)">Chevron</div>
-                    <div class="chip" onclick="toggleChip(this)">Repsol</div>
-                    <div class="chip" onclick="toggleChip(this)">Otras / Genericas</div>
-                </div>
+            <p class="modal-desc" id="d-description"></p>
+
+            <div class="modal-section" id="presentation-section" style="display:none;">
+                <h4>Presentación</h4>
+                <div class="chip-group" id="presentation-chips"></div>
             </div>
 
-            <!-- Technical Sheet Section -->
-            <div class="modal-section" id="technical-sheet-section" style="display: none;">
+            <div class="modal-section" id="brand-section">
+                <h4>Marcas disponibles</h4>
+                <div class="chip-group" id="brand-chips"></div>
+            </div>
+
+            <div class="modal-section" id="technical-sheet-section" style="display:none;">
                 <div class="technical-sheet-container">
                     <div class="technical-sheet-header">
-                        <i class="fas fa-file-pdf" style="color: var(--red); font-size: 1.5rem;"></i>
+                        <span style="display:inline-flex;align-items:center;justify-content:center;background:var(--red);color:#fff;font-size:0.6rem;font-weight:800;letter-spacing:1px;width:36px;height:44px;border-radius:4px;flex-shrink:0;">PDF</span>
                         <div>
                             <h4>Ficha Técnica Disponible</h4>
-                            <p style="font-size: 0.85rem; color: var(--soft); margin: 4px 0 0 0;">Especificaciones del
-                                producto</p>
+                            <p style="font-size:0.85rem;color:var(--soft);margin:4px 0 0 0;">Especificaciones del producto</p>
                         </div>
                     </div>
-                    <button class="btn-technical-sheet" id="btn-technical-sheet" target="_blank">
+                    <button class="btn-technical-sheet" id="btn-technical-sheet">
                         <i class="fas fa-download"></i> Descargar Ficha Técnica
                     </button>
                 </div>
@@ -122,9 +113,9 @@
 
             <div class="modal-footer">
                 <button class="btn-whatsapp" onclick="addToCartFromModal()"
-                    style="background-color: var(--black); box-shadow: 0 8px 24px rgba(0,0,0,0.2);">
+                    style="background-color:var(--black);box-shadow:0 8px 24px rgba(0,0,0,0.2);">
                     Añadir a Cotización
-                    <i class="fas fa-plus" style="margin-left: 10px;"></i>
+                    <i class="fas fa-plus" style="margin-left:10px;"></i>
                 </button>
             </div>
         </div>
@@ -204,8 +195,8 @@
             nav.classList.toggle('scrolled', window.scrollY > 20);
         });
 
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) closeModal();
+        document.getElementById('detailModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeModal();
         });
     </script>
 </body>

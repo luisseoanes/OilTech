@@ -127,7 +127,7 @@
                     <table id="quotationsTable">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>Referencia</th>
                                 <th>Cliente</th>
                                 <th>Contacto</th>
                                 <th>Fecha</th>
@@ -145,7 +145,7 @@
         <div id="quotationDetailsModal" class="modal">
             <div class="modal-content" style="max-width: 800px;">
                 <span class="close" onclick="closeModal('quotationDetailsModal')">&times;</span>
-                <h3>Detalles de Cotización #<span id="modalQuoteId"></span></h3>
+                <h3>Cotización <span id="modalQuoteRef"></span></h3>
 
                 <div id="editQuoteControls"
                     style="display: none; margin-bottom: 15px; background: #f0f8ff; padding: 10px; border-radius: 5px;">
@@ -159,25 +159,13 @@
                     </div>
                 </div>
 
-                <div style="margin-bottom: 10px; display: flex; justify-content: flex-end; gap: 10px;">
-                    <button id="btnEnableEdit" class="btn-primary" onclick="enableEditQuoteItems()">Modificar
-                        Productos</button>
-                    <button id="btnSaveEdit" class="btn-primary" style="display: none; background-color: #28a745;"
-                        onclick="saveQuoteItems()">Guardar Cambios</button>
-                    <button id="btnCancelEdit" class="btn-action btn-cancel"
-                        style="display: none; width: auto; padding: 10px 20px;"
-                        onclick="cancelEditQuoteItems()">Cancelar</button>
-                </div>
 
                 <div style="overflow-x: auto;">
                     <table id="modalItemsTable">
                         <thead>
                             <tr>
                                 <th>Producto</th>
-                                <th>Opción</th>
                                 <th>Cantidad</th>
-                                <th>Precio Unit.</th>
-                                <th class="edit-col" style="display: none;">Acciones</th>
                             </tr>
                         </thead>
                         <tbody></tbody>

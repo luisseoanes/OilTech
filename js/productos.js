@@ -83,17 +83,24 @@ function renderGrid(targetId, products) {
         return;
     }
 
-    grid.innerHTML = products.map(p => `
-        <div class="subcat-card" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
-            <div class="subcat-img-wrapper">
+    grid.innerHTML = products.map(p => {
+        const desc = p.description || '';
+        const truncated = desc.length > 120 ? desc.slice(0, 120).trimEnd() + '…' : desc;
+        const pJson = JSON.stringify(p).replace(/'/g, "&#39;");
+        return `
+        <div class="subcat-card">
+            <div class="subcat-img-wrapper" onclick='openProductModal(${pJson})'>
                 <img src="${p.image_url}" alt="${p.name}" onerror="this.src='https://placehold.co/400x400?text=Sin+Imagen'">
             </div>
-            <div class="subcat-content">
+            <div class="subcat-content" onclick='openProductModal(${pJson})'>
                 <div class="subcat-title">${p.name}</div>
-                <div class="subcat-desc">${p.description || ''}</div>
+                <div class="subcat-desc">${truncated}</div>
             </div>
-        </div>
-    `).join('');
+            <button class="subcat-add-btn" onclick='event.stopPropagation();addToCart(${pJson}, "General", 1)'>
+                + Agregar a Cotización
+            </button>
+        </div>`;
+    }).join('');
 }
 
 let selectedSubcats = new Set();
@@ -182,48 +189,65 @@ function clearSubcatBar() {
 }
 
 // Modal Logic
-const overlay = document.getElementById('detailModal');
-const dTitle = document.getElementById('d-title');
-const dCategory = document.getElementById('d-category');
-const dIcon = document.getElementById('d-icon');
-const sizeChips = document.getElementById('size-chips');
-const brandChips = document.getElementById('brand-chips');
+let overlay, dTitle, dCategory, brandChips;
 let currentProduct = null;
 
 function openProductModal(product) {
     currentProduct = product;
-    dCategory.textContent = product.category_name || '';
-    dTitle.textContent = product.name;
-    
-    sizeChips.innerHTML = '';
-    
-    // Set brands
-    const brands = product.brands || [];
-    brandChips.innerHTML = brands.length ? brands.map(b => `
-        <div class="chip brand-chip" onclick="selectSingleChip(this, 'brand-chip')">${b.name}</div>
-    `).join('') : '';
 
-    // Handle technical sheet
+    dCategory.textContent = product.subcategory_name || product.category_name || '';
+    dTitle.textContent = product.name;
+
+    // Image
+    const imgWrapper = document.getElementById('d-image-wrapper');
+    const imgEl = document.getElementById('d-image');
+    if (product.image_url) {
+        imgEl.src = product.image_url;
+        imgEl.alt = product.name;
+        imgWrapper.style.display = 'block';
+    } else {
+        imgWrapper.style.display = 'none';
+    }
+
+    // Description
+    const descEl = document.getElementById('d-description');
+    if (descEl) descEl.textContent = product.description || '';
+
+    // Presentaciones
+    const presentationSection = document.getElementById('presentation-section');
+    const presentationChips = document.getElementById('presentation-chips');
+    const presentations = Array.isArray(product.presentations) ? product.presentations : [];
+    if (presentations.length) {
+        presentationChips.innerHTML = presentations.map(p =>
+            `<div class="chip">${p.name}</div>`
+        ).join('');
+        presentationSection.style.display = '';
+    } else {
+        presentationSection.style.display = 'none';
+    }
+
+    // Marcas
+    const brandSection = document.getElementById('brand-section');
+    const brands = Array.isArray(product.brands) ? product.brands : [];
+    if (brands.length) {
+        brandChips.innerHTML = brands.map(b =>
+            `<div class="chip brand-chip">${b.name}</div>`
+        ).join('');
+        brandSection.style.display = '';
+    } else {
+        brandChips.innerHTML = '';
+        brandSection.style.display = 'none';
+    }
+
+    // Technical sheet
     const technicalSheetSection = document.getElementById('technical-sheet-section');
     const btnTechnicalSheet = document.getElementById('btn-technical-sheet');
-    
     if (product.technical_sheet_url) {
         technicalSheetSection.style.display = 'block';
-        btnTechnicalSheet.href = product.technical_sheet_url;
-        btnTechnicalSheet.onclick = function() {
-            window.open(product.technical_sheet_url, '_blank');
-            return false;
-        };
+        btnTechnicalSheet.onclick = () => { window.open(product.technical_sheet_url, '_blank'); return false; };
     } else {
         technicalSheetSection.style.display = 'none';
     }
-
-    // Auto select first options
-    const firstSize = document.querySelector('.size-chip');
-    if (firstSize) firstSize.classList.add('selected');
-    
-    const firstBrand = document.querySelector('.brand-chip');
-    if (firstBrand) firstBrand.classList.add('selected');
 
     overlay.classList.add('active');
 }
@@ -236,6 +260,16 @@ function selectSingleChip(chip, groupClass) {
 
 function closeModal() {
     overlay.classList.remove('active');
+}
+
+function openLightbox(src) {
+    const lb = document.getElementById('lightbox');
+    document.getElementById('lightbox-img').src = src;
+    lb.style.display = 'flex';
+}
+
+function closeLightbox() {
+    document.getElementById('lightbox').style.display = 'none';
 }
 
 function addToCartFromModal() {
@@ -280,6 +314,7 @@ function addToCart(product, option = null, quantity = 1) {
         cart.push(item);
     }
     updateCartUI();
+    cartSidebar.classList.add('open');
     showToast('Añadido a cotización', 'success');
 }
 
@@ -349,7 +384,6 @@ async function sendBatchQuote() {
         product_name: item.name,
         quantity: item.quantity,
         option: item.option,
-        price: 0
     }));
 
     const quotationData = {
@@ -358,6 +392,9 @@ async function sendBatchQuote() {
         items: items
     };
 
+    btn.innerHTML = 'Enviando...';
+    btn.disabled = true;
+
     let ref = '';
     try {
         const res = await fetch(`${API_URL}/quotations/`, {
@@ -365,12 +402,15 @@ async function sendBatchQuote() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(quotationData)
         });
-        if (res.ok) {
-            const saved = await res.json();
-            ref = saved.reference || '';
-        }
+        if (!res.ok) throw new Error(`Error ${res.status}`);
+        const saved = await res.json();
+        ref = saved.reference || '';
     } catch (err) {
         console.error('Error saving quotation:', err);
+        showToast('No se pudo registrar la cotización. Intenta de nuevo.', 'error');
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        return;
     }
 
     let message = `Hola, soy ${name}. Me gustaría cotizar estos productos${ref ? ` (Ref: ${ref})` : ''}:\n\n`;
@@ -382,18 +422,21 @@ async function sendBatchQuote() {
 
     const whatsappUrl = `https://api.whatsapp.com/send?phone=${getWppNum()}&text=${encodeURIComponent(message)}`;
 
-    btn.innerHTML = 'Redirigiendo...';
-    btn.disabled = true;
-
     cart = [];
     updateCartUI();
     document.getElementById('quoteName').value = '';
     document.getElementById('quoteContact').value = '';
 
-    window.location.href = whatsappUrl;
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+    window.open(whatsappUrl, '_blank');
 }
 
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
+    overlay = document.getElementById('detailModal');
+    dTitle = document.getElementById('d-title');
+    dCategory = document.getElementById('d-category');
+    brandChips = document.getElementById('brand-chips');
     loadProducts();
 });

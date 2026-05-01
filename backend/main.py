@@ -55,9 +55,13 @@ def apply_migrations():
             print("Migrating: Adding 'category_id' column to products")
             cursor.execute("ALTER TABLE products ADD COLUMN category_id INTEGER REFERENCES categories(id)")
             conn.commit()
-        if "price_text" in product_columns:
-            print("Migrating: Dropping 'price_text' column from products")
-            cursor.execute("ALTER TABLE products DROP COLUMN price_text")
+        if "price_text" not in product_columns:
+            print("Migrating: Adding 'price_text' column to products")
+            cursor.execute("ALTER TABLE products ADD COLUMN price_text TEXT")
+            conn.commit()
+        if "brands" not in product_columns:
+            print("Migrating: Adding 'brands' column to products")
+            cursor.execute("ALTER TABLE products ADD COLUMN brands TEXT")
             conn.commit()
         if "subcategory" in product_columns:
             print("Migrating: Dropping 'subcategory' TEXT column from products")
@@ -126,6 +130,20 @@ def apply_migrations():
                     product_id INTEGER NOT NULL REFERENCES products(id),
                     presentation_id INTEGER NOT NULL REFERENCES presentations(id),
                     PRIMARY KEY (product_id, presentation_id)
+                )
+            """)
+            conn.commit()
+
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='sales'")
+        if not cursor.fetchone():
+            print("Migrating: Creating 'sales' table")
+            cursor.execute("""
+                CREATE TABLE sales (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    quotation_id INTEGER NOT NULL UNIQUE REFERENCES quotations(id),
+                    price REAL NOT NULL,
+                    items TEXT,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
             """)
             conn.commit()
