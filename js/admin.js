@@ -183,7 +183,7 @@ async function loadQuotations() {
                 <td>${q.customer_contact}</td>
                 <td>${new Date(q.created_at).toLocaleDateString('es-CO')}</td>
                 <td><span class="status-badge status-${q.status.toLowerCase()}">${q.status}</span></td>
-                <td>
+                <td style="text-align:right;">
                     <button class="btn-action bg-blue" title="Ver detalle" onclick="viewQuotationItems(${q.id})"><i class="fas fa-eye"></i></button>
                     ${q.status === 'Pending' ? `
                         <button class="btn-action btn-approve" title="Marcar como Comprado" onclick="updateStatus(${q.id}, 'Purchased')"><i class="fas fa-check"></i></button>
@@ -680,7 +680,7 @@ function renderProductsTable(products) {
                 <td style="font-weight: 600; color: var(--black);">${p.name}</td>
                 <td><span class="badge" style="background: #e9f5ff; color: #007bff; text-transform: capitalize;">${p.category_name || ''}</span></td>
                 <td>${presentationBadges || '<span style="color:#aaa;font-size:0.8rem;">—</span>'}</td>
-                <td>
+                <td style="text-align:right;">
                     <button class="btn-action btn-edit" title="Editar" onclick='editProduct(${JSON.stringify(p).replace(/'/g, "&#39;")})'><i class="fas fa-edit"></i></button>
                     <button class="btn-action btn-delete" title="Eliminar" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button>
                 </td>
@@ -1060,7 +1060,7 @@ function renderBrandsTable() {
                     : '<span style="color:#ccc;font-size:0.8rem;">Sin logo</span>'}
             </td>
             <td style="font-weight:600;">${b.name}</td>
-            <td>
+            <td style="text-align:right;">
                 <button class="btn-action btn-edit" title="Editar" onclick='openBrandModal(${b.id}, "${b.name.replace(/"/g,"&quot;")}", "${(b.image_url||'').replace(/"/g,"&quot;")}")'><i class="fas fa-edit"></i></button>
                 <button class="btn-action btn-delete" title="Eliminar" onclick="deleteBrandMgmt(${b.id}, '${b.name.replace(/'/g,"&#39;")}')"><i class="fas fa-trash"></i></button>
             </td>
@@ -1222,7 +1222,7 @@ function renderCategoriesTable() {
         <tr onclick="onCatRowTap(${c.id}, '${safeName}', '${safeTags}')">
             <td style="font-weight:600;">${c.name}</td>
             <td style="color:#666;font-size:0.85rem;">${c.tags || '—'}</td>
-            <td class="cat-actions-col">
+            <td class="cat-actions-col" style="text-align:right;">
                 <button class="btn-action bg-blue" title="Ver subcategorías" onclick="event.stopPropagation();selectCategoryForSubcats(${c.id}, '${safeName}')"><i class="fas fa-list"></i></button>
                 <button class="btn-action btn-edit" title="Editar" onclick="event.stopPropagation();openCatMgmtModal(${c.id}, '${safeName}', '${safeTags}')"><i class="fas fa-edit"></i></button>
                 <button class="btn-action btn-delete" title="Eliminar" onclick="event.stopPropagation();deleteCatMgmt(${c.id}, '${safeName}')"><i class="fas fa-trash"></i></button>
@@ -1373,7 +1373,7 @@ async function renderSubcategoriesTable(categoryId) {
             return `
             <tr onclick="onSubcatRowTap(${s.id}, '${safeName}')">
                 <td style="font-weight:600;">${s.name}</td>
-                <td class="cat-actions-col">
+                <td class="cat-actions-col" style="text-align:right;">
                     <button class="btn-action btn-edit" title="Editar" onclick="event.stopPropagation();openSubcatMgmtModal(${s.id}, '${safeName}')"><i class="fas fa-edit"></i></button>
                     <button class="btn-action btn-delete" title="Eliminar" onclick="event.stopPropagation();deleteSubcatMgmt(${s.id}, '${safeName}')"><i class="fas fa-trash"></i></button>
                 </td>
