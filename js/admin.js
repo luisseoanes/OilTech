@@ -186,7 +186,7 @@ async function loadQuotations() {
                 <td style="text-align:right;">
                     <button class="btn-action bg-blue" title="Ver detalle" onclick="viewQuotationItems(${q.id})"><i class="fas fa-eye"></i></button>
                     ${q.status === 'Pending' ? `
-                        <button class="btn-action btn-approve" title="Marcar como Comprado" onclick="updateStatus(${q.id}, 'Purchased')"><i class="fas fa-check"></i></button>
+                        <button class="btn-action btn-approve" title="Confirmar Venta" onclick="openConfirmSaleModal(${q.id})"><i class="fas fa-check"></i></button>
                         <button class="btn-action btn-cancel" title="Cancelar" onclick="updateStatus(${q.id}, 'Cancelled')"><i class="fas fa-times"></i></button>
                     ` : ''}
                 </td>
@@ -200,30 +200,98 @@ async function loadQuotations() {
 // --- SALES ---
 async function loadSales() {
     try {
-        const response = await fetchWithAuth(`${API_URL}/quotations/`);
-        const quotations = await response.json();
-        const sales = quotations.filter(q => q.status === 'Purchased');
-
-        // Store globally for filtering
-        window.allSales = sales;
-
-        renderSalesTable(sales);
+        const response = await fetchWithAuth(`${API_URL}/sales/`);
+        window.allSales = await response.json();
+        renderSalesTable(window.allSales);
     } catch (error) { console.error(error); }
 }
 
 function renderSalesTable(sales) {
     const tbody = document.querySelector('#salesTable tbody');
-    tbody.innerHTML = sales.map(q => `
-                <tr>
-                    <td>#${q.id}</td>
-                    <td>${q.customer_name}</td>
-                    <td>${q.customer_contact}</td>
-                    <td>${new Date(q.created_at).toLocaleDateString()}</td>
-                    <td><span class="status-badge status-purchased">Completada</span></td>
-                </tr>
-            `).join('');
-
+    tbody.innerHTML = sales.map(s => `
+        <tr>
+            <td><strong>VET-${String(s.id).padStart(6, '0')}</strong></td>
+            <td>COT-${String(s.quotation_id).padStart(6, '0')}</td>
+            <td>${s.customer_name}</td>
+            <td>${s.customer_contact}</td>
+            <td>${Number(s.price).toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 })}</td>
+            <td>${new Date(s.created_at).toLocaleDateString('es-CO')}</td>
+            <td style="text-align:right;">
+                <button class="btn-action bg-blue" title="Ver detalle" onclick="viewSaleItems(${s.id})"><i class="fas fa-eye"></i></button>
+            </td>
+        </tr>
+    `).join('');
     document.getElementById('salesFilteredTotal').textContent = sales.length;
+}
+
+function openConfirmSaleModal(quotationId) {
+    const q = window.quotationsMap?.[quotationId];
+    if (!q) return;
+    document.getElementById('confirmSaleQuoteId').value = quotationId;
+    document.getElementById('confirmSaleQuoteRef').textContent =
+        `Cotización: ${q.reference || 'COT-' + String(quotationId).padStart(6, '0')} — ${q.customer_name}`;
+    document.getElementById('confirmSalePrice').value = '';
+    document.getElementById('confirmSaleModal').style.display = 'block';
+}
+
+async function confirmSale() {
+    const quotationId = parseInt(document.getElementById('confirmSaleQuoteId').value);
+    const price = parseFloat(document.getElementById('confirmSalePrice').value);
+    const q = window.quotationsMap?.[quotationId];
+
+    if (!price || price <= 0) {
+        showToast('Ingresa un precio válido', 'warning');
+        return;
+    }
+
+    const items = (q.items || []).map(item => ({
+        product_id: item.product_id,
+        product_name: item.product_name,
+        quantity: item.quantity,
+    }));
+
+    try {
+        const response = await fetchWithAuth(`${API_URL}/sales/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                quotation_id: quotationId,
+                price,
+                items,
+                customer_name: q.customer_name,
+                customer_contact: q.customer_contact,
+            })
+        });
+
+        if (response.ok) {
+            showToast('Venta registrada correctamente', 'success');
+            closeModal('confirmSaleModal');
+            loadQuotations();
+            loadSales();
+            loadDashboardData();
+        } else {
+            const err = await response.json().catch(() => ({}));
+            showToast(err.detail || 'Error al registrar venta', 'error');
+        }
+    } catch (e) {
+        console.error(e);
+        showToast('Error de conexión', 'error');
+    }
+}
+
+function viewSaleItems(saleId) {
+    const sale = window.allSales?.find(s => s.id === saleId);
+    if (!sale) return;
+    document.getElementById('saleDetailsRef').textContent = `VET-${String(sale.id).padStart(6, '0')}`;
+    const items = typeof sale.items === 'string' ? JSON.parse(sale.items) : (sale.items || []);
+    const tbody = document.querySelector('#saleItemsTable tbody');
+    tbody.innerHTML = items.map(item => `
+        <tr>
+            <td>${item.product_name}</td>
+            <td>${item.quantity}</td>
+        </tr>
+    `).join('');
+    document.getElementById('saleDetailsModal').style.display = 'block';
 }
 
 function filterSalesTable() {

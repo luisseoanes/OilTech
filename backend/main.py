@@ -143,10 +143,23 @@ def apply_migrations():
                     quotation_id INTEGER NOT NULL UNIQUE REFERENCES quotations(id),
                     price REAL NOT NULL,
                     items TEXT,
+                    customer_name TEXT NOT NULL DEFAULT '',
+                    customer_contact TEXT NOT NULL DEFAULT '',
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
             """)
             conn.commit()
+        else:
+            cursor.execute("PRAGMA table_info(sales)")
+            sales_columns = [col[1] for col in cursor.fetchall()]
+            if "customer_name" not in sales_columns:
+                print("Migrating: Adding 'customer_name' to sales")
+                cursor.execute("ALTER TABLE sales ADD COLUMN customer_name TEXT NOT NULL DEFAULT ''")
+                conn.commit()
+            if "customer_contact" not in sales_columns:
+                print("Migrating: Adding 'customer_contact' to sales")
+                cursor.execute("ALTER TABLE sales ADD COLUMN customer_contact TEXT NOT NULL DEFAULT ''")
+                conn.commit()
 
         conn.close()
     except Exception as e:
@@ -501,6 +514,32 @@ def delete_product(product_id: int, db: Session = Depends(get_db), current_user:
     db.delete(db_product)
     db.commit()
     return {"ok": True}
+
+# Sale Endpoints
+@app.get("/sales/", response_model=List[schemas.Sale])
+def read_sales(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    return db.query(models.Sale).order_by(models.Sale.created_at.desc()).all()
+
+@app.post("/sales/", response_model=schemas.Sale)
+def create_sale(sale: schemas.SaleCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    quotation = db.query(models.Quotation).filter(models.Quotation.id == sale.quotation_id).first()
+    if not quotation:
+        raise HTTPException(status_code=404, detail="Quotation not found")
+    existing = db.query(models.Sale).filter(models.Sale.quotation_id == sale.quotation_id).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="This quotation already has a sale")
+    db_sale = models.Sale(
+        quotation_id=sale.quotation_id,
+        price=sale.price,
+        items=[item.dict() for item in sale.items],
+        customer_name=sale.customer_name,
+        customer_contact=sale.customer_contact,
+    )
+    db.add(db_sale)
+    quotation.status = "Purchased"
+    db.commit()
+    db.refresh(db_sale)
+    return db_sale
 
 # Quotation Endpoints
 @app.post("/quotations/", response_model=schemas.Quotation)

@@ -105,6 +105,8 @@ class SaleCreate(BaseModel):
     quotation_id: int
     price: float
     items: List[SaleItem]
+    customer_name: str
+    customer_contact: str
 
 class Sale(SaleCreate):
     id: int

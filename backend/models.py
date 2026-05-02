@@ -96,4 +96,6 @@ class Sale(Base):
     quotation = relationship("Quotation")
     price = Column(Float, nullable=False)
     items = Column(JSON)
+    customer_name = Column(String, nullable=False)
+    customer_contact = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
