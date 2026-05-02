@@ -484,11 +484,44 @@ async function sendBatchQuote() {
     window.open(whatsappUrl, '_blank');
 }
 
+async function initBrandsCarousel() {
+    const track = document.getElementById('brandsCarouselTrack');
+    if (!track) return;
+    try {
+        const res = await fetch(`${API_URL}/brands/`);
+        const brands = (await res.json()).filter(b => b.image_url);
+        if (!brands.length) {
+            track.closest('.brands-carousel-container')?.remove();
+            return;
+        }
+        // Fisher-Yates shuffle
+        const shuffled = [...brands];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        const ITEM_W = 250;
+        const count = shuffled.length;
+        const duration = Math.max(18, count * 3);
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `@keyframes brandScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-${ITEM_W * count}px); } }`;
+        document.head.appendChild(styleEl);
+        track.style.width = `${ITEM_W * count * 2}px`;
+        track.style.animation = `brandScroll ${duration}s linear infinite`;
+        track.innerHTML = [...shuffled, ...shuffled]
+            .map(b => `<div class="brand-item"><img src="${b.image_url}" alt="${b.name}" loading="lazy"></div>`)
+            .join('');
+    } catch (e) {
+        console.error('Error cargando carrusel de marcas', e);
+    }
+}
+
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
     overlay = document.getElementById('detailModal');
     dTitle = document.getElementById('d-title');
     dCategory = document.getElementById('d-category');
     brandChips = document.getElementById('brand-chips');
+    initBrandsCarousel();
     loadProducts();
 });

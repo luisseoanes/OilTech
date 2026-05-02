@@ -1344,7 +1344,7 @@ async function changePassword() {
 async function loadBrandsView() {
     try {
         const res = await fetch(`${API_URL}/brands/`);
-        allBrands = await res.json();
+        allBrands = (await res.json()).sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }));
         const input = document.getElementById('brandFilterName');
         if (input) input.value = '';
         renderBrandsTable();
@@ -1356,7 +1356,8 @@ async function loadBrandsView() {
 
 function filterBrandsTable() {
     const q = (document.getElementById('brandFilterName')?.value || '').toLowerCase();
-    const filtered = q ? allBrands.filter(b => b.name.toLowerCase().includes(q)) : allBrands;
+    const filtered = (q ? allBrands.filter(b => b.name.toLowerCase().includes(q)) : allBrands)
+        .sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }));
     renderBrandsTableRows(filtered);
 }
 
@@ -1810,7 +1811,7 @@ function deleteSubcatMgmt(id, name) {
 async function loadPresentationsView() {
     try {
         const res = await fetch(`${API_URL}/presentations/`);
-        allPresentations = await res.json();
+        allPresentations = (await res.json()).sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }));
         const input = document.getElementById('presFilterName');
         if (input) input.value = '';
         renderPresentationsTable();
@@ -1822,7 +1823,8 @@ async function loadPresentationsView() {
 
 function filterPresentationsTable() {
     const q = (document.getElementById('presFilterName')?.value || '').toLowerCase();
-    const filtered = q ? allPresentations.filter(p => p.name.toLowerCase().includes(q)) : allPresentations;
+    const filtered = (q ? allPresentations.filter(p => p.name.toLowerCase().includes(q)) : allPresentations)
+        .sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }));
     renderPresentationsTableRows(filtered);
 }
 

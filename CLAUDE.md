@@ -56,7 +56,7 @@ The server uses `backend/oiltech.db`, NOT the root `oiltech.db` (which is empty)
 ```
 backend/
   main.py      — FastAPI app, all routes, startup seeds and migrations
-  models.py    — SQLAlchemy ORM models (User, Category, Subcategory, Brand, Product, Quotation, product_brands junction)
+  models.py    — SQLAlchemy ORM models (User, Category, Subcategory, Brand, Presentation, Product, Quotation, Sale, product_brands junction, product_presentations junction)
   schemas.py   — Pydantic request/response schemas
   database.py  — SQLAlchemy engine setup, DB path resolution
   auth.py      — JWT auth (python-jose), bcrypt password hashing, OAuth2
@@ -73,7 +73,7 @@ login.html     — Admin login
 
 **Auth flow:** JWT tokens via `/token` endpoint (OAuth2 password flow). Token stored in `localStorage`. Admin-only endpoints use `Depends(auth.get_current_user)`.
 
-**Quotation model:** Quotation items are stored as a JSON column (list of dicts with `product_id`, `product_name`, `quantity`, `option`, `price`). Status values: `Pending`, `Purchased`, `Cancelled`.
+**Quotation model:** Items stored as JSON column — dicts con `product_id, product_name, quantity, option` (sin `price`). Status values: `Pending`, `Purchased`, `Cancelled`.
 
 **Image uploads:** Cloudinary cloud `dvoeietxt`, unsigned preset `OilTechCMS`. Images → `/image/upload`, PDFs → `/raw/upload` with `fl_attachment:false` inserted after `/upload/`. All upload logic in `admin.js`.
 
@@ -85,21 +85,40 @@ login.html     — Admin login
 
 **Quotation.reference:** Generado en el backend como `COT-{id:06d}` al crear. No enviarlo desde el frontend.
 
-**Quotation.total_estimated eliminado:** Removido completamente. Las cotizaciones solo tienen `items`, `reference` y `status`.
 
-**js/constants.js:** Contains `BRAND_LOGOS` for the homepage carousel animation only. Brand data for products comes from `/brands/` API, not this file.
+**js/constants.js:** Archivo eliminado del flujo activo. El carrusel de marcas en `productos.html` se alimenta del endpoint `/brands/` vía `initBrandsCarousel()` en `productos.js`. El array `BRAND_LOGOS` ya no se usa.
 
 **SQLite DROP COLUMN:** Requires SQLite ≥ 3.35. Migration in `apply_migrations()` handles it idempotently.
 
 **Brand model:** `Brand` table (`id, name, image_url`) linked to products via `product_brands` junction table (many-to-many). Seeded from `seed_brands()` on startup. CRUD at `/brands/`. Products send `brand_ids: List[int]` on create/update; response includes `brands: List[Brand]`.
 
-**Product create/update pattern:** `brand_ids` must be `data.pop("brand_ids", [])` before `models.Product(**data)` — it's a relationship, not a column.
+**Product create/update pattern:** Both `brand_ids` and `presentation_ids` must be `data.pop("brand_ids", [])` / `data.pop("presentation_ids", [])` before `models.Product(**data)` — they're relationships, not columns.
+
+**Presentation model:** `Presentation` table (`id, name`) linked to products via `product_presentations` junction (many-to-many). CRUD at `/presentations/`. Send `presentation_ids: List[int]`, receive `presentations: List[Presentation]`.
+
+**Sale model:** `Sale` table (`id, quotation_id UNIQUE FK, price FLOAT, items JSON, customer_name, customer_contact, created_at`). CRUD at `/sales/`. `POST /sales/` auto-sets quotation status to `Purchased`. Serial frontend: `VET-{id:06d}`. Quotation serial: `COT-{id:06d}`.
+
+**QuotationItem:** `price` field eliminado — schema solo tiene `product_id, product_name, quantity, option`.
 
 **Cloudinary PDF upload:** Use `/raw/upload` endpoint (not `/image/upload`). Insert `fl_attachment:false` after `/upload/` in the returned URL: `url.replace('/upload/', '/upload/fl_attachment:false/')`.
 
 **search_tags:** Never send from frontend. Backend auto-generates as `",".join(name.split())` on create/update.
 
-**Mobile table pattern:** Add `class="cat-actions-col"` to both `<th>` and `<td>` of any action column. CSS hides `.cat-actions-col` at `≤768px`. Row tap opens a bottom sheet (`openCtxMenu()`).
+**Mobile table pattern:** `cat-actions-col` ya NO se oculta globalmente en móvil — la regla es `#categoriesTable .cat-actions-col { display: none }`. Subcategorías mantienen acciones visibles en móvil. Row tap abre bottom sheet (`openCtxMenu()`).
+
+**quotationsMap pattern:** Cotizaciones se guardan en `window.quotationsMap[id]` al cargar. Los onclick de tabla solo pasan el ID numérico — evita serializar el objeto completo en el atributo HTML (rompe con items JSON anidado).
+
+**Product form (admin):** El formulario de producto es un modal (`productModal`), NO un card inline. Se abre con `openProductModal(product?)` y se cierra con `closeProductModal()`. El antiguo `productFormCard` fue eliminado.
+
+**`/stats` endpoint:** Público (sin auth). Devuelve `{ total_quoted, total_purchased, top_products, sales_history }`. `top_products` cuenta cantidades de items en todas las cotizaciones (independiente del status). El gráfico de ventas consume `/sales/` directamente, no `sales_history`.
+
+**allBrands cache (ya corregido):** `loadBrandsPicker` siempre fetchea fresh — el guard `if (!allBrands.length)` fue eliminado para que marcas nuevas aparezcan en el picker del modal de producto.
+
+**populateProductFilterSelects():** Llamar tras cualquier CRUD de marcas, presentaciones o categorías para mantener los selects de filtro de inventario sincronizados.
+
+**Filter bar pattern:** Todas las barras de filtro usan `.filter-bar card > .filter-bar-row > .filter-group`. Datos en `window.allX`; filtrado client-side sin llamadas al backend.
+
+**CSS `.card`:** `overflow: visible` (era `hidden` — clipaba scroll horizontal de tablas internas). `.main-content` requiere `box-sizing: border-box` para no hacer overflow del viewport.
 
 ## Key Constraints
 
