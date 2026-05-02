@@ -135,7 +135,7 @@ async function loadDashboardData() {
         const response = await fetchWithAuth(`${API_URL}/stats`);
         const stats = await response.json();
 
-        document.getElementById('totalPurchased').textContent = stats.total_purchased.toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
+        document.getElementById('totalPurchased').textContent = stats.total_purchased;
 
         // Load products count (need to fetch separately or add to stats, for now separate)
         fetchProductsCount();
@@ -182,7 +182,7 @@ async function loadQuotations() {
                 <td>${q.customer_name}</td>
                 <td>${q.customer_contact}</td>
                 <td>${new Date(q.created_at).toLocaleDateString('es-CO')}</td>
-                <td><span class="status-badge status-${q.status.toLowerCase()}">${q.status}</span></td>
+                <td><span class="status-badge status-${q.status.toLowerCase()}">${{ Pending: 'Pendiente', Purchased: 'Comprado', Cancelled: 'Cancelado' }[q.status] || q.status}</span></td>
                 <td style="text-align:right;">
                     <button class="btn-action bg-blue" title="Ver detalle" onclick="viewQuotationItems(${q.id})"><i class="fas fa-eye"></i></button>
                     ${q.status === 'Pending' ? `
@@ -496,20 +496,47 @@ window.onclick = function (event) {
 // --- ANALYTICS ---
 async function getAnalytics() {
     try {
-        const response = await fetchWithAuth(`${API_URL}/stats`);
-        const stats = await response.json();
+        const [statsRes, salesRes, quotationsRes] = await Promise.all([
+            fetchWithAuth(`${API_URL}/stats`),
+            fetchWithAuth(`${API_URL}/sales/`),
+            fetchWithAuth(`${API_URL}/quotations/`)
+        ]);
+        const stats = await statsRes.json();
+        const sales = await salesRes.json();
+        const quotations = await quotationsRes.json();
 
         // Top Products
         const topList = document.getElementById('topProductsList');
         topList.innerHTML = stats.top_products.map(p => `
-                    <li style="padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
-                        <span><i class="fas fa-box" style="margin-right:10px; color: #ccc;"></i> ${p.name}</span>
-                        <span style="font-weight: bold; color: var(--primary-color); background: #e9f5ff; padding: 2px 8px; border-radius: 10px;">x${p.count}</span>
-                    </li>
-                `).join('');
+            <li style="padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                <span><i class="fas fa-box" style="margin-right:10px; color: #ccc;"></i> ${p.name}</span>
+                <span style="font-weight: bold; color: var(--primary-color); background: #e9f5ff; padding: 2px 8px; border-radius: 10px;">x${p.count}</span>
+            </li>
+        `).join('');
 
-        // Sales Chart
-        renderSalesChart(stats.sales_history);
+        // Sales Chart — ingresos reales por día desde la entidad Sale
+        const revenueByDate = {};
+        sales.forEach(s => {
+            const date = new Date(s.created_at).toLocaleDateString('es-CO', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            revenueByDate[date] = (revenueByDate[date] || 0) + s.price;
+        });
+        const history = Object.entries(revenueByDate)
+            .sort(([a], [b]) => new Date(a) - new Date(b))
+            .map(([date, amount]) => ({ date, amount }));
+
+        renderSalesChart(history);
+
+        // Quotations chart — count per day
+        const countByDate = {};
+        quotations.forEach(q => {
+            const date = new Date(q.created_at).toLocaleDateString('es-CO', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            countByDate[date] = (countByDate[date] || 0) + 1;
+        });
+        const quotationHistory = Object.entries(countByDate)
+            .sort(([a], [b]) => new Date(a) - new Date(b))
+            .map(([date, count]) => ({ date, count }));
+
+        renderQuotationsChart(quotationHistory);
 
     } catch (error) {
         console.error('Error loading analytics', error);
@@ -517,6 +544,7 @@ async function getAnalytics() {
 }
 
 let chartInstance = null;
+let quotationsChartInstance = null;
 function renderSalesChart(history) {
     const ctx = document.getElementById('salesChart').getContext('2d');
 
@@ -527,7 +555,7 @@ function renderSalesChart(history) {
         data: {
             labels: history.map(h => h.date),
             datasets: [{
-                label: 'Ventas ($)',
+                label: 'Ingresos (COP)',
                 data: history.map(h => h.amount),
                 borderColor: '#2ecc71',
                 backgroundColor: 'rgba(46, 204, 113, 0.1)',
@@ -545,6 +573,46 @@ function renderSalesChart(history) {
             scales: {
                 y: {
                     beginAtZero: true,
+                    grid: { color: '#f0f0f0' },
+                    ticks: {
+                        callback: value => '$' + Number(value).toLocaleString('es-CO')
+                    }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+}
+
+function renderQuotationsChart(history) {
+    const ctx = document.getElementById('quotationsChart').getContext('2d');
+    if (quotationsChartInstance) quotationsChartInstance.destroy();
+
+    quotationsChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: history.map(h => h.date),
+            datasets: [{
+                label: 'Cotizaciones',
+                data: history.map(h => h.count),
+                backgroundColor: 'rgba(0, 123, 255, 0.6)',
+                borderColor: '#007bff',
+                borderWidth: 1,
+                borderRadius: 4,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 },
                     grid: { color: '#f0f0f0' }
                 },
                 x: {
