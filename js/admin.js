@@ -268,13 +268,13 @@ async function loadSales() {
     try {
         const response = await fetchWithAuth(`${API_URL}/sales/`);
         window.allSales = await response.json();
-        renderSalesTable(window.allSales);
+        applySalesFilters();
     } catch (error) { console.error(error); }
 }
 
 function renderSalesTable(sales) {
     const tbody = document.querySelector('#salesTable tbody');
-    tbody.innerHTML = sales.map(s => `
+    tbody.innerHTML = sales.length ? sales.map(s => `
         <tr>
             <td><strong>VET-${String(s.id).padStart(6, '0')}</strong></td>
             <td>COT-${String(s.quotation_id).padStart(6, '0')}</td>
@@ -286,8 +286,43 @@ function renderSalesTable(sales) {
                 <button class="btn-action bg-blue" title="Ver detalle" onclick="viewSaleItems(${s.id})"><i class="fas fa-eye"></i></button>
             </td>
         </tr>
-    `).join('');
+    `).join('') : '<tr><td colspan="7" style="text-align:center;color:#888;padding:20px;">No hay ventas con esos filtros.</td></tr>';
     document.getElementById('salesFilteredTotal').textContent = sales.length;
+}
+
+function applySalesFilters() {
+    if (!window.allSales) return;
+    const quote   = (document.getElementById('sFilterQuote')?.value || '').toLowerCase();
+    const name    = (document.getElementById('sFilterName')?.value || '').toLowerCase();
+    const contact = (document.getElementById('sFilterContact')?.value || '').toLowerCase();
+    const date    = document.getElementById('sFilterDate')?.value || '';
+    const sort    = document.getElementById('sFilterSort')?.value || 'desc';
+
+    let filtered = window.allSales.filter(s => {
+        const cotRef = `COT-${String(s.quotation_id).padStart(6, '0')}`.toLowerCase();
+        const matchQuote   = !quote   || cotRef.includes(quote);
+        const matchName    = !name    || s.customer_name.toLowerCase().includes(name);
+        const matchContact = !contact || s.customer_contact.toLowerCase().includes(contact);
+        const matchDate    = !date    || new Date(s.created_at).toISOString().slice(0, 10) === date;
+        return matchQuote && matchName && matchContact && matchDate;
+    });
+
+    filtered.sort((a, b) => {
+        const diff = new Date(a.created_at) - new Date(b.created_at);
+        return sort === 'asc' ? diff : -diff;
+    });
+
+    renderSalesTable(filtered);
+}
+
+function clearSalesFilters() {
+    ['sFilterQuote', 'sFilterName', 'sFilterContact', 'sFilterDate'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    const sort = document.getElementById('sFilterSort');
+    if (sort) sort.value = 'desc';
+    applySalesFilters();
 }
 
 function openConfirmSaleModal(quotationId) {

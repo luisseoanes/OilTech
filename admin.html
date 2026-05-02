@@ -290,6 +290,37 @@
                 <button class="btn-primary" style="flex: 1 1 auto;" onclick="loadSales()"><i class="fas fa-sync-alt"></i> Refrescar</button>
             </div>
 
+            <div class="filter-bar card">
+                <div class="filter-bar-row">
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-hashtag"></i> Cotización</label>
+                        <input type="text" id="sFilterQuote" placeholder="Ej: COT-000001..." oninput="applySalesFilters()">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-user"></i> Cliente</label>
+                        <input type="text" id="sFilterName" placeholder="Buscar por nombre..." oninput="applySalesFilters()">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-phone"></i> Contacto</label>
+                        <input type="text" id="sFilterContact" placeholder="Teléfono o email..." oninput="applySalesFilters()">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-calendar"></i> Fecha</label>
+                        <input type="date" id="sFilterDate" onchange="applySalesFilters()">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-sort"></i> Ordenar</label>
+                        <select id="sFilterSort" onchange="applySalesFilters()">
+                            <option value="desc">Más reciente</option>
+                            <option value="asc">Más antigua</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary filter-clear-btn" onclick="clearSalesFilters()">
+                        <i class="fas fa-times"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+
             <div class="card">
                 <div style="overflow-x: auto;">
                     <table id="salesTable">
