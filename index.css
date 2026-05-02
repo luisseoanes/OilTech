@@ -732,6 +732,15 @@ nav.scrolled {
     /* Hover zoom */
 }
 
+.product-card .img-wrapper img.img-zoomout {
+    object-fit: contain;
+    transform: scale(1);
+}
+
+.product-card:hover .img-wrapper img.img-zoomout {
+    transform: scale(1.05);
+}
+
 .products-grid .product-card:not(.featured) .img-wrapper {
     height: 190px;
 }
