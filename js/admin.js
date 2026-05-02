@@ -132,31 +132,48 @@ function showPrompt(title, message, defaultValue, callback) {
 // --- DASHBOARD ---
 async function loadDashboardData() {
     try {
-        const response = await fetchWithAuth(`${API_URL}/stats`);
-        const stats = await response.json();
+        const [statsRes, salesRes, quotationsRes] = await Promise.all([
+            fetchWithAuth(`${API_URL}/stats`),
+            fetchWithAuth(`${API_URL}/sales/`),
+            fetchWithAuth(`${API_URL}/quotations/`)
+        ]);
+        const stats = await statsRes.json();
+        const sales = await salesRes.json();
+        const quotations = await quotationsRes.json();
 
         document.getElementById('totalPurchased').textContent = stats.total_purchased;
-
-        // Load products count (need to fetch separately or add to stats, for now separate)
         fetchProductsCount();
 
-        // Load recent sales
-        const qResponse = await fetchWithAuth(`${API_URL}/quotations/`);
-        const quotations = await qResponse.json();
-
-        const sales = quotations.filter(q => q.status === 'Purchased').slice(0, 5);
+        // Últimas 5 ventas
         const salesBody = document.querySelector('#recentSalesTable tbody');
-        salesBody.innerHTML = sales.map(q => `
-                    <tr>
-                        <td>#${q.id}</td>
-                        <td>${q.customer_name}</td>
-                        <td>${new Date(q.created_at).toLocaleDateString()}</td>
-                        <td><span class="status-badge status-purchased">Completada</span></td>
-                    </tr>
-                `).join('');
+        const recentSales = sales.slice(0, 5);
+        salesBody.innerHTML = recentSales.length ? recentSales.map(s => `
+            <tr>
+                <td><strong>VET-${String(s.id).padStart(6, '0')}</strong></td>
+                <td>COT-${String(s.quotation_id).padStart(6, '0')}</td>
+                <td>${s.customer_name}</td>
+                <td>${s.customer_contact}</td>
+                <td>${Number(s.price).toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 })}</td>
+                <td>${new Date(s.created_at).toLocaleDateString('es-CO')}</td>
+            </tr>
+        `).join('') : '<tr><td colspan="6" style="text-align:center;color:#888;">No hay ventas registradas.</td></tr>';
+
+        // Últimas 5 cotizaciones
+        const statusMap = { Pending: 'Pendiente', Purchased: 'Comprado', Cancelled: 'Cancelado' };
+        const quotationsBody = document.querySelector('#recentQuotationsTable tbody');
+        const recentQuotations = quotations.slice(0, 5);
+        quotationsBody.innerHTML = recentQuotations.length ? recentQuotations.map(q => `
+            <tr>
+                <td><strong>${q.reference || 'COT-' + String(q.id).padStart(6, '0')}</strong></td>
+                <td>${q.customer_name}</td>
+                <td>${q.customer_contact}</td>
+                <td>${new Date(q.created_at).toLocaleDateString('es-CO')}</td>
+                <td><span class="status-badge status-${q.status.toLowerCase()}">${statusMap[q.status] || q.status}</span></td>
+            </tr>
+        `).join('') : '<tr><td colspan="5" style="text-align:center;color:#888;">No hay cotizaciones.</td></tr>';
 
     } catch (error) {
-        console.error('Error loading stats', error);
+        console.error('Error loading dashboard', error);
     }
 }
 
