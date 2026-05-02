@@ -808,10 +808,8 @@ let selectedBrandIds = new Set();
 
 async function loadBrandsPicker(preselected = []) {
     try {
-        if (!allBrands.length) {
-            const res = await fetch(`${API_URL}/brands/`);
-            allBrands = await res.json();
-        }
+        const res = await fetch(`${API_URL}/brands/`);
+        allBrands = await res.json();
         selectedBrandIds = new Set(preselected);
         renderBrandsPicker();
     } catch (e) {
@@ -883,15 +881,114 @@ async function loadProducts() {
     try {
         const response = await fetch(`${API_URL}/products/`);
         const products = await response.json();
-
         window.allProducts = products;
-        if (document.getElementById('productSearch')) {
-            filterProducts();
-        } else {
-            renderProductsTable(products);
-            updateProductsCounters(products.length, products.length);
-        }
+        populateProductFilterSelects();
+        applyProductFilters();
     } catch (e) { console.error(e); }
+}
+
+function populateProductFilterSelects() {
+    const catSelect = document.getElementById('pFilterCategory');
+    const brandSelect = document.getElementById('pFilterBrand');
+    const presSelect = document.getElementById('pFilterPresentation');
+    if (!catSelect) return;
+
+    catSelect.innerHTML = '<option value="">Todas</option>' +
+        (allCategories || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+    brandSelect.innerHTML = '<option value="">Todas</option>' +
+        (allBrands || []).map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+
+    presSelect.innerHTML = '<option value="">Todas</option>' +
+        (allPresentations || []).map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+}
+
+async function onProductFilterCategoryChange() {
+    const catId = document.getElementById('pFilterCategory')?.value;
+    const subcatSelect = document.getElementById('pFilterSubcategory');
+    subcatSelect.innerHTML = '<option value="">Todas</option>';
+
+    if (catId) {
+        try {
+            const res = await fetch(`${API_URL}/subcategories/?category_id=${catId}`);
+            const subcats = await res.json();
+            subcatSelect.innerHTML += subcats.map(s =>
+                `<option value="${s.id}">${s.name}</option>`
+            ).join('');
+        } catch (e) { console.error(e); }
+    }
+    applyProductFilters();
+}
+
+function applyProductFilters() {
+    if (!window.allProducts) return;
+    const name     = (document.getElementById('pFilterName')?.value || '').toLowerCase();
+    const catId    = document.getElementById('pFilterCategory')?.value || '';
+    const subcatId = document.getElementById('pFilterSubcategory')?.value || '';
+    const brandId  = document.getElementById('pFilterBrand')?.value || '';
+    const presId   = document.getElementById('pFilterPresentation')?.value || '';
+
+    const filtered = window.allProducts.filter(p => {
+        const matchName  = !name    || (p.name || '').toLowerCase().includes(name);
+        const matchCat   = !catId   || String(p.category_id) === catId;
+        const matchSubcat= !subcatId|| String(p.subcategory_id) === subcatId;
+        const matchBrand = !brandId || (p.brands || []).some(b => String(b.id) === brandId);
+        const matchPres  = !presId  || (p.presentations || []).some(pr => String(pr.id) === presId);
+        return matchName && matchCat && matchSubcat && matchBrand && matchPres;
+    });
+
+    renderProductsTable(filtered);
+}
+
+function clearProductFilters() {
+    const name = document.getElementById('pFilterName');
+    const cat  = document.getElementById('pFilterCategory');
+    const sub  = document.getElementById('pFilterSubcategory');
+    const brand= document.getElementById('pFilterBrand');
+    const pres = document.getElementById('pFilterPresentation');
+    if (name)  name.value  = '';
+    if (cat)   cat.value   = '';
+    if (sub)   { sub.innerHTML = '<option value="">Todas</option>'; }
+    if (brand) brand.value = '';
+    if (pres)  pres.value  = '';
+    applyProductFilters();
+}
+
+function openProductDetail(productId) {
+    const p = window.allProducts?.find(pr => pr.id === productId);
+    if (!p) return;
+
+    document.getElementById('pdImage').src = p.image_url || '';
+    document.getElementById('pdImage').style.display = p.image_url ? 'block' : 'none';
+    document.getElementById('pdName').textContent = p.name;
+    document.getElementById('pdCategory').textContent = p.category_name || '—';
+    document.getElementById('pdSubcategory').textContent = p.subcategory_name || '';
+    document.getElementById('pdSubcategory').style.display = p.subcategory_name ? 'inline-flex' : 'none';
+
+    document.getElementById('pdBrands').innerHTML = (p.brands || []).map(b =>
+        `<span class="status-badge" style="background:#fff3cd;color:#856404;">${b.name}</span>`
+    ).join('') || '<span style="color:#aaa;font-size:0.8rem;">Sin marcas</span>';
+
+    document.getElementById('pdPresentations').innerHTML = (p.presentations || []).map(pr =>
+        `<span class="status-badge" style="background:#f0fff4;color:#28a745;">${pr.name}</span>`
+    ).join('') || '';
+
+    const descWrapper = document.getElementById('pdDescriptionWrapper');
+    document.getElementById('pdDescription').textContent = p.description || '';
+    descWrapper.style.display = p.description ? 'block' : 'none';
+
+    const techWrapper = document.getElementById('pdTechSheetWrapper');
+    if (p.technical_sheet_url) {
+        document.getElementById('pdTechSheet').href = p.technical_sheet_url;
+        techWrapper.style.display = 'block';
+    } else {
+        techWrapper.style.display = 'none';
+    }
+
+    document.getElementById('pdBtnEdit').onclick = () => { closeModal('productDetailModal'); editProduct(p); };
+    document.getElementById('pdBtnDelete').onclick = () => { closeModal('productDetailModal'); deleteProduct(p.id); };
+
+    document.getElementById('productDetailModal').style.display = 'block';
 }
 
 function renderProductsTable(products) {
@@ -899,28 +996,25 @@ function renderProductsTable(products) {
     if (!tbody) return;
 
     if (!products.length) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="7" style="text-align: center; color: #888;">No hay productos con esos filtros.</td>
-            </tr>
-        `;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#888;padding:20px;">No hay productos.</td></tr>`;
         return;
     }
 
     tbody.innerHTML = products.map(p => {
+        const brandBadges = (p.brands || []).map(b =>
+            `<span class="badge" style="background:#fff3cd;color:#856404;margin:2px;">${b.name}</span>`
+        ).join('');
         const presentationBadges = (p.presentations || []).map(pr =>
-            `<span class="badge" style="background: #f0fff4; color: #28a745; margin: 2px;">${pr.name}</span>`
+            `<span class="badge" style="background:#f0fff4;color:#28a745;margin:2px;">${pr.name}</span>`
         ).join('');
         return `
-            <tr>
-                <td><img src="${p.image_url}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;" onerror="this.style.display='none'"></td>
-                <td style="font-weight: 600; color: var(--black);">${p.name}</td>
-                <td><span class="badge" style="background: #e9f5ff; color: #007bff; text-transform: capitalize;">${p.category_name || ''}</span></td>
+            <tr style="cursor:pointer;" onclick="openProductDetail(${p.id})">
+                <td><img src="${p.image_url}" style="width:50px;height:50px;object-fit:cover;border-radius:8px;" onerror="this.style.display='none'"></td>
+                <td style="font-weight:600;">${p.name}</td>
+                <td><span class="badge" style="background:#e9f5ff;color:#007bff;">${p.category_name || '—'}</span></td>
+                <td><span style="color:#6f42c1;font-size:0.85rem;">${p.subcategory_name || '—'}</span></td>
+                <td>${brandBadges || '<span style="color:#aaa;font-size:0.8rem;">—</span>'}</td>
                 <td>${presentationBadges || '<span style="color:#aaa;font-size:0.8rem;">—</span>'}</td>
-                <td style="text-align:right;">
-                    <button class="btn-action btn-edit" title="Editar" onclick='editProduct(${JSON.stringify(p).replace(/'/g, "&#39;")})'><i class="fas fa-edit"></i></button>
-                    <button class="btn-action btn-delete" title="Eliminar" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button>
-                </td>
             </tr>
         `;
     }).join('');
@@ -1383,7 +1477,7 @@ async function saveBrandMgmt() {
             showToast(isEdit ? 'Marca actualizada' : 'Marca creada');
             closeModal('brandModal');
             await loadBrandsView();
-            allBrands = [];
+            populateProductFilterSelects();
         } else {
             const err = await response.json().catch(() => ({}));
             showToast(err.detail || 'Error al guardar', 'error');
@@ -1404,7 +1498,7 @@ function deleteBrandMgmt(id, name) {
                 if (response.ok) {
                     showToast('Marca eliminada');
                     await loadBrandsView();
-                    allBrands = [];
+                    populateProductFilterSelects();
                 } else {
                     showToast('Error al eliminar', 'error');
                 }
@@ -1484,6 +1578,7 @@ async function saveCatMgmt() {
             showToast(isEdit ? 'Categoría actualizada' : 'Categoría creada');
             closeModal('catMgmtModal');
             await loadCategoriesView();
+            populateProductFilterSelects();
         } else {
             const err = await response.json().catch(() => ({}));
             showToast(err.detail || 'Error al guardar', 'error');
@@ -1504,6 +1599,7 @@ function deleteCatMgmt(id, name) {
                 if (response.ok) {
                     showToast('Categoría eliminada');
                     await loadCategoriesView();
+                    populateProductFilterSelects();
                 } else {
                     showToast('Error al eliminar', 'error');
                 }
@@ -1735,6 +1831,7 @@ async function savePresentationMgmt() {
             showToast(isEdit ? 'Presentación actualizada' : 'Presentación creada');
             closeModal('presentationModal');
             await loadPresentationsView();
+            populateProductFilterSelects();
         } else {
             const err = await response.json().catch(() => ({}));
             showToast(err.detail || 'Error al guardar', 'error');
@@ -1755,6 +1852,7 @@ function deletePresentationMgmt(id, name) {
                 if (response.ok) {
                     showToast('Presentación eliminada');
                     await loadPresentationsView();
+                    populateProductFilterSelects();
                 } else {
                     showToast('Error al eliminar', 'error');
                 }
@@ -1764,6 +1862,18 @@ function deletePresentationMgmt(id, name) {
             }
         }
     );
+}
+
+// --- LIGHTBOX ---
+function openAdminLightbox(src) {
+    if (!src) return;
+    const lb = document.getElementById('adminLightbox');
+    document.getElementById('adminLightboxImg').src = src;
+    lb.style.display = 'flex';
+}
+
+function closeAdminLightbox() {
+    document.getElementById('adminLightbox').style.display = 'none';
 }
 
 // Init

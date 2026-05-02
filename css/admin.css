@@ -86,6 +86,9 @@ body {
     margin-left: var(--sidebar-width);
     padding: 30px;
     width: calc(100% - var(--sidebar-width));
+    box-sizing: border-box;
+    min-width: 0;
+    overflow-x: hidden;
 }
 
 /* Stats Cards */
@@ -165,7 +168,8 @@ body {
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     margin-bottom: 20px;
-    overflow: hidden;
+    overflow: visible;
+    min-width: 0;
 }
 
 .card h3 {

@@ -348,6 +348,42 @@
                 <button class="btn-primary" onclick="openProductModal()">+ Nuevo Producto</button>
             </div>
 
+            <div class="filter-bar card">
+                <div class="filter-bar-row">
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-search"></i> Nombre</label>
+                        <input type="text" id="pFilterName" placeholder="Buscar producto..." oninput="applyProductFilters()">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-tags"></i> Categoría</label>
+                        <select id="pFilterCategory" onchange="onProductFilterCategoryChange()">
+                            <option value="">Todas</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-sitemap"></i> Subcategoría</label>
+                        <select id="pFilterSubcategory" onchange="applyProductFilters()">
+                            <option value="">Todas</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-certificate"></i> Marca</label>
+                        <select id="pFilterBrand" onchange="applyProductFilters()">
+                            <option value="">Todas</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-box-open"></i> Presentación</label>
+                        <select id="pFilterPresentation" onchange="applyProductFilters()">
+                            <option value="">Todas</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary filter-clear-btn" onclick="clearProductFilters()">
+                        <i class="fas fa-times"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+
             <!-- New Category Modal -->
             <div id="categoryModal" class="modal">
                 <div class="modal-content" style="max-width: 400px;">
@@ -363,15 +399,16 @@
             </div>
 
             <div class="card">
-                <div style="overflow-x: auto;">
+                <div style="overflow-x: auto; max-width: 100%;">
                     <table id="productsTable">
                         <thead>
                             <tr>
                                 <th>Imagen</th>
                                 <th>Nombre</th>
                                 <th>Categoría</th>
+                                <th>Subcategoría</th>
+                                <th>Marcas</th>
                                 <th>Presentaciones</th>
-                                <th style="text-align:right;">Acciones</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -430,6 +467,42 @@
         </div>
 
         <!-- Category Mgmt Modal (create / edit) -->
+        <!-- Product Detail Modal -->
+        <div id="productDetailModal" class="modal">
+            <div class="modal-content" style="max-width: 620px;">
+                <span class="close" onclick="closeModal('productDetailModal')">&times;</span>
+                <div style="display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap; margin-bottom:20px;">
+                    <img id="pdImage" src="" alt="" style="width:110px;height:110px;object-fit:cover;border-radius:10px;flex-shrink:0;background:#f0f0f0;cursor:zoom-in;" onclick="openAdminLightbox(this.src)" onerror="this.style.display='none'">
+                    <div style="flex:1;min-width:0;">
+                        <h3 id="pdName" style="margin:0 0 6px;font-size:1.2rem;"></h3>
+                        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+                            <span id="pdCategory" class="status-badge" style="background:#e9f5ff;color:#007bff;"></span>
+                            <span id="pdSubcategory" class="status-badge" style="background:#f3f0ff;color:#6f42c1;"></span>
+                        </div>
+                        <div id="pdBrands" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;"></div>
+                        <div id="pdPresentations" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+                    </div>
+                </div>
+                <div id="pdDescriptionWrapper" style="margin-bottom:16px;">
+                    <p style="font-size:0.8rem;font-weight:600;color:#666;margin-bottom:4px;">Descripción</p>
+                    <p id="pdDescription" style="margin:0;font-size:0.9rem;color:#444;line-height:1.6;"></p>
+                </div>
+                <div id="pdTechSheetWrapper" style="margin-bottom:20px;display:none;">
+                    <a id="pdTechSheet" href="#" target="_blank" class="btn-primary" style="display:inline-flex;text-decoration:none;">
+                        <i class="fas fa-file-pdf"></i> Ver Ficha Técnica
+                    </a>
+                </div>
+                <div style="display:flex;gap:10px;justify-content:flex-end;">
+                    <button class="btn-action btn-edit" style="width:auto;padding:8px 18px;" id="pdBtnEdit">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button class="btn-action btn-delete" style="width:auto;padding:8px 18px;" id="pdBtnDelete">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Product Modal (create / edit) -->
         <div id="productModal" class="modal">
             <div class="modal-content" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
@@ -701,6 +774,11 @@
                 <button class="btn-primary" onclick="changePassword()">Actualizar Contraseña</button>
             </div>
         </div>
+    </div>
+
+    <!-- Image Lightbox -->
+    <div id="adminLightbox" onclick="closeAdminLightbox()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
+        <img id="adminLightboxImg" src="" alt="" style="max-width:92vw;max-height:92vh;object-fit:contain;border-radius:10px;box-shadow:0 0 60px rgba(0,0,0,0.5);">
     </div>
 
     <script src="js/admin.js"></script>
