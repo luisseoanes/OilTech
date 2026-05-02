@@ -254,30 +254,6 @@
                 <button class="btn-primary" style="flex: 1 1 auto;" onclick="loadSales()"><i class="fas fa-sync-alt"></i> Refrescar</button>
             </div>
 
-            <div class="card" style="margin-bottom: 20px;">
-                <div class="form-grid"
-                    style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: flex-end;">
-                    <div class="form-group">
-                        <label style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px;">Buscar
-                            Cliente / Contacto</label>
-                        <input type="text" id="salesSearch" placeholder="Nombre o teléfono..."
-                            onkeyup="filterSalesTable()">
-                    </div>
-                    <div class="form-group">
-                        <label style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px;">Fecha
-                            Inicio</label>
-                        <input type="date" id="salesDateStart" onchange="filterSalesTable()">
-                    </div>
-                    <div class="form-group">
-                        <label style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px;">Fecha
-                            Fin</label>
-                        <input type="date" id="salesDateEnd" onchange="filterSalesTable()">
-                    </div>
-                    <button class="btn-action btn-cancel" style="width: auto;"
-                        onclick="clearSalesFilters()">Limpiar</button>
-                </div>
-            </div>
-
             <div class="card">
                 <div style="overflow-x: auto;">
                     <table id="salesTable">
@@ -303,38 +279,6 @@
             <div class="section-header">
                 <h2>Inventario de Productos</h2>
                 <button class="btn-primary" onclick="openProductModal()">+ Nuevo Producto</button>
-            </div>
-
-            <div class="card">
-                <div class="product-filters-grid">
-                    <div class="form-group">
-                        <label
-                            style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px;">Buscar</label>
-                        <input type="text" id="productSearch" placeholder="Nombre, código, marca o tags..."
-                            onkeyup="filterProducts()">
-                    </div>
-                    <div class="form-group">
-                        <label
-                            style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px;">Categoría</label>
-                        <select id="productFilterCategory" onchange="filterProducts()">
-                            <option value="">Todas las categorías</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label
-                            style="display: block; font-size: 0.8rem; color: #666; margin-bottom: 5px;">Ordenar</label>
-                        <select id="productSort" onchange="filterProducts()">
-                            <option value="name_asc">Nombre (A-Z)</option>
-                            <option value="name_desc">Nombre (Z-A)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="product-filters-actions">
-                    <button class="btn-action btn-cancel" style="width: auto;"
-                        onclick="clearProductFilters()">Limpiar</button>
-                    <div class="product-count-badge">Mostrando <span id="productsFilteredCount">0</span> de <span
-                            id="productsTotalCount">0</span></div>
-                </div>
             </div>
 
             <!-- New Category Modal -->
