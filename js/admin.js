@@ -195,17 +195,16 @@ function renderQuotationsTable(quotations) {
     const tbody = document.querySelector('#quotationsTable tbody');
     if (!tbody) return;
     tbody.innerHTML = quotations.length ? quotations.map(q => `
-            <tr>
+            <tr style="cursor:pointer;" onclick="viewQuotationItems(${q.id})">
                 <td><strong>${q.reference || 'COT-' + String(q.id).padStart(6, '0')}</strong></td>
                 <td>${q.customer_name}</td>
                 <td>${q.customer_contact}</td>
                 <td>${new Date(q.created_at).toLocaleDateString('es-CO')}</td>
                 <td><span class="status-badge status-${q.status.toLowerCase()}">${statusMap[q.status] || q.status}</span></td>
                 <td style="text-align:right;">
-                    <button class="btn-action bg-blue" title="Ver detalle" onclick="viewQuotationItems(${q.id})"><i class="fas fa-eye"></i></button>
                     ${q.status === 'Pending' ? `
-                        <button class="btn-action btn-approve" title="Confirmar Venta" onclick="openConfirmSaleModal(${q.id})"><i class="fas fa-check"></i></button>
-                        <button class="btn-action btn-cancel" title="Cancelar" onclick="updateStatus(${q.id}, 'Cancelled')"><i class="fas fa-times"></i></button>
+                        <button class="btn-action btn-approve" title="Confirmar Venta" onclick="event.stopPropagation();openConfirmSaleModal(${q.id})"><i class="fas fa-check"></i></button>
+                        <button class="btn-action btn-cancel" title="Cancelar" onclick="event.stopPropagation();updateStatus(${q.id}, 'Cancelled')"><i class="fas fa-times"></i></button>
                     ` : ''}
                 </td>
             </tr>
@@ -275,18 +274,15 @@ async function loadSales() {
 function renderSalesTable(sales) {
     const tbody = document.querySelector('#salesTable tbody');
     tbody.innerHTML = sales.length ? sales.map(s => `
-        <tr>
+        <tr style="cursor:pointer;" onclick="viewSaleItems(${s.id})">
             <td><strong>VET-${String(s.id).padStart(6, '0')}</strong></td>
             <td>COT-${String(s.quotation_id).padStart(6, '0')}</td>
             <td>${s.customer_name}</td>
             <td>${s.customer_contact}</td>
             <td>${Number(s.price).toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 })}</td>
             <td>${new Date(s.created_at).toLocaleDateString('es-CO')}</td>
-            <td style="text-align:right;">
-                <button class="btn-action bg-blue" title="Ver detalle" onclick="viewSaleItems(${s.id})"><i class="fas fa-eye"></i></button>
-            </td>
         </tr>
-    `).join('') : '<tr><td colspan="7" style="text-align:center;color:#888;padding:20px;">No hay ventas con esos filtros.</td></tr>';
+    `).join('') : '<tr><td colspan="6" style="text-align:center;color:#888;padding:20px;">No hay ventas con esos filtros.</td></tr>';
     document.getElementById('salesFilteredTotal').textContent = sales.length;
 }
 
@@ -1519,22 +1515,31 @@ async function loadCategoriesView() {
     resetSubcatPanel();
 }
 
+function filterCategoriesTable() {
+    const q = (document.getElementById('catFilterName')?.value || '').toLowerCase();
+    const filtered = q ? allCategories.filter(c => c.name.toLowerCase().includes(q)) : allCategories;
+    renderCategoriesTableRows(filtered);
+}
+
 function renderCategoriesTable() {
+    renderCategoriesTableRows(allCategories);
+}
+
+function renderCategoriesTableRows(categories) {
     const tbody = document.querySelector('#categoriesTable tbody');
     if (!tbody) return;
 
-    if (!allCategories.length) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#888;">No hay categorías creadas.</td></tr>';
+    if (!categories.length) {
+        tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#888;">No hay categorías.</td></tr>';
         return;
     }
 
-    tbody.innerHTML = allCategories.map(c => {
+    tbody.innerHTML = categories.map(c => {
         const safeName = c.name.replace(/'/g,"&#39;");
         const safeTags = (c.tags||'').replace(/'/g,"&#39;");
         return `
         <tr onclick="onCatRowTap(${c.id}, '${safeName}', '${safeTags}')">
             <td style="font-weight:600;">${c.name}</td>
-            <td style="color:#666;font-size:0.85rem;">${c.tags || '—'}</td>
             <td class="cat-actions-col" style="text-align:right;">
                 <button class="btn-action bg-blue" title="Ver subcategorías" onclick="event.stopPropagation();selectCategoryForSubcats(${c.id}, '${safeName}')"><i class="fas fa-list"></i></button>
                 <button class="btn-action btn-edit" title="Editar" onclick="event.stopPropagation();openCatMgmtModal(${c.id}, '${safeName}', '${safeTags}')"><i class="fas fa-edit"></i></button>
@@ -1632,20 +1637,26 @@ function closeCtxMenu() {
 }
 
 function onCatRowTap(id, name, tags) {
-    if (window.innerWidth > 768) return;
-    openCtxMenu(name, [
-        { icon: 'list', label: 'Ver subcategorías', action: `selectCategoryForSubcats(${id}, '${name}')` },
-        { icon: 'edit', label: 'Editar categoría',  action: `openCatMgmtModal(${id}, '${name}', '${tags}')` },
-        { icon: 'trash', label: 'Eliminar',         action: `deleteCatMgmt(${id}, '${name}')`, danger: true },
-    ]);
+    if (window.innerWidth <= 768) {
+        openCtxMenu(name, [
+            { icon: 'list', label: 'Ver subcategorías', action: `selectCategoryForSubcats(${id}, '${name}')` },
+            { icon: 'edit', label: 'Editar categoría',  action: `openCatMgmtModal(${id}, '${name}', '${tags}')` },
+            { icon: 'trash', label: 'Eliminar',         action: `deleteCatMgmt(${id}, '${name}')`, danger: true },
+        ]);
+    } else {
+        openCatMgmtModal(id, name, tags);
+    }
 }
 
 function onSubcatRowTap(id, name) {
-    if (window.innerWidth > 768) return;
-    openCtxMenu(name, [
-        { icon: 'edit',  label: 'Editar subcategoría', action: `openSubcatMgmtModal(${id}, '${name}')` },
-        { icon: 'trash', label: 'Eliminar',             action: `deleteSubcatMgmt(${id}, '${name}')`, danger: true },
-    ]);
+    if (window.innerWidth <= 768) {
+        openCtxMenu(name, [
+            { icon: 'edit',  label: 'Editar subcategoría', action: `openSubcatMgmtModal(${id}, '${name}')` },
+            { icon: 'trash', label: 'Eliminar',             action: `deleteSubcatMgmt(${id}, '${name}')`, danger: true },
+        ]);
+    } else {
+        openSubcatMgmtModal(id, name);
+    }
 }
 
 // --- SUBCATEGORY MANAGEMENT ---
@@ -1670,33 +1681,48 @@ async function selectCategoryForSubcats(categoryId, categoryName) {
     await renderSubcategoriesTable(categoryId);
 }
 
-async function renderSubcategoriesTable(categoryId) {
+function filterSubcategoriesTable() {
+    const q = (document.getElementById('subcatFilterName')?.value || '').toLowerCase();
+    const filtered = q ? (window.currentSubcats || []).filter(s => s.name.toLowerCase().includes(q)) : (window.currentSubcats || []);
+    renderSubcatRows(filtered);
+}
+
+function renderSubcatRows(subcats) {
     const tbody = document.querySelector('#subcategoriesTable tbody');
     if (!tbody) return;
+    if (!subcats.length) {
+        tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#888;">No hay subcategorías.</td></tr>';
+        return;
+    }
+    tbody.innerHTML = subcats.map(s => {
+        const safeName = s.name.replace(/'/g,"&#39;");
+        return `
+        <tr onclick="onSubcatRowTap(${s.id}, '${safeName}')">
+            <td style="font-weight:600;">${s.name}</td>
+            <td class="cat-actions-col" style="text-align:right;">
+                <button class="btn-action btn-edit" title="Editar" onclick="event.stopPropagation();openSubcatMgmtModal(${s.id}, '${safeName}')"><i class="fas fa-edit"></i></button>
+                <button class="btn-action btn-delete" title="Eliminar" onclick="event.stopPropagation();deleteSubcatMgmt(${s.id}, '${safeName}')"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>`;
+    }).join('');
+}
 
+async function renderSubcategoriesTable(categoryId) {
     try {
         const response = await fetch(`${API_URL}/subcategories/?category_id=${categoryId}`);
         const subcats = await response.json();
+        window.currentSubcats = subcats;
 
-        if (!subcats.length) {
-            tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#888;">No hay subcategorías en esta categoría.</td></tr>';
-            return;
-        }
+        const searchWrapper = document.getElementById('subcatSearchWrapper');
+        const input = document.getElementById('subcatFilterName');
+        if (searchWrapper) searchWrapper.style.display = subcats.length ? 'block' : 'none';
+        if (input) input.value = '';
 
-        tbody.innerHTML = subcats.map(s => {
-            const safeName = s.name.replace(/'/g,"&#39;");
-            return `
-            <tr onclick="onSubcatRowTap(${s.id}, '${safeName}')">
-                <td style="font-weight:600;">${s.name}</td>
-                <td class="cat-actions-col" style="text-align:right;">
-                    <button class="btn-action btn-edit" title="Editar" onclick="event.stopPropagation();openSubcatMgmtModal(${s.id}, '${safeName}')"><i class="fas fa-edit"></i></button>
-                    <button class="btn-action btn-delete" title="Eliminar" onclick="event.stopPropagation();deleteSubcatMgmt(${s.id}, '${safeName}')"><i class="fas fa-trash"></i></button>
-                </td>
-            </tr>`;
-        }).join('');
+        renderSubcatRows(subcats);
     } catch (e) {
         console.error(e);
-        tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#c00;">Error al cargar subcategorías.</td></tr>';
+        const tbody = document.querySelector('#subcategoriesTable tbody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#c00;">Error al cargar subcategorías.</td></tr>';
     }
 }
 

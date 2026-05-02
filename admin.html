@@ -332,7 +332,6 @@
                                 <th>Contacto</th>
                                 <th>Total Venta</th>
                                 <th>Fecha</th>
-                                <th style="text-align:right;">Acciones</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -424,13 +423,24 @@
                 <button class="btn-primary" onclick="openCatMgmtModal()">+ Nueva Categoría</button>
             </div>
 
+            <div class="filter-bar card">
+                <div class="filter-bar-row">
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-search"></i> Buscar categoría</label>
+                        <input type="text" id="catFilterName" placeholder="Nombre de categoría..." oninput="filterCategoriesTable()">
+                    </div>
+                    <button class="btn-primary filter-clear-btn" onclick="document.getElementById('catFilterName').value=''; filterCategoriesTable()">
+                        <i class="fas fa-times"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+
             <div class="card">
                 <div style="overflow-x: auto;">
                     <table id="categoriesTable">
                         <thead>
                             <tr>
                                 <th>Nombre</th>
-                                <th class="cat-actions-col">Tags</th>
                                 <th class="cat-actions-col" style="text-align:right;">Acciones</th>
                             </tr>
                         </thead>
@@ -445,6 +455,17 @@
                     <button class="btn-primary" id="btnAddSubcat" style="display: none;" onclick="openSubcatMgmtModal()">+ Nueva Subcategoría</button>
                 </div>
                 <p id="subcatPanelHint" style="color: #888; font-size: 0.9rem;">Selecciona una categoría para ver y gestionar sus subcategorías.</p>
+                <div id="subcatSearchWrapper" style="display:none; margin-bottom: 12px;">
+                    <div class="filter-bar-row">
+                        <div class="filter-group">
+                            <label class="filter-label"><i class="fas fa-search"></i> Buscar subcategoría</label>
+                            <input type="text" id="subcatFilterName" placeholder="Nombre de subcategoría..." oninput="filterSubcategoriesTable()">
+                        </div>
+                        <button class="btn-primary filter-clear-btn" onclick="document.getElementById('subcatFilterName').value=''; filterSubcategoriesTable()">
+                            <i class="fas fa-times"></i> Limpiar
+                        </button>
+                    </div>
+                </div>
                 <div style="overflow-x: auto;">
                     <table id="subcategoriesTable" style="display: none;">
                         <thead>

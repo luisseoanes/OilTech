@@ -708,8 +708,6 @@ textarea {
 
 /* Categories tables: mobile responsive */
 @media (max-width: 768px) {
-    .cat-actions-col { display: none; }
-
     #categoriesTable th:nth-child(2),
     #categoriesTable td:nth-child(2) { display: none; }
 
