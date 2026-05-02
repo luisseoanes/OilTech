@@ -1,8 +1,10 @@
 # main.py
 
 from typing import List
-import os
-from fastapi import FastAPI, Depends, HTTPException, status
+import os, uuid
+from dotenv import load_dotenv
+load_dotenv()
+from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -612,7 +614,37 @@ def update_quotation_status(quotation_id: int, status: str, db: Session = Depend
 
 
 import shutil
-from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
+
+PDF_DIR = os.path.join(database.VOLUME_PATH, "fichas-tecnicas")
+os.makedirs(PDF_DIR, exist_ok=True)
+
+@app.post("/upload/pdf")
+async def upload_pdf(
+    file: UploadFile = File(...),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    if not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Solo se permiten archivos PDF")
+
+    content = await file.read()
+    if len(content) > 20 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="El PDF no puede superar 20MB")
+
+    filename = f"{uuid.uuid4().hex}.pdf"
+    filepath = os.path.join(PDF_DIR, filename)
+    with open(filepath, "wb") as f:
+        f.write(content)
+
+    return {"url": f"/files/pdf/{filename}"}
+
+
+@app.get("/files/pdf/{filename}")
+async def serve_pdf(filename: str):
+    filepath = os.path.join(PDF_DIR, filename)
+    if not os.path.isfile(filepath):
+        raise HTTPException(status_code=404, detail="Archivo no encontrado")
+    return FileResponse(filepath, media_type="application/pdf")
+
 
 # ... existing imports ...
 

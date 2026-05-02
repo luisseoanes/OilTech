@@ -1210,24 +1210,20 @@ async function uploadPdfToCloudinary(input) {
     try {
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-        formData.append('folder', 'fichas-tecnicas');
 
-        const response = await fetch(
-            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/raw/upload`,
-            { method: 'POST', body: formData }
-        );
+        const response = await fetch(`${API_URL}/upload/pdf`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+            body: formData,
+        });
 
         if (!response.ok) {
             const err = await response.json();
-            throw new Error(err.error?.message || 'Error al subir PDF');
+            throw new Error(err.detail || 'Error al subir PDF');
         }
 
         const data = await response.json();
-        // Insert fl_attachment:false so the PDF opens in browser instead of downloading
-        const url = data.secure_url.replace('/upload/', '/upload/fl_attachment:false/');
-
-        urlInput.value = url;
+        urlInput.value = `${API_URL}${data.url}`;
         statusEl.style.display = 'none';
         successEl.style.display = 'flex';
         document.getElementById('pdfFileName').textContent = file.name;
