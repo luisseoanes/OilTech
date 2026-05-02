@@ -684,6 +684,17 @@
                 <h2>Gestión de Marcas</h2>
                 <button class="btn-primary" onclick="openBrandModal()">+ Nueva Marca</button>
             </div>
+            <div class="filter-bar card">
+                <div class="filter-bar-row">
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-search"></i> Buscar marca</label>
+                        <input type="text" id="brandFilterName" placeholder="Nombre de marca..." oninput="filterBrandsTable()">
+                    </div>
+                    <button class="btn-primary filter-clear-btn" onclick="document.getElementById('brandFilterName').value=''; filterBrandsTable()">
+                        <i class="fas fa-times"></i> Limpiar
+                    </button>
+                </div>
+            </div>
             <div class="card">
                 <div style="overflow-x: auto;">
                     <table id="brandsTable">
@@ -740,6 +751,17 @@
             <div class="section-header">
                 <h2>Gestión de Presentaciones</h2>
                 <button class="btn-primary" onclick="openPresentationModal()">+ Nueva Presentación</button>
+            </div>
+            <div class="filter-bar card">
+                <div class="filter-bar-row">
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-search"></i> Buscar presentación</label>
+                        <input type="text" id="presFilterName" placeholder="Nombre de presentación..." oninput="filterPresentationsTable()">
+                    </div>
+                    <button class="btn-primary filter-clear-btn" onclick="document.getElementById('presFilterName').value=''; filterPresentationsTable()">
+                        <i class="fas fa-times"></i> Limpiar
+                    </button>
+                </div>
             </div>
             <div class="card">
                 <div style="overflow-x: auto;">

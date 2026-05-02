@@ -1345,6 +1345,8 @@ async function loadBrandsView() {
     try {
         const res = await fetch(`${API_URL}/brands/`);
         allBrands = await res.json();
+        const input = document.getElementById('brandFilterName');
+        if (input) input.value = '';
         renderBrandsTable();
     } catch (e) {
         console.error(e);
@@ -1352,16 +1354,26 @@ async function loadBrandsView() {
     }
 }
 
+function filterBrandsTable() {
+    const q = (document.getElementById('brandFilterName')?.value || '').toLowerCase();
+    const filtered = q ? allBrands.filter(b => b.name.toLowerCase().includes(q)) : allBrands;
+    renderBrandsTableRows(filtered);
+}
+
 function renderBrandsTable() {
+    renderBrandsTableRows(allBrands);
+}
+
+function renderBrandsTableRows(brands) {
     const tbody = document.querySelector('#brandsTable tbody');
     if (!tbody) return;
 
-    if (!allBrands.length) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#888;">No hay marcas creadas.</td></tr>';
+    if (!brands.length) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#888;">No hay marcas.</td></tr>';
         return;
     }
 
-    tbody.innerHTML = allBrands.map(b => `
+    tbody.innerHTML = brands.map(b => `
         <tr>
             <td>
                 ${b.image_url
@@ -1799,6 +1811,8 @@ async function loadPresentationsView() {
     try {
         const res = await fetch(`${API_URL}/presentations/`);
         allPresentations = await res.json();
+        const input = document.getElementById('presFilterName');
+        if (input) input.value = '';
         renderPresentationsTable();
     } catch (e) {
         console.error(e);
@@ -1806,16 +1820,26 @@ async function loadPresentationsView() {
     }
 }
 
+function filterPresentationsTable() {
+    const q = (document.getElementById('presFilterName')?.value || '').toLowerCase();
+    const filtered = q ? allPresentations.filter(p => p.name.toLowerCase().includes(q)) : allPresentations;
+    renderPresentationsTableRows(filtered);
+}
+
 function renderPresentationsTable() {
+    renderPresentationsTableRows(allPresentations);
+}
+
+function renderPresentationsTableRows(presentations) {
     const tbody = document.querySelector('#presentationsTable tbody');
     if (!tbody) return;
 
-    if (!allPresentations.length) {
-        tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#888;">No hay presentaciones creadas.</td></tr>';
+    if (!presentations.length) {
+        tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:#888;">No hay presentaciones.</td></tr>';
         return;
     }
 
-    tbody.innerHTML = allPresentations.map(p => `
+    tbody.innerHTML = presentations.map(p => `
         <tr>
             <td style="font-weight:600;">${p.name}</td>
             <td style="text-align:right;">
