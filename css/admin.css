@@ -71,7 +71,10 @@ body {
     color: #d63031;
     text-align: center;
     cursor: pointer;
-    transition: background 0.3s;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border-radius: 8px;
+    transition: background 0.2s;
 }
 
 .logout-btn:hover {
@@ -117,14 +120,17 @@ body {
 .bg-blue {
     background: #3498db;
 }
+.bg-blue:hover { background: #217dbb; }
 
 .bg-green {
     background: #2ecc71;
 }
+.bg-green:hover { background: #25a25a; }
 
 .bg-orange {
     background: #e67e22;
 }
+.bg-orange:hover { background: #ca6f1e; }
 
 .stat-info h3 {
     margin: 0;
@@ -196,9 +202,9 @@ td {
 }
 
 .status-badge {
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.875rem;
     font-weight: 600;
 }
 
@@ -218,34 +224,49 @@ td {
 }
 
 .btn-action {
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
     cursor: pointer;
-    margin-right: 5px;
+    margin-right: 4px;
     color: white;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     font-size: 0.8rem;
+    font-weight: 600;
+    transition: background 0.2s, opacity 0.2s;
+}
+
+.btn-action[style*="width: auto"],
+.btn-action[style*="width:auto"],
+.btn-action[style*="padding"] {
+    width: auto;
+    height: auto;
+    padding: 10px 20px;
+    font-size: 0.875rem;
 }
 
 .btn-approve {
     background: #2ecc71;
 }
+.btn-approve:hover { background: #25a25a; }
 
 .btn-cancel {
     background: #e74c3c;
 }
+.btn-cancel:hover { background: #c0392b; }
 
 .btn-edit {
     background: #f39c12;
 }
+.btn-edit:hover { background: #d68910; }
 
 .btn-delete {
     background: #e74c3c;
 }
+.btn-delete:hover { background: #c0392b; }
 
 /* Charts */
 .chart-container {
@@ -278,12 +299,22 @@ td {
     margin-top: 10px;
 }
 
+.stat-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+}
+
 .product-count-badge {
     background: #e9f5ff;
     color: var(--primary-color);
     padding: 6px 12px;
-    border-radius: 999px;
-    font-size: 0.85rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
     font-weight: 600;
 }
 
@@ -341,9 +372,14 @@ textarea {
     color: white;
     border: none;
     padding: 10px 20px;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: background 0.2s, opacity 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .btn-primary:hover {
@@ -578,11 +614,11 @@ textarea {
 
 .brand-pick-chip {
     padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.78rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all .2s;
+    transition: all 0.2s;
     border: 1.5px solid #dee2e6;
     background: transparent;
     color: #666;

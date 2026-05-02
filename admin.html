@@ -234,8 +234,7 @@
         <div id="sales" class="section-view">
             <div style="display: flex; gap: 10px; align-items: center; width: 100%; margin-bottom: 20px; flex-wrap: wrap;">
                 <h2 style="margin: 0; flex: 1 1 auto;">Historial de Ventas</h2>
-                <div class="stat-badge bg-green"
-                    style="flex: 1 1 auto; text-align: center; padding: 10px 15px; border-radius: 20px; color: white; font-weight: bold;">
+                <div class="stat-badge bg-green" style="flex: 1 1 auto; justify-content: center;">
                     Total ventas: <span id="salesFilteredTotal">0</span>
                 </div>
                 <button class="btn-primary" style="flex: 1 1 auto;" onclick="loadSales()"><i class="fas fa-sync-alt"></i> Refrescar</button>
@@ -260,7 +259,7 @@
                             Fin</label>
                         <input type="date" id="salesDateEnd" onchange="filterSalesTable()">
                     </div>
-                    <button class="btn-action btn-cancel" style="width: auto; height: 40px;"
+                    <button class="btn-action btn-cancel" style="width: auto;"
                         onclick="clearSalesFilters()">Limpiar</button>
                 </div>
             </div>
@@ -317,7 +316,7 @@
                     </div>
                 </div>
                 <div class="product-filters-actions">
-                    <button class="btn-action btn-cancel" style="width: auto; height: 38px;"
+                    <button class="btn-action btn-cancel" style="width: auto;"
                         onclick="clearProductFilters()">Limpiar</button>
                     <div class="product-count-badge">Mostrando <span id="productsFilteredCount">0</span> de <span
                             id="productsTotalCount">0</span></div>
