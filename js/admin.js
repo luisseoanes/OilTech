@@ -903,23 +903,47 @@ function clearProductFilters() {
     filterProducts();
 }
 
-function toggleProductForm() {
-    const form = document.getElementById('productFormCard');
-    const isShowing = form.style.display === 'block';
+function closeProductModal() {
+    document.getElementById('productModal').style.display = 'none';
+    document.getElementById('prodId').value = '';
+    document.getElementById('prodCode').value = '';
+    document.querySelectorAll('#productModal input:not([type=hidden]):not([type=file]), #productModal textarea, #productModal select').forEach(el => el.value = '');
+    document.getElementById('imagePreviewContainer').style.display = 'none';
+    document.getElementById('imageUploadStatus').style.display = 'none';
+    document.getElementById('pdfUploadStatus').style.display = 'none';
+    document.getElementById('pdfUploadSuccess').style.display = 'none';
+    document.getElementById('prodImageFile').value = '';
+    document.getElementById('prodTechSheetFile').value = '';
+    selectedBrandIds = new Set();
+    selectedPresentationIds = new Set();
+}
 
-    if (!isShowing) {
-        form.style.display = 'block';
-        loadCategories();
-        loadBrandsPicker();
-        loadPresentationsPicker();
-    } else {
-        form.style.display = 'none';
-        document.getElementById('imagePreviewContainer').style.display = 'none';
-        document.getElementById('imageUploadStatus').style.display = 'none';
-        document.getElementById('prodImageFile').value = '';
-        selectedBrandIds = new Set();
-        selectedPresentationIds = new Set();
+async function openProductModal(product = null) {
+    closeProductModal();
+    document.getElementById('productModalTitle').textContent = product ? 'Editar Producto' : 'Nuevo Producto';
+    await loadCategories();
+    await loadBrandsPicker();
+    await loadPresentationsPicker();
+
+    if (product) {
+        document.getElementById('prodId').value = product.id;
+        document.getElementById('prodCode').value = product.code || '';
+        document.getElementById('prodName').value = product.name;
+        document.getElementById('prodCategory').value = product.category_id || '';
+        if (product.category_id) await onCategoryChange(product.category_id);
+        document.getElementById('prodSubcategory').value = product.subcategory_id || '';
+        document.getElementById('prodImage').value = product.image_url || '';
+        document.getElementById('prodDescription').value = product.description || '';
+        document.getElementById('prodTechSheet').value = product.technical_sheet_url || '';
+        await loadBrandsPicker(product.brands ? product.brands.map(b => b.id) : []);
+        await loadPresentationsPicker(product.presentations ? product.presentations.map(p => p.id) : []);
+        if (product.image_url) {
+            document.getElementById('imagePreview').src = product.image_url;
+            document.getElementById('imagePreviewContainer').style.display = 'block';
+        }
     }
+
+    document.getElementById('productModal').style.display = 'block';
 }
 
 async function uploadImageToCloudinary(input) {
@@ -1077,17 +1101,9 @@ async function saveProduct() {
 
         if (response.ok) {
             showToast(id ? 'Producto actualizado' : 'Producto creado');
-            document.getElementById('productFormCard').style.display = 'none';
+            closeProductModal();
             loadProducts();
-            // Clear form
-            document.getElementById('prodId').value = '';
-            document.getElementById('prodCode').value = '';
-            document.querySelectorAll('#productFormCard input, #productFormCard textarea, #productFormCard select').forEach(i => {
-                if (i.id !== 'prodCode' && i.id !== 'prodId') i.value = '';
-            });
-            selectedBrandIds = new Set();
-            selectedPresentationIds = new Set();
-            loadDashboardData(); // Update count
+            loadDashboardData();
         } else {
             showToast('Error al guardar', 'error');
         }
@@ -1098,41 +1114,7 @@ async function saveProduct() {
 }
 
 async function editProduct(product) {
-    document.getElementById('prodId').value = product.id;
-    document.getElementById('prodCode').value = product.code || '';
-    document.getElementById('prodName').value = product.name;
-
-    await loadCategories();
-    document.getElementById('prodCategory').value = product.category_id || '';
-    if (product.category_id) await onCategoryChange(product.category_id);
-    document.getElementById('prodSubcategory').value = product.subcategory_id || '';
-
-    document.getElementById('prodImage').value = product.image_url || '';
-    document.getElementById('prodDescription').value = product.description || '';
-    document.getElementById('prodTechSheet').value = product.technical_sheet_url || '';
-    const pdfSuccess = document.getElementById('pdfUploadSuccess');
-    const pdfStatus = document.getElementById('pdfUploadStatus');
-    if (pdfSuccess) pdfSuccess.style.display = 'none';
-    if (pdfStatus) pdfStatus.style.display = 'none';
-    document.getElementById('prodTechSheetFile').value = '';
-    await loadBrandsPicker(product.brands ? product.brands.map(b => b.id) : []);
-    await loadPresentationsPicker(product.presentations ? product.presentations.map(p => p.id) : []);
-
-    // Mostrar preview si ya tiene imagen
-    const previewContainer = document.getElementById('imagePreviewContainer');
-    const previewImg = document.getElementById('imagePreview');
-    if (product.image_url) {
-        previewImg.src = product.image_url;
-        previewContainer.style.display = 'block';
-    } else {
-        previewContainer.style.display = 'none';
-    }
-    document.getElementById('imageUploadStatus').style.display = 'none';
-    document.getElementById('prodImageFile').value = '';
-
-    const form = document.getElementById('productFormCard');
-    form.style.display = 'block';
-    form.scrollIntoView({ behavior: 'smooth' });
+    await openProductModal(product);
 }
 
 async function deleteProduct(id) {

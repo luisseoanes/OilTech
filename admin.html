@@ -232,15 +232,13 @@
 
         <!-- Sales View (Purchased only) -->
         <div id="sales" class="section-view">
-            <div class="section-header">
-                <h2>Historial de Ventas</h2>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <div class="stat-badge bg-green"
-                        style="padding: 5px 15px; border-radius: 20px; color: white; font-weight: bold;">
-                        Total: <span id="salesFilteredTotal">$0</span>
-                    </div>
-                    <button class="btn-primary" onclick="loadSales()"><i class="fas fa-sync-alt"></i> Refrescar</button>
+            <div style="display: flex; gap: 10px; align-items: center; width: 100%; margin-bottom: 20px; flex-wrap: wrap;">
+                <h2 style="margin: 0; flex: 1 1 auto;">Historial de Ventas</h2>
+                <div class="stat-badge bg-green"
+                    style="flex: 1 1 auto; text-align: center; padding: 10px 15px; border-radius: 20px; color: white; font-weight: bold;">
+                    Total ventas: <span id="salesFilteredTotal">0</span>
                 </div>
+                <button class="btn-primary" style="flex: 1 1 auto;" onclick="loadSales()"><i class="fas fa-sync-alt"></i> Refrescar</button>
             </div>
 
             <div class="card" style="margin-bottom: 20px;">
@@ -291,7 +289,7 @@
         <div id="products" class="section-view">
             <div class="section-header">
                 <h2>Inventario de Productos</h2>
-                <button class="btn-primary" onclick="toggleProductForm()">+ Nuevo Producto</button>
+                <button class="btn-primary" onclick="openProductModal()">+ Nuevo Producto</button>
             </div>
 
             <div class="card">
@@ -324,85 +322,6 @@
                     <div class="product-count-badge">Mostrando <span id="productsFilteredCount">0</span> de <span
                             id="productsTotalCount">0</span></div>
                 </div>
-            </div>
-
-            <div class="card" id="productFormCard" style="display: none; background: #f8f9fa;">
-                <h3>Agregar / Editar Producto</h3>
-                <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
-                    <input type="hidden" id="prodId">
-                    <div style="display: none;"><input type="text" id="prodCode" placeholder="Código"></div>
-                    <div class="fg" style="grid-column: 1 / -1;">
-                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Nombre del Producto</label>
-                        <input type="text" id="prodName" placeholder="Ej: Aceite Hidráulico ISO 68">
-                    </div>
-                    <div class="fg">
-                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Categoría</label>
-                        <select id="prodCategory" style="width: 100%;" onchange="onCategoryChange(this.value)">
-                            <option value="">Seleccione Categoría</option>
-                        </select>
-                    </div>
-                    <div class="fg">
-                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Subcategoría</label>
-                        <select id="prodSubcategory" style="width: 100%;">
-                            <option value="">Seleccione Subcategoría</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-grid">
-                    <div class="img-grid" style="grid-column: 1 / -1;">
-                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Imagen del Producto</label>
-                        <div class="img-inside-grid">
-                            <input type="text" id="prodImage" placeholder="URL Imagen (se llena automáticamente)"
-                                style="flex: 1;">
-                            <label for="prodImageFile" class="btn-primary">
-                                <i class="fas fa-upload"></i> Subir imagen
-                            </label>
-                            <input type="file" id="prodImageFile" accept="image/*" style="display: none;"
-                                onchange="uploadImageToCloudinary(this)">
-                        </div>
-                        <div class="img-upload-status" id="imageUploadStatus">
-                            <i class="fas fa-spinner fa-spin"></i> Subiendo imagen...
-                        </div>
-                        <div id="imagePreviewContainer" style="display: none;">
-                            <img class="image-preview" id="imagePreview" src="" alt="Vista previa">
-                        </div>
-                    </div>
-                    <div class="fg" style="grid-column: 1 / -1;">
-                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Marcas disponibles</label>
-                        <div id="brandsPicker" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;"></div>
-                    </div>
-                    <div class="fg" style="grid-column: 1 / -1;">
-                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Presentaciones disponibles</label>
-                        <div id="presentationsPicker" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;"></div>
-                    </div>
-                </div>
-                <div class="form-grid" style="grid-template-columns: 1fr;">
-                    <div class="fg">
-                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Descripción del Producto</label>
-                        <textarea id="prodDescription" rows="4" placeholder="Descripción detallada del producto..." style="width: 100%; resize: vertical;"></textarea>
-                    </div>
-                </div>
-                <div class="form-grid" style="grid-template-columns: 1fr;">
-                    <div class="fg">
-                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Ficha Técnica (PDF)</label>
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <input type="text" id="prodTechSheet" placeholder="URL de la ficha técnica (se llena automáticamente)" style="flex: 1; min-width: 0;">
-                            <label for="prodTechSheetFile" class="btn-primary" style="cursor: pointer; white-space: nowrap; flex-shrink: 0;">
-                                <i class="fas fa-file-pdf"></i> Subir PDF
-                            </label>
-                            <input type="file" id="prodTechSheetFile" accept=".pdf,application/pdf" style="display: none;" onchange="uploadPdfToCloudinary(this)">
-                        </div>
-                        <div id="pdfUploadStatus" style="display: none; align-items: center; gap: 8px; margin-top: 8px; font-size: 0.85rem; color: #666;">
-                            <i class="fas fa-spinner fa-spin"></i> Subiendo PDF...
-                        </div>
-                        <div id="pdfUploadSuccess" style="display: none; align-items: center; gap: 8px; margin-top: 8px; font-size: 0.85rem; color: #28a745;">
-                            <i class="fas fa-check-circle"></i> <span id="pdfFileName"></span>
-                        </div>
-                    </div>
-                </div>
-                <button class="btn-primary" onclick="saveProduct()">Guardar Producto</button>
-                <button class="btn-action btn-cancel" style="width: auto; padding: 10px;"
-                    onclick="toggleProductForm()">Cancelar</button>
             </div>
 
             <!-- New Category Modal -->
@@ -487,6 +406,93 @@
         </div>
 
         <!-- Category Mgmt Modal (create / edit) -->
+        <!-- Product Modal (create / edit) -->
+        <div id="productModal" class="modal">
+            <div class="modal-content" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
+                <span class="close" onclick="closeProductModal()">&times;</span>
+                <h3 id="productModalTitle">Nuevo Producto</h3>
+                <input type="hidden" id="prodId">
+                <input type="hidden" id="prodCode">
+
+                <div class="form-grid" style="grid-template-columns: 1fr 1fr; margin-top: 15px;">
+                    <div class="fg" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Nombre del Producto</label>
+                        <input type="text" id="prodName" placeholder="Ej: Aceite Hidráulico ISO 68">
+                    </div>
+                    <div class="fg">
+                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Categoría</label>
+                        <select id="prodCategory" style="width: 100%;" onchange="onCategoryChange(this.value)">
+                            <option value="">Seleccione Categoría</option>
+                        </select>
+                    </div>
+                    <div class="fg">
+                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Subcategoría</label>
+                        <select id="prodSubcategory" style="width: 100%;">
+                            <option value="">Seleccione Subcategoría</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-grid" style="margin-top: 10px;">
+                    <div class="img-grid" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Imagen del Producto</label>
+                        <div class="img-inside-grid">
+                            <input type="text" id="prodImage" placeholder="URL Imagen (se llena automáticamente)" style="flex: 1;">
+                            <label for="prodImageFile" class="btn-primary">
+                                <i class="fas fa-upload"></i> Subir imagen
+                            </label>
+                            <input type="file" id="prodImageFile" accept="image/*" style="display: none;" onchange="uploadImageToCloudinary(this)">
+                        </div>
+                        <div class="img-upload-status" id="imageUploadStatus">
+                            <i class="fas fa-spinner fa-spin"></i> Subiendo imagen...
+                        </div>
+                        <div id="imagePreviewContainer" style="display: none;">
+                            <img class="image-preview" id="imagePreview" src="" alt="Vista previa">
+                        </div>
+                    </div>
+                    <div class="fg" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Marcas disponibles</label>
+                        <div id="brandsPicker" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;"></div>
+                    </div>
+                    <div class="fg" style="grid-column: 1 / -1;">
+                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Presentaciones disponibles</label>
+                        <div id="presentationsPicker" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;"></div>
+                    </div>
+                </div>
+
+                <div class="form-grid" style="grid-template-columns: 1fr; margin-top: 10px;">
+                    <div class="fg">
+                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Descripción del Producto</label>
+                        <textarea id="prodDescription" rows="4" placeholder="Descripción detallada del producto..." style="width: 100%; resize: vertical;"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-grid" style="grid-template-columns: 1fr; margin-top: 10px;">
+                    <div class="fg">
+                        <label style="font-size: 0.8rem; font-weight: 600; color: #555;">Ficha Técnica (PDF)</label>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="text" id="prodTechSheet" placeholder="URL de la ficha técnica (se llena automáticamente)" style="flex: 1; min-width: 0;">
+                            <label for="prodTechSheetFile" class="btn-primary" style="cursor: pointer; white-space: nowrap; flex-shrink: 0;">
+                                <i class="fas fa-file-pdf"></i> Subir PDF
+                            </label>
+                            <input type="file" id="prodTechSheetFile" accept=".pdf,application/pdf" style="display: none;" onchange="uploadPdfToCloudinary(this)">
+                        </div>
+                        <div id="pdfUploadStatus" style="display: none; align-items: center; gap: 8px; margin-top: 8px; font-size: 0.85rem; color: #666;">
+                            <i class="fas fa-spinner fa-spin"></i> Subiendo PDF...
+                        </div>
+                        <div id="pdfUploadSuccess" style="display: none; align-items: center; gap: 8px; margin-top: 8px; font-size: 0.85rem; color: #28a745;">
+                            <i class="fas fa-check-circle"></i> <span id="pdfFileName"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn-primary" style="flex: 1;" onclick="saveProduct()">Guardar Producto</button>
+                    <button class="btn-action btn-cancel" style="flex: 1;" onclick="closeProductModal()">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
         <div id="catMgmtModal" class="modal">
             <div class="modal-content" style="max-width: 420px;">
                 <span class="close" onclick="closeModal('catMgmtModal')">&times;</span>
@@ -501,7 +507,10 @@
                         <label style="font-size:0.8rem;font-weight:600;color:#555;">Tags de búsqueda (separados por espacio)</label>
                         <textarea id="catMgmtTags" rows="3" placeholder="Ej: aceite lubricante industrial"></textarea>
                     </div>
-                    <button class="btn-primary" onclick="saveCatMgmt()">Guardar</button>
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn-primary" style="flex:1;" onclick="saveCatMgmt()">Guardar</button>
+                        <button class="btn-action btn-cancel" style="flex:1;" onclick="closeModal('catMgmtModal')">Cancelar</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -518,7 +527,10 @@
                         <label style="font-size:0.8rem;font-weight:600;color:#555;">Nombre</label>
                         <input type="text" id="subcatMgmtName" placeholder="Ej: ISO 68">
                     </div>
-                    <button class="btn-primary" onclick="saveSubcatMgmt()">Guardar</button>
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn-primary" style="flex:1;" onclick="saveSubcatMgmt()">Guardar</button>
+                        <button class="btn-action btn-cancel" style="flex:1;" onclick="closeModal('subcatMgmtModal')">Cancelar</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -597,7 +609,10 @@
                             <img id="brandLogoPreview" src="" alt="Preview" style="max-height:80px;max-width:200px;object-fit:contain;border:1px solid #e9ecef;border-radius:8px;padding:8px;background:#fff;">
                         </div>
                     </div>
-                    <button class="btn-primary" onclick="saveBrandMgmt()">Guardar</button>
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn-primary" style="flex:1;" onclick="saveBrandMgmt()">Guardar</button>
+                        <button class="btn-action btn-cancel" style="flex:1;" onclick="closeModal('brandModal')">Cancelar</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -634,7 +649,10 @@
                         <label style="font-size:0.8rem;font-weight:600;color:#555;">Nombre</label>
                         <input type="text" id="presentationModalName" placeholder="Ej: Galón, Tambor 55 gal, Cuñete 5 gal">
                     </div>
-                    <button class="btn-primary" onclick="savePresentationMgmt()">Guardar</button>
+                    <div style="display:flex;gap:10px;">
+                        <button class="btn-primary" style="flex:1;" onclick="savePresentationMgmt()">Guardar</button>
+                        <button class="btn-action btn-cancel" style="flex:1;" onclick="closeModal('presentationModal')">Cancelar</button>
+                    </div>
                 </div>
             </div>
         </div>
