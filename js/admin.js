@@ -144,6 +144,12 @@ async function loadDashboardData() {
         document.getElementById('totalPurchased').textContent = stats.total_purchased;
         fetchProductsCount();
 
+        const totalRevenue = sales.reduce((sum, s) => sum + (s.price || 0), 0);
+        document.getElementById('totalRevenue').textContent =
+            totalRevenue.toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
+
+        document.getElementById('totalQuotations').textContent = quotations.length;
+
         // Últimas 5 ventas
         const salesBody = document.querySelector('#recentSalesTable tbody');
         const recentSales = sales.slice(0, 5);
