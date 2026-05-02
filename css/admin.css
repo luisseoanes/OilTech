@@ -712,3 +712,65 @@ textarea {
     #categoriesTable tr,
     #subcategoriesTable tr { cursor: pointer; }
 }
+
+/* Filter Bar */
+.filter-bar {
+    padding: 16px 20px !important;
+    margin-bottom: 16px !important;
+}
+
+.filter-bar-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1 1 150px;
+    min-width: 130px;
+}
+
+.filter-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+.filter-group input,
+.filter-group select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1.5px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-family: inherit;
+    background: #f8f9fa;
+    transition: border-color 0.2s, background 0.2s;
+    box-sizing: border-box;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: #fff;
+}
+
+.filter-clear-btn {
+    flex-shrink: 0;
+    align-self: flex-end;
+    background: #6c757d !important;
+    white-space: nowrap;
+}
+
+.filter-clear-btn:hover {
+    background: #545b62 !important;
+}

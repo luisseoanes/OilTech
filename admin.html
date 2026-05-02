@@ -152,9 +152,45 @@
         <div id="quotations" class="section-view">
             <div class="section-header">
                 <h2>Gestión de Cotizaciones</h2>
-                <button class="btn-primary" onclick="loadQuotations()"><i class="fas fa-sync-alt"></i>
-                    Refrescar</button>
+                <button class="btn-primary" onclick="loadQuotations()"><i class="fas fa-sync-alt"></i> Refrescar</button>
             </div>
+
+            <div class="filter-bar card">
+                <div class="filter-bar-row">
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-user"></i> Cliente</label>
+                        <input type="text" id="qFilterName" placeholder="Buscar por nombre..." oninput="applyQuotationFilters()">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-phone"></i> Contacto</label>
+                        <input type="text" id="qFilterContact" placeholder="Teléfono o email..." oninput="applyQuotationFilters()">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-tag"></i> Estado</label>
+                        <select id="qFilterStatus" onchange="applyQuotationFilters()">
+                            <option value="">Todos los estados</option>
+                            <option value="Pending">Pendiente</option>
+                            <option value="Purchased">Comprado</option>
+                            <option value="Cancelled">Cancelado</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-calendar"></i> Fecha</label>
+                        <input type="date" id="qFilterDate" onchange="applyQuotationFilters()">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label"><i class="fas fa-sort"></i> Ordenar</label>
+                        <select id="qFilterSort" onchange="applyQuotationFilters()">
+                            <option value="desc">Más reciente</option>
+                            <option value="asc">Más antigua</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary filter-clear-btn" onclick="clearQuotationFilters()">
+                        <i class="fas fa-times"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+
             <div class="card">
                 <div style="overflow-x: auto;">
                     <table id="quotationsTable">

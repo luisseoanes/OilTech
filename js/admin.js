@@ -190,22 +190,17 @@ async function fetchProductsCount() {
 }
 
 // --- QUOTATIONS ---
-async function loadQuotations() {
-    try {
-        const response = await fetchWithAuth(`${API_URL}/quotations/`);
-        const quotations = await response.json();
-
-        window.quotationsMap = {};
-        quotations.forEach(q => { window.quotationsMap[q.id] = q; });
-
-        const tbody = document.querySelector('#quotationsTable tbody');
-        tbody.innerHTML = quotations.map(q => `
+function renderQuotationsTable(quotations) {
+    const statusMap = { Pending: 'Pendiente', Purchased: 'Comprado', Cancelled: 'Cancelado' };
+    const tbody = document.querySelector('#quotationsTable tbody');
+    if (!tbody) return;
+    tbody.innerHTML = quotations.length ? quotations.map(q => `
             <tr>
                 <td><strong>${q.reference || 'COT-' + String(q.id).padStart(6, '0')}</strong></td>
                 <td>${q.customer_name}</td>
                 <td>${q.customer_contact}</td>
                 <td>${new Date(q.created_at).toLocaleDateString('es-CO')}</td>
-                <td><span class="status-badge status-${q.status.toLowerCase()}">${{ Pending: 'Pendiente', Purchased: 'Comprado', Cancelled: 'Cancelado' }[q.status] || q.status}</span></td>
+                <td><span class="status-badge status-${q.status.toLowerCase()}">${statusMap[q.status] || q.status}</span></td>
                 <td style="text-align:right;">
                     <button class="btn-action bg-blue" title="Ver detalle" onclick="viewQuotationItems(${q.id})"><i class="fas fa-eye"></i></button>
                     ${q.status === 'Pending' ? `
@@ -214,7 +209,55 @@ async function loadQuotations() {
                     ` : ''}
                 </td>
             </tr>
-        `).join('');
+        `).join('') : '<tr><td colspan="6" style="text-align:center;color:#888;padding:20px;">No hay cotizaciones con esos filtros.</td></tr>';
+}
+
+function applyQuotationFilters() {
+    if (!window.allQuotations) return;
+    const name    = (document.getElementById('qFilterName')?.value || '').toLowerCase();
+    const contact = (document.getElementById('qFilterContact')?.value || '').toLowerCase();
+    const status  = document.getElementById('qFilterStatus')?.value || '';
+    const date    = document.getElementById('qFilterDate')?.value || '';
+    const sort    = document.getElementById('qFilterSort')?.value || 'desc';
+
+    let filtered = window.allQuotations.filter(q => {
+        const matchName    = !name    || q.customer_name.toLowerCase().includes(name);
+        const matchContact = !contact || q.customer_contact.toLowerCase().includes(contact);
+        const matchStatus  = !status  || q.status === status;
+        const matchDate    = !date    || new Date(q.created_at).toISOString().slice(0,10) === date;
+        return matchName && matchContact && matchStatus && matchDate;
+    });
+
+    filtered.sort((a, b) => {
+        const diff = new Date(a.created_at) - new Date(b.created_at);
+        return sort === 'asc' ? diff : -diff;
+    });
+
+    renderQuotationsTable(filtered);
+}
+
+function clearQuotationFilters() {
+    ['qFilterName','qFilterContact','qFilterDate'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    const status = document.getElementById('qFilterStatus');
+    const sort   = document.getElementById('qFilterSort');
+    if (status) status.value = '';
+    if (sort)   sort.value   = 'desc';
+    applyQuotationFilters();
+}
+
+async function loadQuotations() {
+    try {
+        const response = await fetchWithAuth(`${API_URL}/quotations/`);
+        const quotations = await response.json();
+
+        window.quotationsMap = {};
+        quotations.forEach(q => { window.quotationsMap[q.id] = q; });
+        window.allQuotations = quotations;
+
+        applyQuotationFilters();
     } catch (error) {
         console.error('Error loading quotations', error);
     }
