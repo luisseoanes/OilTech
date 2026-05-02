@@ -188,6 +188,58 @@ function clearSubcatBar() {
     currentGridTarget = null;
 }
 
+function applySearch(query) {
+    const q = query.trim().toLowerCase();
+    const clearBtn = document.getElementById('searchClearBtn');
+
+    if (!q) {
+        clearSearch();
+        return;
+    }
+
+    clearBtn.style.display = 'flex';
+
+    // Ocultar todos los grids de categoría y mostrar el de búsqueda
+    document.querySelectorAll('#grids-container .subcat-grid').forEach(g => g.style.display = 'none');
+
+    let searchGrid = document.getElementById('grid-search');
+    if (!searchGrid) {
+        searchGrid = document.createElement('div');
+        searchGrid.id = 'grid-search';
+        searchGrid.className = 'subcat-grid active';
+        document.getElementById('grids-container').appendChild(searchGrid);
+    }
+    searchGrid.style.display = '';
+
+    const tokens = q.split(/\s+/);
+    const filtered = allProducts.filter(p => {
+        const name = (p.name || '').toLowerCase();
+        const tags = (p.search_tags || '').toLowerCase();
+        return tokens.every(token => name.includes(token) || tags.includes(token));
+    });
+
+    if (!filtered.length) {
+        searchGrid.innerHTML = `<p style="text-align:center;color:#888;padding:40px 0;width:100%;grid-column:1/-1;">
+            No se encontraron productos para "<strong>${query}</strong>".
+        </p>`;
+    } else {
+        renderGrid('search', filtered);
+    }
+}
+
+function clearSearch() {
+    const input = document.getElementById('productSearchInput');
+    const clearBtn = document.getElementById('searchClearBtn');
+
+    if (input) input.value = '';
+    if (clearBtn) clearBtn.style.display = 'none';
+
+    // Eliminar el grid de búsqueda y restaurar visibilidad de todos los demás
+    const searchGrid = document.getElementById('grid-search');
+    if (searchGrid) searchGrid.remove();
+    document.querySelectorAll('#grids-container .subcat-grid').forEach(g => g.style.display = '');
+}
+
 // Modal Logic
 let overlay, dTitle, dCategory, brandChips;
 let currentProduct = null;

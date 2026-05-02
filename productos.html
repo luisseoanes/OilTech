@@ -60,6 +60,18 @@
         <!-- FILTRO DE SUBCATEGORÍAS (se muestra/oculta dinámicamente) -->
         <div class="subcat-filter-bar" id="subcat-filter-bar" style="display:none;"></div>
 
+        <!-- BARRA DE BÚSQUEDA -->
+        <div class="search-bar-container" id="search-bar-container">
+            <div class="search-bar-inner">
+                <i class="fas fa-search search-bar-icon"></i>
+                <input type="text" id="productSearchInput" placeholder="Buscar productos por nombre..."
+                    oninput="applySearch(this.value)" autocomplete="off">
+                <button class="search-bar-clear" id="searchClearBtn" onclick="clearSearch()" style="display:none;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
         <!-- GRIDS (generados dinámicamente) -->
         <div id="grids-container"></div>
     </main>
