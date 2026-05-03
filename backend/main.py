@@ -286,10 +286,14 @@ seed_brands()
 
 app = FastAPI()
 
-# CORS - Allow all for local development
+# CORS - Allow explicit origins for Vercel and local development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5500",
+        "http://127.0.0.1:5500",
+        "https://oil-tech.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
