@@ -24,7 +24,7 @@ cd backend
 uvicorn main:app --reload
 ```
 
-The backend auto-seeds the admin user (`admin` / `admin123`) and default categories on startup. It also runs SQLite migrations on every startup via `apply_migrations()` in `main.py`.
+The backend auto-seeds the admin user (`admin` / `admin123`) and default categories on startup. The admin seed solo corre si no existe ningún usuario `admin` — una vez creado, la contraseña se cambia vía `PUT /admin/change-password` (autenticado) y el seed nunca vuelve a tocarla. It also runs SQLite migrations on every startup via `apply_migrations()` in `main.py`.
 
 The database path is controlled by the `RAILWAY_VOLUME_MOUNT_PATH` env var (defaults to `./oiltech.db` locally).
 
@@ -122,7 +122,7 @@ login.html     — Admin login
 
 ## Key Constraints
 
-- `SECRET_KEY` in `auth.py` is hardcoded — must be moved to an environment variable before production.
+- `SECRET_KEY` se lee de env var (`os.getenv("SECRET_KEY")` en `auth.py`); el backend falla al arrancar si no está definida.
 - `bcrypt` must be pinned to `==4.0.1` — newer versions break `passlib` with an `__about__` AttributeError on `/token`.
 - No frontend build pipeline; CSS/JS changes are live immediately.
 - SQLite is used for simplicity; no ORM migrations framework (migrations are manual `ALTER TABLE` statements in `apply_migrations()`).
