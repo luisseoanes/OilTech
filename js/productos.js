@@ -296,7 +296,8 @@ function openProductModal(product) {
     const btnTechnicalSheet = document.getElementById('btn-technical-sheet');
     if (product.technical_sheet_url) {
         technicalSheetSection.style.display = 'block';
-        btnTechnicalSheet.onclick = () => { window.open(product.technical_sheet_url, '_blank'); return false; };
+        const sheetUrl = product.technical_sheet_url.startsWith('/') ? `${API_URL}${product.technical_sheet_url}` : product.technical_sheet_url;
+        btnTechnicalSheet.onclick = () => { window.open(sheetUrl, '_blank'); return false; };
     } else {
         technicalSheetSection.style.display = 'none';
     }

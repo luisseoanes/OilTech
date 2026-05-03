@@ -1,11 +1,11 @@
 # main.py
 
 from typing import List
-import os, uuid
+import os, uuid, re
 from dotenv import load_dotenv
 load_dotenv()
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import timedelta
@@ -618,15 +618,19 @@ import shutil
 PDF_DIR = os.path.join(database.VOLUME_PATH, "fichas-tecnicas")
 os.makedirs(PDF_DIR, exist_ok=True)
 
+_PDF_FILENAME_RE = re.compile(r'^[a-f0-9]{32}\.pdf$')
+
 @app.post("/upload/pdf")
 async def upload_pdf(
     file: UploadFile = File(...),
     current_user: models.User = Depends(auth.get_current_user)
 ):
-    if not file.filename.lower().endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Solo se permiten archivos PDF")
-
     content = await file.read()
+
+    # Verificar magic bytes — los PDF reales empiezan con %PDF
+    if not content.startswith(b"%PDF"):
+        raise HTTPException(status_code=400, detail="El archivo no es un PDF válido")
+
     if len(content) > 20 * 1024 * 1024:
         raise HTTPException(status_code=400, detail="El PDF no puede superar 20MB")
 
@@ -640,10 +644,23 @@ async def upload_pdf(
 
 @app.get("/files/pdf/{filename}")
 async def serve_pdf(filename: str):
+    # Validar que el nombre sea exactamente el patrón que nosotros generamos
+    # Esto elimina path traversal: ../.. u otros caracteres no pueden pasar el regex
+    if not _PDF_FILENAME_RE.match(filename):
+        raise HTTPException(status_code=400, detail="Nombre de archivo inválido")
+
     filepath = os.path.join(PDF_DIR, filename)
     if not os.path.isfile(filepath):
         raise HTTPException(status_code=404, detail="Archivo no encontrado")
-    return FileResponse(filepath, media_type="application/pdf")
+
+    with open(filepath, "rb") as f:
+        content = f.read()
+
+    return Response(
+        content=content,
+        media_type="application/pdf",
+        headers={"Content-Disposition": "inline; filename=\"ficha-tecnica.pdf\""},
+    )
 
 
 # ... existing imports ...

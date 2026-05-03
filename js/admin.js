@@ -975,7 +975,8 @@ function openProductDetail(productId) {
 
     const techWrapper = document.getElementById('pdTechSheetWrapper');
     if (p.technical_sheet_url) {
-        document.getElementById('pdTechSheet').href = p.technical_sheet_url;
+        const sheetUrl = p.technical_sheet_url.startsWith('/') ? `${API_URL}${p.technical_sheet_url}` : p.technical_sheet_url;
+        document.getElementById('pdTechSheet').href = sheetUrl;
         techWrapper.style.display = 'block';
     } else {
         techWrapper.style.display = 'none';
@@ -1223,7 +1224,7 @@ async function uploadPdfToCloudinary(input) {
         }
 
         const data = await response.json();
-        urlInput.value = `${API_URL}${data.url}`;
+        urlInput.value = data.url;
         statusEl.style.display = 'none';
         successEl.style.display = 'flex';
         document.getElementById('pdfFileName').textContent = file.name;
