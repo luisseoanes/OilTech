@@ -139,3 +139,13 @@ class AnalyticsStats(BaseModel):
     total_purchased: float
     top_products: List[TopProduct]
     sales_history: List[SalesData]
+
+class SiteAssetBase(BaseModel):
+    key: str
+    description: str
+    image_url: Optional[str] = None
+
+class SiteAsset(SiteAssetBase):
+    updated_at: datetime
+    class Config:
+        from_attributes = True

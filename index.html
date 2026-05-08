@@ -14,6 +14,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="icon" type="image/png" href="imagenes/Favicon.png">
     <link rel="apple-touch-icon" href="imagenes/Favicon.png">
+    <style>
+        [data-asset] { transition: opacity 0.3s ease; }
+        .asset-loading { opacity: 0.6; }
+    </style>
 </head>
 
 <body>
@@ -30,7 +34,7 @@
     <!-- NAV -->
     <nav id="main-nav">
         <a class="nav-logo" href="#">
-            <img src="imagenes/LogoNavBar.png" alt="Oil Tech Logo"
+            <img src="imagenes/LogoNavBar.png" alt="Oil Tech Logo" data-asset="logo_navbar"
                 style="height: 150px; width: auto; object-fit: contain; margin-top:1.8rem">
         </a>
         <ul class="nav-links">
@@ -47,7 +51,7 @@
     </nav>
 
     <!-- HERO -->
-    <section class="hero"
+    <section class="hero" id="hero-section" data-asset="hero_bg"
         style="background: linear-gradient(rgba(10, 10, 10, 0.6), rgba(10, 10, 10, 0.3)), url('imagenes/hero_industrial.png') center/cover no-repeat; display: flex; align-items: center; justify-content: center; min-height: 90vh;">
         <div class="hero-left glass-card" style="max-width: 800px; text-align: center; margin: 0 auto; color: white;">
             <h1 class="hero-h1"
@@ -172,7 +176,7 @@
             <div class="product-card featured"
                 style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; padding: 0;">
                 <div class="img-wrapper" style="height: 100%;">
-                    <img src="imagenes/cat_lubricantes.png" alt="Lubricantes Industriales">
+                    <img src="imagenes/cat_lubricantes.png" alt="Lubricantes Industriales" data-asset="cat_lubricantes">
                 </div>
                 <div class="product-card-content" style="padding: 50px 40px; justify-content: center;">
                     <div class="featured-badge" style="width: max-content;">Línea principal</div>
@@ -194,7 +198,7 @@
 
             <!-- Grasas -->
             <div class="product-card">
-                <div class="img-wrapper"><img src="imagenes/GrasaIndustrial.png" alt="Grasas Industriales" class="img-zoomout"></div>
+                <div class="img-wrapper"><img src="imagenes/GrasaIndustrial.png" alt="Grasas Industriales" class="img-zoomout" data-asset="cat_grasas"></div>
                 <div class="product-card-content">
                     <h3 class="pc-title">Grasas Industriales</h3>
                     <p class="pc-desc">Lubricantes de alta presión con disulfuro de molibdeno. Protección para
@@ -206,7 +210,7 @@
 
             <!-- EPP -->
             <div class="product-card">
-                <div class="img-wrapper"><img src="imagenes/SeguridadIndustrial.avif" alt="Seguridad Industrial"></div>
+                <div class="img-wrapper"><img src="imagenes/SeguridadIndustrial.avif" alt="Seguridad Industrial" data-asset="cat_seguridad"></div>
                 <div class="product-card-content">
                     <h3 class="pc-title">Seguridad Industrial</h3>
                     <p class="pc-desc">Equipos de protección personal (EPP) de alta calidad. Cumplimiento normativo y
@@ -218,7 +222,7 @@
 
             <!-- Limpieza -->
             <div class="product-card">
-                <div class="img-wrapper"><img src="imagenes/LimpiadoresIndustriales.png" alt="Limpieza y Mantenimiento">
+                <div class="img-wrapper"><img src="imagenes/LimpiadoresIndustriales.png" alt="Limpieza y Mantenimiento" data-asset="cat_limpieza">
                 </div>
                 <div class="product-card-content">
                     <h3 class="pc-title">Limpieza y Mantenimiento</h3>
@@ -231,7 +235,7 @@
 
             <!-- Herramientas -->
             <div class="product-card">
-                <div class="img-wrapper"><img src="imagenes/HerramientasTecnicas.png" alt="Herramientas y Suministros" class="img-zoomout"></div>
+                <div class="img-wrapper"><img src="imagenes/HerramientasTecnicas.png" alt="Herramientas y Suministros" class="img-zoomout" data-asset="cat_herramientas"></div>
                 <div class="product-card-content">
                     <h3 class="pc-title">Herramientas Técnicas</h3>
                     <p class="pc-desc">Componentes mecánicos, bombas, filtros y herramientas para mantenimiento técnico.
@@ -251,32 +255,28 @@
         <div class="benefits-grid">
             <div class="benefit-item">
                 <div class="benefit-num">01</div>
-
-                <img src="imagenes/svg01.png" width="36" height="36" style="margin-bottom:16px;" alt="">
+                <img src="imagenes/svg01.png" width="36" height="36" style="margin-bottom:16px;" alt="" data-asset="benefit_1">
                 <h4>Equipo Técnico Especializado</h4>
                 <p>Ingenieros químicos disponibles para asesorar y recomendar la solución óptima para cada proceso
                     productivo.</p>
             </div>
             <div class="benefit-item">
                 <div class="benefit-num">02</div>
-
-                <img src="imagenes/svg02.png" width="36" height="36" style="margin-bottom:16px;" alt="">
+                <img src="imagenes/svg02.png" width="36" height="36" style="margin-bottom:16px;" alt="" data-asset="benefit_2">
                 <h4>Portafolio Integral</h4>
                 <p>Más de 250 referencias industriales en una sola fuente. Lubricantes, EPP, limpieza y herramientas
                     técnicas.</p>
             </div>
             <div class="benefit-item">
                 <div class="benefit-num">03</div>
-
-                <img src="imagenes/svg03.png" width="36" height="36" style="margin-bottom:16px;" alt="">
+                <img src="imagenes/svg03.png" width="36" height="36" style="margin-bottom:16px;" alt="" data-asset="benefit_3">
                 <h4>Cobertura Nacional</h4>
                 <p>Distribución a nivel nacional con logística confiable, tiempos de entrega oportunos y soporte
                     postventa.</p>
             </div>
             <div class="benefit-item">
                 <div class="benefit-num">04</div>
-
-                <img src="imagenes/svg04.png" width="36" height="36" style="margin-bottom:16px;" alt="">
+                <img src="imagenes/svg04.png" width="36" height="36" style="margin-bottom:16px;" alt="" data-asset="benefit_4">
                 <h4>Calidad Garantizada</h4>
                 <p>Productos supervisados bajo estándares internacionales, con trazabilidad y fichas técnicas
                     disponibles.</p>
@@ -307,7 +307,7 @@
                         </ul>
                     </div>
                     <div class="linea-img">
-                        <img src="imagenes/oil1.png" alt="Lubricantes Industriales">
+                        <img src="imagenes/oil1.png" alt="Lubricantes Industriales" data-asset="line_lubricantes">
                     </div>
                 </div>
             </div>
@@ -328,7 +328,7 @@
                         </ul>
                     </div>
                     <div class="linea-img">
-                        <img src="imagenes/oil2.png" alt="Grasas Industriales">
+                        <img src="imagenes/oil2.png" alt="Grasas Industriales" data-asset="line_grasas">
                     </div>
                 </div>
             </div>
@@ -349,7 +349,7 @@
                         </ul>
                     </div>
                     <div class="linea-img">
-                        <img src="imagenes/oil3.png" alt="Seguridad Industrial">
+                        <img src="imagenes/oil3.png" alt="Seguridad Industrial" data-asset="line_seguridad">
                     </div>
                 </div>
             </div>
@@ -370,7 +370,7 @@
                         </ul>
                     </div>
                     <div class="linea-img">
-                        <img src="imagenes/oil4.png" alt="Herramientas y Suministros Técnicos">
+                        <img src="imagenes/oil4.png" alt="Herramientas y Suministros Técnicos" data-asset="line_herramientas">
                     </div>
                 </div>
             </div>
@@ -522,7 +522,7 @@
             <div class="trust-badges">
                 <div class="trust-badge">
                     <div class="badge-icon">
-                        <img src="imagenes/SelloColombia.png" alt="Sello Colombia"
+                        <img src="imagenes/SelloColombia.png" alt="Sello Colombia" data-asset="badge_colombia"
                             style="width:77px;height:77px;object-fit:contain;display:block;">
                     </div>
                     <div class="badge-text">
@@ -532,7 +532,7 @@
                 </div>
                 <div class="trust-badge">
                     <div class="badge-icon">
-                        <img src="imagenes/SelloSostenibilidad.png" alt="Sello Sostenibilidad"
+                        <img src="imagenes/SelloSostenibilidad.png" alt="Sello Sostenibilidad" data-asset="badge_sostenibilidad"
                             style="width:77px;height:77px;object-fit:contain;display:block;">
                     </div>
                     <div class="badge-text">
@@ -542,7 +542,7 @@
                 </div>
                 <div class="trust-badge">
                     <div class="badge-icon">
-                        <img src="imagenes/SelloCalidad.png" alt="Sello Calidad Técnica"
+                        <img src="imagenes/SelloCalidad.png" alt="Sello Calidad Técnica" data-asset="badge_calidad"
                             style="width:77px;height:77px;object-fit:contain;display:block;">
                     </div>
                     <div class="badge-text">
@@ -571,7 +571,10 @@
     <script>
         fetch('components/footer.html')
             .then(r => r.text())
-            .then(html => { document.getElementById('footer-placeholder').innerHTML = html; });
+            .then(html => { 
+                document.getElementById('footer-placeholder').innerHTML = html;
+                if (typeof loadSiteAssets === 'function') loadSiteAssets();
+            });
     </script>
 
     <script>
@@ -589,6 +592,8 @@
             document.querySelector('.nav-links').classList.toggle('open');
         });
     </script>
+    <script src="js/site-assets.js"></script>
+    <script src="js/index.js"></script>
 </body>
 
 </html>

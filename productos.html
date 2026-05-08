@@ -31,7 +31,7 @@
 
     <nav id="main-nav">
         <a class="nav-logo" href="index.html">
-            <img src="imagenes/LogoNavBar.png" alt="Oil Tech Logo"
+            <img src="imagenes/LogoNavBar.png" alt="Oil Tech Logo" data-asset="logo_navbar"
                 style="height: 150px; width: auto; object-fit: contain; margin-top:1.8rem">
         </a>
         <ul class="nav-links">
@@ -175,12 +175,15 @@
         </div>
     </div>
 
-    <!-- FOOTER -->
     <div id="footer-placeholder"></div>
+    <script src="js/site-assets.js"></script>
     <script>
         fetch('components/footer.html')
             .then(r => r.text())
-            .then(html => { document.getElementById('footer-placeholder').innerHTML = html; });
+            .then(html => { 
+                document.getElementById('footer-placeholder').innerHTML = html;
+                if (typeof loadSiteAssets === 'function') loadSiteAssets();
+            });
     </script>
 
     <script src="js/productos.js"></script>

@@ -163,6 +163,19 @@ def apply_migrations():
                 cursor.execute("ALTER TABLE sales ADD COLUMN customer_contact TEXT NOT NULL DEFAULT ''")
                 conn.commit()
 
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='site_assets'")
+        if not cursor.fetchone():
+            print("Migrating: Creating 'site_assets' table")
+            cursor.execute("""
+                CREATE TABLE site_assets (
+                    key TEXT PRIMARY KEY,
+                    description TEXT,
+                    image_url TEXT,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            conn.commit()
+
         conn.close()
     except Exception as e:
         print(f"Migration error: {e}")
@@ -283,6 +296,42 @@ def seed_brands():
         db.close()
 
 seed_brands()
+
+def seed_site_assets():
+    db = database.SessionLocal()
+    try:
+        initial = [
+            {"key": "logo_navbar", "description": "Logo de la barra de navegación", "image_url": "imagenes/LogoNavBar.png"},
+            {"key": "hero_bg", "description": "Imagen de fondo del Hero (Inicio)", "image_url": "imagenes/hero_industrial.png"},
+            {"key": "cat_lubricantes", "description": "Imagen: Línea Lubricantes Industriales", "image_url": "imagenes/cat_lubricantes.png"},
+            {"key": "cat_grasas", "description": "Imagen: Línea Grasas Industriales", "image_url": "imagenes/GrasaIndustrial.png"},
+            {"key": "cat_seguridad", "description": "Imagen: Línea Seguridad Industrial (EPP)", "image_url": "imagenes/SeguridadIndustrial.avif"},
+            {"key": "cat_limpieza", "description": "Imagen: Línea Limpieza y Mantenimiento", "image_url": "imagenes/LimpiadoresIndustriales.png"},
+            {"key": "cat_herramientas", "description": "Imagen: Línea Herramientas Técnicas", "image_url": "imagenes/HerramientasTecnicas.png"},
+            {"key": "benefit_1", "description": "Icono: Equipo Técnico Especializado", "image_url": "imagenes/svg01.png"},
+            {"key": "benefit_2", "description": "Icono: Portafolio Integral", "image_url": "imagenes/svg02.png"},
+            {"key": "benefit_3", "description": "Icono: Cobertura Nacional", "image_url": "imagenes/svg03.png"},
+            {"key": "benefit_4", "description": "Icono: Calidad Garantizada", "image_url": "imagenes/svg04.png"},
+            {"key": "line_lubricantes", "description": "Imagen Detalle: Lubricantes Industriales", "image_url": "imagenes/oil1.png"},
+            {"key": "line_grasas", "description": "Imagen Detalle: Grasas Industriales", "image_url": "imagenes/oil2.png"},
+            {"key": "line_seguridad", "description": "Imagen Detalle: Seguridad Industrial", "image_url": "imagenes/oil3.png"},
+            {"key": "line_herramientas", "description": "Imagen Detalle: Herramientas Técnicas", "image_url": "imagenes/oil4.png"},
+            {"key": "badge_colombia", "description": "Sello: Sello Colombia", "image_url": "imagenes/SelloColombia.png"},
+            {"key": "badge_sostenibilidad", "description": "Sello: Sostenibilidad", "image_url": "imagenes/SelloSostenibilidad.png"},
+            {"key": "badge_calidad", "description": "Sello: Calidad Técnica", "image_url": "imagenes/SelloCalidad.png"},
+            {"key": "footer_logo", "description": "Logo del pie de página", "image_url": "imagenes/LogoHero.png"},
+            {"key": "logo_iso", "description": "Certificación: Logo ISO", "image_url": "imagenes/LogoISO.png"},
+            {"key": "logo_icontec", "description": "Certificación: Logo Icontec", "image_url": "imagenes/LogoIcontec.png"},
+        ]
+        for asset in initial:
+            if not db.query(models.SiteAsset).filter(models.SiteAsset.key == asset["key"]).first():
+                db.add(models.SiteAsset(**asset))
+        db.commit()
+        print("Auto-seeded site assets")
+    finally:
+        db.close()
+
+seed_site_assets()
 
 app = FastAPI()
 
@@ -745,3 +794,62 @@ async def change_password(password_data: schemas.UserCreate, db: Session = Depen
     current_user.hashed_password = auth.get_password_hash(password_data.password)
     db.commit()
     return {"message": "Contraseña actualizada exitosamente"}
+
+
+# Site Assets Endpoints
+SITE_IMAGES_DIR = os.path.join(database.VOLUME_PATH, "site-images")
+os.makedirs(SITE_IMAGES_DIR, exist_ok=True)
+
+@app.get("/admin/site-assets", response_model=List[schemas.SiteAsset])
+def get_site_assets(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    return db.query(models.SiteAsset).all()
+
+@app.post("/admin/site-assets/{key}")
+async def upload_site_asset(
+    key: str,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    asset = db.query(models.SiteAsset).filter(models.SiteAsset.key == key).first()
+    if not asset:
+        raise HTTPException(status_code=404, detail="Asset key not found")
+    
+    content = await file.read()
+    # Basic check for images
+    if not file.content_type.startswith("image/"):
+         raise HTTPException(status_code=400, detail="El archivo debe ser una imagen")
+
+    # Save to volume
+    ext = os.path.splitext(file.filename)[1]
+    if not ext:
+        ext = ".png" # fallback
+    
+    filename = f"{key}{ext}"
+    filepath = os.path.join(SITE_IMAGES_DIR, filename)
+    
+    with open(filepath, "wb") as f:
+        f.write(content)
+    
+    # Update DB URL
+    asset.image_url = f"/api/files/site-images/{filename}"
+    db.commit()
+    db.refresh(asset)
+    
+    return asset
+
+@app.get("/files/site-images/{filename}")
+async def serve_site_image(filename: str):
+    filepath = os.path.join(SITE_IMAGES_DIR, filename)
+    if not os.path.isfile(filepath):
+        # Fallback to default imagenes folder if it exists in the app package?
+        # Better: just return 404 if not found in volume
+        raise HTTPException(status_code=404, detail="Imagen no encontrada")
+    
+    return FileResponse(filepath)
+
+# Public endpoint to get site assets mapping
+@app.get("/site-assets-map")
+def get_site_assets_map(db: Session = Depends(get_db)):
+    assets = db.query(models.SiteAsset).all()
+    return {a.key: a.image_url for a in assets}

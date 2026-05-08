@@ -56,6 +56,7 @@ function switchView(viewId) {
     if (viewId === 'categories') loadCategoriesView();
     if (viewId === 'brands-mgmt') loadBrandsView();
     if (viewId === 'presentations-mgmt') loadPresentationsView();
+    if (viewId === 'site-assets') loadSiteAssets();
 }
 
 // Sidebar toggle for mobile
@@ -1923,6 +1924,106 @@ function openAdminLightbox(src) {
 
 function closeAdminLightbox() {
     document.getElementById('adminLightbox').style.display = 'none';
+}
+
+// --- SITE ASSETS ---
+async function loadSiteAssets() {
+    try {
+        const response = await fetchWithAuth(`${API_URL}/admin/site-assets`);
+        const assets = await response.json();
+        
+        const tbody = document.querySelector('#siteAssetsTable tbody');
+        if (!tbody) return;
+        
+        tbody.innerHTML = assets.map(a => {
+            const isApiUrl = a.image_url.startsWith('/api/');
+            const fullUrl = isApiUrl ? `${API_URL}${a.image_url.replace('/api', '')}` : a.image_url;
+            
+            return `
+                <tr>
+                    <td><code style="background:#f0f0f0;padding:2px 5px;border-radius:4px;font-weight:600;">${a.key}</code></td>
+                    <td>${a.description}</td>
+                    <td>
+                        <img src="${fullUrl}" alt="${a.key}" 
+                             style="max-height: 50px; max-width: 100px; object-fit: contain; border-radius: 4px; background: #f9f9f9; border: 1px solid #eee; cursor: zoom-in;"
+                             onclick="openAdminLightbox('${fullUrl}')"
+                             onerror="this.src='https://via.placeholder.com/100x50?text=Error'">
+                    </td>
+                    <td style="text-align: right;">
+                        <button class="btn-action btn-edit" onclick="openSiteAssetModal('${a.key}', '${a.description}')" title="Actualizar">
+                            <i class="fas fa-upload"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading site assets', error);
+        showToast('Error al cargar recursos del sitio', 'error');
+    }
+}
+
+function openSiteAssetModal(key, description) {
+    document.getElementById('siteAssetKey').value = key;
+    document.getElementById('siteAssetModalTitle').textContent = `Actualizar: ${key}`;
+    document.getElementById('siteAssetModalDesc').textContent = description;
+    document.getElementById('siteAssetFileNameDisplay').textContent = 'Haz clic para seleccionar o arrastra una imagen';
+    document.getElementById('siteAssetPreviewContainer').style.display = 'none';
+    document.getElementById('siteAssetFileInput').value = '';
+    document.getElementById('siteAssetModal').style.display = 'block';
+}
+
+function handleSiteAssetFileSelect(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        document.getElementById('siteAssetFileNameDisplay').textContent = file.name;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('siteAssetPreview');
+            preview.src = e.target.result;
+            document.getElementById('siteAssetPreviewContainer').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+async function uploadSiteAsset() {
+    const key = document.getElementById('siteAssetKey').value;
+    const fileInput = document.getElementById('siteAssetFileInput');
+    
+    if (!fileInput.files || !fileInput.files[0]) {
+        showToast('Por favor selecciona un archivo', 'warning');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+    
+    document.getElementById('siteAssetUploadProgress').style.display = 'block';
+    document.getElementById('btnUploadSiteAsset').disabled = true;
+    
+    try {
+        const response = await fetchWithAuth(`${API_URL}/admin/site-assets/${key}`, {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (response.ok) {
+            showToast('Imagen actualizada correctamente');
+            closeModal('siteAssetModal');
+            loadSiteAssets();
+        } else {
+            const err = await response.json();
+            showToast(err.detail || 'Error al subir imagen', 'error');
+        }
+    } catch (error) {
+        console.error('Error uploading site asset', error);
+        showToast('Error de conexión', 'error');
+    } finally {
+        document.getElementById('siteAssetUploadProgress').style.display = 'none';
+        document.getElementById('btnUploadSiteAsset').disabled = false;
+    }
 }
 
 // Init

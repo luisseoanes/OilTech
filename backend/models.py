@@ -99,3 +99,10 @@ class Sale(Base):
     customer_name = Column(String, nullable=False)
     customer_contact = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+class SiteAsset(Base):
+    __tablename__ = "site_assets"
+    key = Column(String, primary_key=True, index=True)
+    description = Column(String)
+    image_url = Column(String)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
