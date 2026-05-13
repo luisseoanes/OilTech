@@ -72,6 +72,19 @@ function buildTabsAndGrids(categories, products) {
     categories.forEach(c => {
         renderGrid(`cat-${c.id}`, products.filter(p => p.category_id === c.id));
     });
+
+    const params = new URLSearchParams(window.location.search);
+    const catParam = params.get('categoria');
+    if (catParam) {
+        const normalize = s => s.toLowerCase().trim();
+        const match = categories.find(c => normalize(c.name) === normalize(catParam));
+        if (match) {
+            switchTab(`cat-${match.id}`);
+            setTimeout(() => {
+                document.getElementById('tabs-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+    }
 }
 
 function renderGrid(targetId, products) {
@@ -415,6 +428,12 @@ function updateCartUI() {
     `).join('');
 }
 
+function acceptPrivacyConsent() {
+    sessionStorage.setItem('privacyConsent', '1');
+    document.getElementById('privacyConsentModal').style.display = 'none';
+    sendBatchQuote();
+}
+
 async function sendBatchQuote() {
     if (cart.length === 0) {
         showToast('Agrega productos primero.', 'warning');
@@ -426,6 +445,11 @@ async function sendBatchQuote() {
 
     if (!name || !contact) {
         showToast('Por favor completa tu nombre y contacto.', 'warning');
+        return;
+    }
+
+    if (!sessionStorage.getItem('privacyConsent')) {
+        document.getElementById('privacyConsentModal').style.display = 'flex';
         return;
     }
 
