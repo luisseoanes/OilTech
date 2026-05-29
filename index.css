@@ -794,6 +794,16 @@ nav.scrolled {
     background: #f0f0f0;
 }
 
+.product-card.featured .img-wrapper {
+    min-height: 500px;
+    background: var(--black);
+}
+
+.product-card.featured .carousel-slide {
+    object-fit: contain;
+    padding: 24px;
+}
+
 .products-grid .product-card:not(.featured) .carousel-slide {
     object-fit: contain;
     padding: 12px;
