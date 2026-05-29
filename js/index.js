@@ -47,6 +47,132 @@ function openSafeWhatsapp() {
 // Expose to global scope for HTML onclick
 window.openSafeWhatsapp = openSafeWhatsapp;
 
+// --- Solicitud de Cotización (formulario del index) ---
+const COTIZACION_WPP_NUM = "573054215783";
+
+function setCotFieldError(fieldId, message) {
+    const group = document.querySelector(`.fg[data-field="${fieldId}"]`);
+    if (!group) return;
+    group.classList.remove('has-error');
+    void group.offsetWidth; // reinicia la animación de shake si vuelve a errar
+    group.classList.add('has-error');
+    const txt = group.querySelector('.fg-error-text');
+    if (txt) txt.textContent = message;
+    const field = document.getElementById(fieldId);
+    if (field) field.setAttribute('aria-invalid', 'true');
+}
+
+function clearCotFieldError(fieldId) {
+    const group = document.querySelector(`.fg[data-field="${fieldId}"]`);
+    if (!group) return;
+    group.classList.remove('has-error');
+    const field = document.getElementById(fieldId);
+    if (field) field.removeAttribute('aria-invalid');
+}
+
+function clearAllCotErrors() {
+    document.querySelectorAll('.cotizacion-form .fg.has-error').forEach(g => g.classList.remove('has-error'));
+    document.querySelectorAll('.cotizacion-form [aria-invalid="true"]').forEach(f => f.removeAttribute('aria-invalid'));
+}
+
+function bindCotErrorClearing() {
+    ['cotNombre', 'cotCorreo', 'cotTelefono', 'cotEmpresa', 'cotLinea', 'cotDescripcion'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const evt = el.tagName === 'SELECT' ? 'change' : 'input';
+        el.addEventListener(evt, () => clearCotFieldError(id));
+    });
+}
+document.addEventListener('DOMContentLoaded', bindCotErrorClearing);
+
+function submitCotizacionIndex() {
+    const nombre = document.getElementById('cotNombre').value.trim();
+    const correo = document.getElementById('cotCorreo').value.trim();
+    const telefono = document.getElementById('cotTelefono').value.trim();
+    const empresa = document.getElementById('cotEmpresa').value.trim();
+    const linea = document.getElementById('cotLinea').value.trim();
+    const descripcion = document.getElementById('cotDescripcion').value.trim();
+
+    clearAllCotErrors();
+
+    const errors = [];
+    if (!nombre) errors.push(['cotNombre', 'Ingrese su nombre completo']);
+    if (!correo) {
+        errors.push(['cotCorreo', 'Ingrese su correo electrónico']);
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+        errors.push(['cotCorreo', 'Formato inválido (ej: nombre@empresa.com)']);
+    }
+    if (!telefono) {
+        errors.push(['cotTelefono', 'Ingrese su teléfono']);
+    } else if (!/^[\d\s+()\-.]+$/.test(telefono)) {
+        errors.push(['cotTelefono', 'Solo números y los símbolos + ( ) - .']);
+    } else {
+        const digits = telefono.replace(/\D/g, '');
+        if (digits.length < 7 || digits.length > 15) {
+            errors.push(['cotTelefono', 'Debe tener entre 7 y 15 dígitos']);
+        }
+    }
+    if (!empresa) errors.push(['cotEmpresa', 'Ingrese el nombre de su empresa']);
+    if (!linea) errors.push(['cotLinea', 'Seleccione una línea de interés']);
+    if (!descripcion) errors.push(['cotDescripcion', 'Describa su necesidad']);
+
+    if (errors.length) {
+        errors.forEach(([id, msg]) => setCotFieldError(id, msg));
+        const [firstId] = errors[0];
+        const firstEl = document.getElementById(firstId);
+        if (firstEl) {
+            firstEl.focus({ preventScroll: true });
+            firstEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+    }
+
+    if (!sessionStorage.getItem('privacyConsent')) {
+        document.getElementById('privacyConsentModal').style.display = 'flex';
+        return;
+    }
+
+    sendCotizacionToWhatsapp();
+}
+
+function acceptPrivacyConsentIndex() {
+    sessionStorage.setItem('privacyConsent', '1');
+    document.getElementById('privacyConsentModal').style.display = 'none';
+    sendCotizacionToWhatsapp();
+}
+
+function sendCotizacionToWhatsapp() {
+    const nombre = document.getElementById('cotNombre').value.trim();
+    const correo = document.getElementById('cotCorreo').value.trim();
+    const telefono = document.getElementById('cotTelefono').value.trim();
+    const empresa = document.getElementById('cotEmpresa').value.trim();
+    const linea = document.getElementById('cotLinea').value.trim();
+    const descripcion = document.getElementById('cotDescripcion').value.trim();
+
+    let message = `*Solicitud de Cotización — Oil Tech*\n\n`;
+    message += `*Nombre:* ${nombre}\n`;
+    message += `*Correo:* ${correo}\n`;
+    message += `*Teléfono:* ${telefono}\n`;
+    message += `*Empresa:* ${empresa}\n`;
+    message += `*Línea de interés:* ${linea}\n`;
+    message += `\n*Detalle de la necesidad:*\n${descripcion}\n`;
+    message += `\nQuedo atento a su respuesta.`;
+
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${COTIZACION_WPP_NUM}&text=${encodeURIComponent(message)}`;
+
+    document.getElementById('cotNombre').value = '';
+    document.getElementById('cotCorreo').value = '';
+    document.getElementById('cotTelefono').value = '';
+    document.getElementById('cotEmpresa').value = '';
+    document.getElementById('cotLinea').value = '';
+    document.getElementById('cotDescripcion').value = '';
+
+    window.open(whatsappUrl, '_blank');
+}
+
+window.submitCotizacionIndex = submitCotizacionIndex;
+window.acceptPrivacyConsentIndex = acceptPrivacyConsentIndex;
+
 // Image Lightbox with Zoom
 const lightbox = document.getElementById('imageLightbox');
 const lightboxStage = document.getElementById('lightboxStage');

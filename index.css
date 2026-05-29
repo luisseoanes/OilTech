@@ -1368,6 +1368,55 @@ nav.scrolled {
     min-height: 110px;
 }
 
+/* ── Form errors ── */
+.fg-error {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--red);
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height .22s ease, opacity .22s ease, margin-top .22s ease;
+    margin-top: 0;
+    text-align: left;
+}
+
+.fg-error i {
+    font-size: 0.72rem;
+}
+
+.fg.has-error .fg-error {
+    max-height: 32px;
+    opacity: 1;
+    margin-top: 2px;
+}
+
+.fg.has-error input,
+.fg.has-error select,
+.fg.has-error textarea {
+    border-color: var(--red);
+    background: var(--red-light);
+    animation: fg-shake .32s ease;
+}
+
+.fg.has-error label {
+    color: var(--red);
+}
+
+@keyframes fg-shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-4px); }
+    40% { transform: translateX(4px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(2px); }
+}
+
 .form-submit {
     background: var(--red);
     color: #fff;

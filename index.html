@@ -483,28 +483,32 @@
             <div class="cotizacion-form-wrap">
                 <div class="cotizacion-form">
                     <div class="form-row">
-                        <div class="fg">
-                            <label>Nombre completo *</label>
-                            <input type="text" placeholder="Su nombre completo">
+                        <div class="fg" data-field="cotNombre">
+                            <label for="cotNombre">Nombre completo *</label>
+                            <input id="cotNombre" type="text" placeholder="Su nombre completo" required aria-describedby="errCotNombre">
+                            <span class="fg-error" id="errCotNombre" role="alert" aria-live="polite"><i class="fas fa-exclamation-circle" aria-hidden="true"></i><span class="fg-error-text"></span></span>
                         </div>
-                        <div class="fg">
-                            <label>Correo electrónico *</label>
-                            <input type="email" placeholder="correo@empresa.com">
+                        <div class="fg" data-field="cotCorreo">
+                            <label for="cotCorreo">Correo electrónico *</label>
+                            <input id="cotCorreo" type="email" placeholder="correo@empresa.com" required aria-describedby="errCotCorreo">
+                            <span class="fg-error" id="errCotCorreo" role="alert" aria-live="polite"><i class="fas fa-exclamation-circle" aria-hidden="true"></i><span class="fg-error-text"></span></span>
                         </div>
                     </div>
                     <div class="form-row">
-                        <div class="fg">
-                            <label>Teléfono *</label>
-                            <input type="tel" placeholder="+57">
+                        <div class="fg" data-field="cotTelefono">
+                            <label for="cotTelefono">Teléfono *</label>
+                            <input id="cotTelefono" type="tel" placeholder="+57" required aria-describedby="errCotTelefono">
+                            <span class="fg-error" id="errCotTelefono" role="alert" aria-live="polite"><i class="fas fa-exclamation-circle" aria-hidden="true"></i><span class="fg-error-text"></span></span>
                         </div>
-                        <div class="fg">
-                            <label>Empresa / Razón social</label>
-                            <input type="text" placeholder="Nombre de su empresa">
+                        <div class="fg" data-field="cotEmpresa">
+                            <label for="cotEmpresa">Empresa / Razón social *</label>
+                            <input id="cotEmpresa" type="text" placeholder="Nombre de su empresa" required aria-describedby="errCotEmpresa">
+                            <span class="fg-error" id="errCotEmpresa" role="alert" aria-live="polite"><i class="fas fa-exclamation-circle" aria-hidden="true"></i><span class="fg-error-text"></span></span>
                         </div>
                     </div>
-                    <div class="fg">
-                        <label>Línea de interés *</label>
-                        <select>
+                    <div class="fg" data-field="cotLinea">
+                        <label for="cotLinea">Línea de interés *</label>
+                        <select id="cotLinea" required aria-describedby="errCotLinea">
                             <option value="">Seleccione una línea de producto</option>
                             <option>Lubricantes Industriales</option>
                             <option>Grasas Industriales</option>
@@ -513,13 +517,15 @@
                             <option>Herramientas y Suministros Técnicos</option>
                             <option>Portafolio completo</option>
                         </select>
+                        <span class="fg-error" id="errCotLinea" role="alert" aria-live="polite"><i class="fas fa-exclamation-circle" aria-hidden="true"></i><span class="fg-error-text"></span></span>
                     </div>
-                    <div class="fg">
-                        <label>Descripción de su necesidad</label>
-                        <textarea
+                    <div class="fg" data-field="cotDescripcion">
+                        <label for="cotDescripcion">Descripción de su necesidad *</label>
+                        <textarea id="cotDescripcion" required aria-describedby="errCotDescripcion"
                             placeholder="Cuéntenos qué producto requiere, cantidades aproximadas o cualquier detalle relevante..."></textarea>
+                        <span class="fg-error" id="errCotDescripcion" role="alert" aria-live="polite"><i class="fas fa-exclamation-circle" aria-hidden="true"></i><span class="fg-error-text"></span></span>
                     </div>
-                    <button class="form-submit cotizacion-btn">Enviar Solicitud</button>
+                    <button id="btnEnviarSolicitud" type="button" class="form-submit cotizacion-btn" onclick="submitCotizacionIndex()">Enviar Solicitud</button>
                 </div>
             </div>
         </div>
@@ -575,6 +581,41 @@
             </div>
         </div>
     </section>
+
+    <div id="privacyConsentModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; padding:16px;">
+        <div style="background:#fff; border-radius:12px; max-width:520px; width:100%; padding:32px 28px; box-shadow:0 8px 40px rgba(0,0,0,0.18); max-height:90vh; overflow-y:auto;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
+                <i class="fas fa-shield-alt" style="font-size:1.6rem; color:var(--primary,#e63946);"></i>
+                <h2 style="margin:0; font-size:1.2rem; font-weight:700;">Autorización de Tratamiento de Datos Personales</h2>
+            </div>
+            <p style="font-size:0.9rem; color:#444; line-height:1.6; margin-bottom:14px;">
+                De conformidad con la <strong>Ley 1581 de 2012</strong> y el <strong>Decreto 1377 de 2013</strong> (régimen de protección de datos personales de Colombia), <strong>Oil Tech de Colombia S.A.S.</strong> solicita su autorización para recolectar y tratar los siguientes datos personales:
+            </p>
+            <ul style="font-size:0.88rem; color:#444; line-height:1.8; margin:0 0 14px 18px; padding:0;">
+                <li><strong>Nombre completo</strong></li>
+                <li><strong>Correo electrónico y teléfono</strong> (datos de contacto)</li>
+                <li><strong>Empresa o razón social</strong></li>
+                <li><strong>Línea de interés y descripción de la necesidad</strong></li>
+            </ul>
+            <p style="font-size:0.9rem; color:#444; line-height:1.6; margin-bottom:14px;">
+                <strong>Finalidad:</strong> Los datos serán usados exclusivamente para atender su solicitud de cotización, enviarle la respuesta comercial correspondiente y, de ser necesario, hacer seguimiento a su requerimiento. No serán cedidos a terceros ni usados con fines distintos a los indicados.
+            </p>
+            <p style="font-size:0.9rem; color:#444; line-height:1.6; margin-bottom:14px;">
+                <strong>Responsable:</strong> Oil Tech de Colombia S.A.S. &nbsp;|&nbsp; <strong>Contacto:</strong> <a href="mailto:oiltech.inf@outlook.com" style="color:var(--primary,#e63946);">oiltech.inf@outlook.com</a>
+            </p>
+            <p style="font-size:0.88rem; color:#666; line-height:1.6; margin-bottom:20px;">
+                Usted tiene derecho a conocer, actualizar, rectificar y suprimir sus datos, y a revocar esta autorización en cualquier momento, contactándonos en la dirección indicada arriba.
+            </p>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <button onclick="acceptPrivacyConsentIndex()" style="flex:1; min-width:140px; padding:12px; background:var(--primary,#e63946); color:#fff; border:none; border-radius:8px; font-weight:700; font-size:0.95rem; cursor:pointer;">
+                    Acepto y continuar
+                </button>
+                <button onclick="document.getElementById('privacyConsentModal').style.display='none'" style="flex:1; min-width:140px; padding:12px; background:#f0f0f0; color:#333; border:none; border-radius:8px; font-weight:600; font-size:0.95rem; cursor:pointer;">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
 
     <div id="footer-placeholder"></div>
     <script>

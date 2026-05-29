@@ -24,7 +24,7 @@ cd backend
 uvicorn main:app --reload
 ```
 
-The backend auto-seeds the admin user (`admin` / `admin123`) and default categories on startup. The admin seed solo corre si no existe ningún usuario `admin` — una vez creado, la contraseña se cambia vía `PUT /admin/change-password` (autenticado) y el seed nunca vuelve a tocarla. It also runs SQLite migrations on every startup via `apply_migrations()` in `main.py`.
+The backend auto-seeds the admin user (`admin` / `admin123`) and default categories on startup. The admin seed only runs if no `admin` user exists — once created, change the password via `PUT /admin/change-password` (auth required); the seed never touches it again. SQLite migrations run on every startup via `apply_migrations()` in `main.py`.
 
 The database path is controlled by the `RAILWAY_VOLUME_MOUNT_PATH` env var (defaults to `./oiltech.db` locally).
 
@@ -62,11 +62,12 @@ backend/
   auth.py      — JWT auth (python-jose), bcrypt password hashing, OAuth2
 
 components/    — Shared HTML components (footer.html injected via fetch)
-css/           — Per-page stylesheets (admin, catalogo, carrito, login)
-js/            — Per-page JS (admin, catalogo, login, productos, index)
+css/           — Per-page stylesheets (admin, carrito, login, encuentranos, social-floating; catalogo.css es legacy)
+js/            — Per-page JS (admin, productos, login, index, site-assets; catalogo.js y constants.js son legacy)
 imagenes/      — Static assets
 index.html     — Landing page
 productos.html — Product listing page
+encuentranos.html — Coverage map (Leaflet)
 admin.html     — Admin panel (auth-gated)
 login.html     — Admin login
 ```
@@ -75,7 +76,11 @@ login.html     — Admin login
 
 **Quotation model:** Items stored as JSON column — dicts con `product_id, product_name, quantity, option` (sin `price`). Status values: `Pending`, `Purchased`, `Cancelled`.
 
-**Image uploads:** Cloudinary cloud `dvoeietxt`, unsigned preset `OilTechCMS`. Images → `/image/upload`, PDFs → `/raw/upload` with `fl_attachment:false` inserted after `/upload/`. All upload logic in `admin.js`.
+**Image uploads:** Cloudinary cloud `dvoeietxt`, unsigned preset `OilTechCMS`, endpoint `/image/upload`. All image upload logic in `admin.js`.
+
+**PDF uploads (fichas técnicas):** NO van a Cloudinary. `POST /upload/pdf` al backend (valida magic bytes `%PDF`, máx. 20 MB, nombre randomizado `[a-f0-9]{32}.pdf`). Se guardan en el Railway Volume bajo `backend/fichas-tecnicas/` y se sirven vía `GET /files/pdf/{filename}`.
+
+**Site Assets:** Sistema separado para imágenes editables del sitio (hero, logos, etc.). Modelo `SiteAsset` (`key`, `description`, `image_url`). Endpoints: `GET /admin/site-assets` (auth), `POST /admin/site-assets/{key}` (auth, sube imagen al Volume), `GET /site-assets-map` (público, devuelve dict `{key: url}`), `GET /files/site-images/{filename}` (sirve archivo). Frontend: `js/site-assets.js` se ejecuta en cada página pública, mapea las URLs sobre elementos con `data-site-asset="<key>"`. Admin CRUD en `js/admin.js` desde línea 1930.
 
 **Railway deployment:** The DB is persisted via a Railway Volume mounted at `RAILWAY_VOLUME_MOUNT_PATH`. Admin endpoints `/admin/upload-db` and `/admin/download-db` exist for manual DB migration between environments.
 
@@ -100,8 +105,6 @@ login.html     — Admin login
 
 **QuotationItem:** `price` field eliminado — schema solo tiene `product_id, product_name, quantity, option`.
 
-**Cloudinary PDF upload:** Use `/raw/upload` endpoint (not `/image/upload`). Insert `fl_attachment:false` after `/upload/` in the returned URL: `url.replace('/upload/', '/upload/fl_attachment:false/')`.
-
 **search_tags:** Never send from frontend. Backend auto-generates as `",".join(name.split())` on create/update.
 
 **Mobile table pattern:** `cat-actions-col` ya NO se oculta globalmente en móvil — la regla es `#categoriesTable .cat-actions-col { display: none }`. Subcategorías mantienen acciones visibles en móvil. Row tap abre bottom sheet (`openCtxMenu()`).
@@ -112,7 +115,7 @@ login.html     — Admin login
 
 **`/stats` endpoint:** Público (sin auth). Devuelve `{ total_quoted, total_purchased, top_products, sales_history }`. `top_products` cuenta cantidades de items en todas las cotizaciones (independiente del status). El gráfico de ventas consume `/sales/` directamente, no `sales_history`.
 
-**allBrands cache (ya corregido):** `loadBrandsPicker` siempre fetchea fresh — el guard `if (!allBrands.length)` fue eliminado para que marcas nuevas aparezcan en el picker del modal de producto.
+**`loadBrandsPicker`:** siempre fetchea fresh (no cachea `allBrands`) — necesario para que marcas nuevas aparezcan en el picker del modal de producto.
 
 **populateProductFilterSelects():** Llamar tras cualquier CRUD de marcas, presentaciones o categorías para mantener los selects de filtro de inventario sincronizados.
 
