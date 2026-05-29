@@ -762,7 +762,13 @@ nav.scrolled {
 }
 
 .products-grid .product-card:not(.featured) .img-wrapper {
-    height: 190px;
+    height: 240px;
+    background: #f0f0f0;
+}
+
+.products-grid .product-card:not(.featured) .carousel-slide {
+    object-fit: contain;
+    padding: 12px;
 }
 
 .products-grid .product-card:not(.featured) .product-card-content {
