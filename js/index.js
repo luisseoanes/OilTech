@@ -166,6 +166,18 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
+// Product card image carousels
+document.querySelectorAll('.carousel-wrapper').forEach(wrapper => {
+    const slides = wrapper.querySelectorAll('.carousel-slide');
+    if (slides.length <= 1) return;
+    let current = 0;
+    setInterval(() => {
+        slides[current].classList.remove('active');
+        current = (current + 1) % slides.length;
+        slides[current].classList.add('active');
+    }, 3000);
+});
+
 document.querySelectorAll('section img').forEach(img => {
     img.classList.add('zoomable-image');
     img.addEventListener('click', () => {
