@@ -790,7 +790,12 @@ nav.scrolled {
 }
 
 .products-grid .product-card:not(.featured) .img-wrapper {
-    height: 220px;
+    height: 300px;
+    background: var(--bg);
+}
+
+.products-grid .product-card:not(.featured) .carousel-slide {
+    object-fit: contain;
 }
 
 .products-grid .product-card.featured {
