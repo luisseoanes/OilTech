@@ -296,12 +296,41 @@ document.addEventListener('keydown', (event) => {
 document.querySelectorAll('.carousel-wrapper').forEach(wrapper => {
     const slides = wrapper.querySelectorAll('.carousel-slide');
     if (slides.length <= 1) return;
+
     let current = 0;
-    setInterval(() => {
+    let timer;
+
+    const dotsContainer = document.createElement('div');
+    dotsContainer.className = 'carousel-dots';
+    slides.forEach((_, i) => {
+        const dot = document.createElement('button');
+        dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+        dot.setAttribute('aria-label', `Imagen ${i + 1}`);
+        dot.addEventListener('click', (e) => {
+            e.stopPropagation();
+            goTo(i);
+            resetTimer();
+        });
+        dotsContainer.appendChild(dot);
+    });
+    wrapper.appendChild(dotsContainer);
+
+    const dots = dotsContainer.querySelectorAll('.carousel-dot');
+
+    function goTo(index) {
         slides[current].classList.remove('active');
-        current = (current + 1) % slides.length;
+        dots[current].classList.remove('active');
+        current = index;
         slides[current].classList.add('active');
-    }, 3000);
+        dots[current].classList.add('active');
+    }
+
+    function resetTimer() {
+        clearInterval(timer);
+        timer = setInterval(() => goTo((current + 1) % slides.length), 3500);
+    }
+
+    resetTimer();
 });
 
 document.querySelectorAll('section img').forEach(img => {

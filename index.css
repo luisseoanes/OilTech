@@ -754,11 +754,39 @@ nav.scrolled {
     height: 100%;
     object-fit: cover;
     opacity: 0;
-    transition: opacity 0.8s ease, transform 0.6s ease;
+    transform: scale(1.04);
+    transition: opacity 0.9s ease, transform 0.9s ease;
 }
 
 .carousel-slide.active {
     opacity: 1;
+    transform: scale(1);
+}
+
+.carousel-dots {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 7px;
+    z-index: 10;
+}
+
+.carousel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.45);
+    border: 1.5px solid rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.carousel-dot.active {
+    background: white;
+    transform: scale(1.35);
 }
 
 .products-grid .product-card:not(.featured) .img-wrapper {
