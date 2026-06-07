@@ -44,7 +44,7 @@ The frontend is plain HTML/CSS/JS — no build step, no bundler. Open the HTML f
 ```js
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:8000'
-    : 'https://almacenrefrielectricos-production.up.railway.app';
+    : 'https://oiltech-production.up.railway.app';
 ```
 
 ## Local Database
@@ -65,6 +65,8 @@ components/    — Shared HTML components (footer.html injected via fetch)
 css/           — Per-page stylesheets (admin, carrito, login, encuentranos, social-floating; catalogo.css es legacy)
 js/            — Per-page JS (admin, productos, login, index, site-assets; catalogo.js y constants.js son legacy)
 imagenes/      — Static assets
+index.css      — Estilos del landing (también lo carga productos.html)
+productos.css  — Estilos del catálogo
 index.html     — Landing page
 productos.html — Product listing page
 encuentranos.html — Coverage map (Leaflet)
@@ -80,7 +82,7 @@ login.html     — Admin login
 
 **PDF uploads (fichas técnicas):** NO van a Cloudinary. `POST /upload/pdf` al backend (valida magic bytes `%PDF`, máx. 20 MB, nombre randomizado `[a-f0-9]{32}.pdf`). Se guardan en el Railway Volume bajo `backend/fichas-tecnicas/` y se sirven vía `GET /files/pdf/{filename}`.
 
-**Site Assets:** Sistema separado para imágenes editables del sitio (hero, logos, etc.). Modelo `SiteAsset` (`key`, `description`, `image_url`). Endpoints: `GET /admin/site-assets` (auth), `POST /admin/site-assets/{key}` (auth, sube imagen al Volume), `GET /site-assets-map` (público, devuelve dict `{key: url}`), `GET /files/site-images/{filename}` (sirve archivo). Frontend: `js/site-assets.js` se ejecuta en cada página pública, mapea las URLs sobre elementos con `data-site-asset="<key>"`. Admin CRUD en `js/admin.js` desde línea 1930.
+**Site Assets:** Sistema separado para imágenes editables del sitio (hero, logos, etc.). Modelo `SiteAsset` (`key`, `description`, `image_url`). Endpoints: `GET /admin/site-assets` (auth), `POST /admin/site-assets/{key}` (auth, sube imagen al Volume), `GET /site-assets-map` (público, devuelve dict `{key: url}`), `GET /files/site-images/{filename}` (sirve archivo). Frontend: `js/site-assets.js` se ejecuta en cada página pública, mapea las URLs sobre elementos con `data-asset="<key>"` (`document.querySelectorAll('[data-asset]')`). Admin CRUD en `js/admin.js` desde línea 1930.
 
 **Railway deployment:** The DB is persisted via a Railway Volume mounted at `RAILWAY_VOLUME_MOUNT_PATH`. Admin endpoints `/admin/upload-db` and `/admin/download-db` exist for manual DB migration between environments.
 
@@ -107,7 +109,7 @@ login.html     — Admin login
 
 **search_tags:** Never send from frontend. Backend auto-generates as `",".join(name.split())` on create/update.
 
-**Mobile table pattern:** `cat-actions-col` ya NO se oculta globalmente en móvil — la regla es `#categoriesTable .cat-actions-col { display: none }`. Subcategorías mantienen acciones visibles en móvil. Row tap abre bottom sheet (`openCtxMenu()`).
+**Mobile table pattern:** la regla global `.cat-actions-col { display: none }` fue eliminada (commit `e4852ff`) — las acciones de categorías/subcategorías ya NO se ocultan en móvil. Lo que queda en `admin.css` es solo `#categoriesTable .cat-actions-col:last-child` / `#subcategoriesTable ...:last-child` para alineación (`text-align: right`), no visibilidad. Row tap abre bottom sheet (`openCtxMenu()`).
 
 **quotationsMap pattern:** Cotizaciones se guardan en `window.quotationsMap[id]` al cargar. Los onclick de tabla solo pasan el ID numérico — evita serializar el objeto completo en el atributo HTML (rompe con items JSON anidado).
 
@@ -129,4 +131,4 @@ login.html     — Admin login
 - `bcrypt` must be pinned to `==4.0.1` — newer versions break `passlib` with an `__about__` AttributeError on `/token`.
 - No frontend build pipeline; CSS/JS changes are live immediately.
 - SQLite is used for simplicity; no ORM migrations framework (migrations are manual `ALTER TABLE` statements in `apply_migrations()`).
-- **Backend imports (CRÍTICO):** Los archivos del backend usan imports relativos (`from . import models`, `from .database import Base`). El linter del editor los revierte a absolutos al guardar, rompiendo uvicorn. Si el backend falla con `ModuleNotFoundError: No module named 'models'`, corregir en `main.py`, `auth.py` y `models.py`.
+- **Backend imports (CRÍTICO):** Los archivos del backend usan imports ABSOLUTOS (`import models, schemas, database`), NO relativos — `backend/` no tiene `__init__.py`, así que `from . import models` rompería con `ImportError: attempted relative import with no known parent package` al correr `cd backend && uvicorn main:app`. Si un editor/linter "corrige" estos imports a forma relativa, revertirlos a absolutos en `main.py`, `auth.py` y `models.py`.
