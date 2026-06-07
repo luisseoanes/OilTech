@@ -1927,30 +1927,48 @@ function closeAdminLightbox() {
 }
 
 // --- SITE ASSETS ---
+// Las 5 tarjetas de categoría del index pueden alternar entre imagen única y
+// carrusel; el resto de assets (logo, hero, badges, etc.) son siempre de imagen única.
+const CAROUSEL_CAPABLE_SITE_ASSET_KEYS = ['cat_lubricantes', 'cat_grasas', 'cat_seguridad', 'cat_limpieza', 'cat_herramientas'];
+
+function siteAssetFullUrl(url) {
+    return url.startsWith('/api/') ? `${API_URL}${url.replace('/api', '')}` : url;
+}
+
 async function loadSiteAssets() {
     try {
         const response = await fetchWithAuth(`${API_URL}/admin/site-assets`);
         const assets = await response.json();
-        
+
+        // Igual que quotationsMap: se guarda el objeto completo por key y los
+        // onclick de la tabla solo pasan el key — evita serializar el asset en el atributo HTML.
+        window.siteAssetsMap = {};
+        assets.forEach(a => { window.siteAssetsMap[a.key] = a; });
+
         const tbody = document.querySelector('#siteAssetsTable tbody');
         if (!tbody) return;
-        
+
         tbody.innerHTML = assets.map(a => {
-            const isApiUrl = a.image_url.startsWith('/api/');
-            const fullUrl = isApiUrl ? `${API_URL}${a.image_url.replace('/api', '')}` : a.image_url;
-            
+            const fullUrl = siteAssetFullUrl(a.image_url);
+            const isCarousel = a.display_mode === 'carousel';
+            const modeBadge = CAROUSEL_CAPABLE_SITE_ASSET_KEYS.includes(a.key)
+                ? `<span style="display:inline-block;margin-top:4px;font-size:0.68rem;font-weight:600;padding:2px 7px;border-radius:5px;background:${isCarousel ? '#e8f0fe' : '#f0f0f0'};color:${isCarousel ? 'var(--primary-color)' : '#888'};">
+                       <i class="fas ${isCarousel ? 'fa-images' : 'fa-image'}"></i> ${isCarousel ? 'Carrusel' : 'Imagen única'}
+                   </span>`
+                : '';
+
             return `
                 <tr>
                     <td><code style="background:#f0f0f0;padding:2px 5px;border-radius:4px;font-weight:600;">${a.key}</code></td>
-                    <td>${a.description}</td>
+                    <td>${a.description}${modeBadge}</td>
                     <td>
-                        <img src="${fullUrl}" alt="${a.key}" 
+                        <img src="${fullUrl}" alt="${a.key}"
                              style="max-height: 50px; max-width: 100px; object-fit: contain; border-radius: 4px; background: #f9f9f9; border: 1px solid #eee; cursor: zoom-in;"
                              onclick="openAdminLightbox('${fullUrl}')"
                              onerror="this.src='https://via.placeholder.com/100x50?text=Error'">
                     </td>
                     <td style="text-align: right;">
-                        <button class="btn-action btn-edit" onclick="openSiteAssetModal('${a.key}', '${a.description}')" title="Actualizar">
+                        <button class="btn-action btn-edit" onclick="openSiteAssetModal('${a.key}')" title="Actualizar">
                             <i class="fas fa-upload"></i>
                         </button>
                     </td>
@@ -1963,14 +1981,169 @@ async function loadSiteAssets() {
     }
 }
 
-function openSiteAssetModal(key, description) {
+function openSiteAssetModal(key) {
+    const asset = window.siteAssetsMap?.[key];
+    if (!asset) return;
+
     document.getElementById('siteAssetKey').value = key;
     document.getElementById('siteAssetModalTitle').textContent = `Actualizar: ${key}`;
-    document.getElementById('siteAssetModalDesc').textContent = description;
+    document.getElementById('siteAssetModalDesc').textContent = asset.description;
     document.getElementById('siteAssetFileNameDisplay').textContent = 'Haz clic para seleccionar o arrastra una imagen';
     document.getElementById('siteAssetPreviewContainer').style.display = 'none';
     document.getElementById('siteAssetFileInput').value = '';
+
+    const modeToggle = document.getElementById('siteAssetModeToggle');
+    if (CAROUSEL_CAPABLE_SITE_ASSET_KEYS.includes(key)) {
+        modeToggle.style.display = 'flex';
+        document.getElementById('siteAssetModeSingleBtn').onclick = () => setSiteAssetMode(key, 'single');
+        document.getElementById('siteAssetModeCarouselBtn').onclick = () => setSiteAssetMode(key, 'carousel');
+        renderSiteAssetModeSections(key, asset);
+    } else {
+        modeToggle.style.display = 'none';
+        document.getElementById('siteAssetSingleSection').style.display = 'block';
+        document.getElementById('siteAssetGallerySection').style.display = 'none';
+    }
+
     document.getElementById('siteAssetModal').style.display = 'block';
+}
+
+// Muestra el uploader de imagen única o el gestor de galería según el modo
+// activo del asset, y refleja ese modo en los botones del toggle.
+function renderSiteAssetModeSections(key, asset) {
+    const isCarousel = asset.display_mode === 'carousel';
+    document.getElementById('siteAssetModeSingleBtn').classList.toggle('active', !isCarousel);
+    document.getElementById('siteAssetModeCarouselBtn').classList.toggle('active', isCarousel);
+    document.getElementById('siteAssetSingleSection').style.display = isCarousel ? 'none' : 'block';
+    document.getElementById('siteAssetGallerySection').style.display = isCarousel ? 'block' : 'none';
+
+    if (isCarousel) {
+        renderSiteAssetGallery(key, asset);
+    }
+}
+
+async function setSiteAssetMode(key, mode) {
+    if (window.siteAssetsMap[key]?.display_mode === mode) return;
+
+    try {
+        const response = await fetchWithAuth(`${API_URL}/admin/site-assets/${key}/mode`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mode })
+        });
+        if (!response.ok) throw new Error('No se pudo cambiar el modo');
+
+        const updated = await response.json();
+        window.siteAssetsMap[key] = updated;
+        renderSiteAssetModeSections(key, updated);
+        showToast(mode === 'carousel' ? 'Modo carrusel activado' : 'Modo imagen única activado');
+        loadSiteAssets();
+    } catch (error) {
+        console.error('Error changing site asset mode', error);
+        showToast('Error al cambiar el modo de visualización', 'error');
+    }
+}
+
+// Las imágenes de un asset en modo carrusel son siempre [portada, ...galería] —
+// es la misma lista que entrega /site-assets-map y la que espera PUT .../gallery.
+function siteAssetImageList(asset) {
+    return [asset.image_url, ...(asset.gallery_urls || [])].filter(Boolean);
+}
+
+function renderSiteAssetGallery(key, asset) {
+    const grid = document.getElementById('siteAssetGalleryGrid');
+    const images = siteAssetImageList(asset);
+
+    grid.innerHTML = images.map((url, i) => `
+        <div class="site-asset-gallery-item ${i === 0 ? 'is-cover' : ''}">
+            <img src="${siteAssetFullUrl(url)}" alt="${asset.key} ${i + 1}" onclick="openAdminLightbox('${siteAssetFullUrl(url)}')">
+            ${i === 0 ? '<span class="site-asset-cover-badge">Portada</span>' : ''}
+            <div class="site-asset-gallery-actions">
+                <button title="Mover a la izquierda" ${i === 0 ? 'disabled' : ''} onclick="moveSiteAssetGalleryImage('${key}', ${i}, -1)"><i class="fas fa-arrow-left"></i></button>
+                <button title="Usar como portada" ${i === 0 ? 'disabled' : ''} onclick="promoteSiteAssetGalleryImage('${key}', ${i})"><i class="fas fa-star"></i></button>
+                <button title="Mover a la derecha" ${i === images.length - 1 ? 'disabled' : ''} onclick="moveSiteAssetGalleryImage('${key}', ${i}, 1)"><i class="fas fa-arrow-right"></i></button>
+                <button title="Quitar del carrusel" ${images.length <= 1 ? 'disabled' : ''} onclick="removeSiteAssetGalleryImage('${key}', ${i})"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function saveSiteAssetGalleryOrder(key, images) {
+    try {
+        const response = await fetchWithAuth(`${API_URL}/admin/site-assets/${key}/gallery`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ images })
+        });
+        if (!response.ok) throw new Error('No se pudo actualizar la galería');
+
+        const updated = await response.json();
+        window.siteAssetsMap[key] = updated;
+        renderSiteAssetGallery(key, updated);
+        loadSiteAssets();
+    } catch (error) {
+        console.error('Error updating site asset gallery', error);
+        showToast('Error al actualizar el carrusel', 'error');
+    }
+}
+
+function moveSiteAssetGalleryImage(key, index, direction) {
+    const images = siteAssetImageList(window.siteAssetsMap[key]);
+    const target = index + direction;
+    if (target < 0 || target >= images.length) return;
+    [images[index], images[target]] = [images[target], images[index]];
+    saveSiteAssetGalleryOrder(key, images);
+}
+
+function promoteSiteAssetGalleryImage(key, index) {
+    const images = siteAssetImageList(window.siteAssetsMap[key]);
+    if (index <= 0) return;
+    const [picked] = images.splice(index, 1);
+    images.unshift(picked);
+    saveSiteAssetGalleryOrder(key, images);
+}
+
+function removeSiteAssetGalleryImage(key, index) {
+    const images = siteAssetImageList(window.siteAssetsMap[key]);
+    if (images.length <= 1) return;
+    images.splice(index, 1);
+    saveSiteAssetGalleryOrder(key, images);
+}
+
+function handleSiteAssetGalleryFileSelect(input) {
+    const key = document.getElementById('siteAssetKey').value;
+    if (input.files && input.files[0]) {
+        addSiteAssetGalleryImage(key, input.files[0]);
+        input.value = '';
+    }
+}
+
+async function addSiteAssetGalleryImage(key, file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    document.getElementById('siteAssetGalleryUploadProgress').style.display = 'block';
+
+    try {
+        const response = await fetchWithAuth(`${API_URL}/admin/site-assets/${key}/gallery`, {
+            method: 'POST',
+            body: formData
+        });
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.detail || 'No se pudo subir la imagen');
+        }
+
+        const updated = await response.json();
+        window.siteAssetsMap[key] = updated;
+        renderSiteAssetGallery(key, updated);
+        loadSiteAssets();
+        showToast('Imagen agregada al carrusel');
+    } catch (error) {
+        console.error('Error adding site asset gallery image', error);
+        showToast(error.message || 'Error al subir la imagen', 'error');
+    } finally {
+        document.getElementById('siteAssetGalleryUploadProgress').style.display = 'none';
+    }
 }
 
 function handleSiteAssetFileSelect(input) {

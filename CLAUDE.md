@@ -86,6 +86,8 @@ login.html     — Admin login
 
 **Railway deployment:** The DB is persisted via a Railway Volume mounted at `RAILWAY_VOLUME_MOUNT_PATH`. Admin endpoints `/admin/upload-db` and `/admin/download-db` exist for manual DB migration between environments.
 
+**CORS allowlist:** `allow_origins` está hardcodeado en `backend/main.py` (~línea 341). Al agregar un dominio de producción nuevo, agregarlo ahí (considerar variantes con y sin `www` — los navegadores los tratan como orígenes distintos).
+
 **Footer component:** Extracted to `components/footer.html`, injected via `fetch()` in each page. Edit only that file for footer changes.
 
 **Product schema actual:** `id, name, category_id, subcategory_id, image_url, search_tags, description, technical_sheet_url`. Brands via `product_brands` junction — send `brand_ids: List[int]`, receive `brands: List[Brand]`. Columnas eliminadas: `price`, `code`, `price_text`, `options`, `brands` (string).
@@ -131,4 +133,5 @@ login.html     — Admin login
 - `bcrypt` must be pinned to `==4.0.1` — newer versions break `passlib` with an `__about__` AttributeError on `/token`.
 - No frontend build pipeline; CSS/JS changes are live immediately.
 - SQLite is used for simplicity; no ORM migrations framework (migrations are manual `ALTER TABLE` statements in `apply_migrations()`).
+- **AGENTS.md:** Espejo de CLAUDE.md para Codex — tiende a desincronizarse (en una revisión se encontró que aún documentaba el flujo viejo de PDFs vía Cloudinary `/raw/upload`, ya reemplazado por `/upload/pdf` al backend). Al agregar o corregir patrones/gotchas en CLAUDE.md, revisar y sincronizar también AGENTS.md.
 - **Backend imports (CRÍTICO):** Los archivos del backend usan imports ABSOLUTOS (`import models, schemas, database`), NO relativos — `backend/` no tiene `__init__.py`, así que `from . import models` rompería con `ImportError: attempted relative import with no known parent package` al correr `cd backend && uvicorn main:app`. Si un editor/linter "corrige" estos imports a forma relativa, revertirlos a absolutos en `main.py`, `auth.py` y `models.py`.

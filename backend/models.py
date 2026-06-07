@@ -105,4 +105,6 @@ class SiteAsset(Base):
     key = Column(String, primary_key=True, index=True)
     description = Column(String)
     image_url = Column(String)
+    display_mode = Column(String, nullable=False, default="single")
+    gallery_urls = Column(JSON, nullable=True)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)

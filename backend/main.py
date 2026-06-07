@@ -171,10 +171,23 @@ def apply_migrations():
                     key TEXT PRIMARY KEY,
                     description TEXT,
                     image_url TEXT,
+                    display_mode TEXT NOT NULL DEFAULT 'single',
+                    gallery_urls TEXT,
                     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
             """)
             conn.commit()
+        else:
+            cursor.execute("PRAGMA table_info(site_assets)")
+            site_asset_columns = [col[1] for col in cursor.fetchall()]
+            if "display_mode" not in site_asset_columns:
+                print("Migrating: Adding 'display_mode' to site_assets")
+                cursor.execute("ALTER TABLE site_assets ADD COLUMN display_mode TEXT NOT NULL DEFAULT 'single'")
+                conn.commit()
+            if "gallery_urls" not in site_asset_columns:
+                print("Migrating: Adding 'gallery_urls' to site_assets")
+                cursor.execute("ALTER TABLE site_assets ADD COLUMN gallery_urls TEXT")
+                conn.commit()
 
         conn.close()
     except Exception as e:
@@ -837,7 +850,87 @@ async def upload_site_asset(
     asset.image_url = f"/api/files/site-images/{filename}"
     db.commit()
     db.refresh(asset)
-    
+
+    return asset
+
+VALID_SITE_ASSET_DISPLAY_MODES = {"single", "carousel"}
+
+@app.put("/admin/site-assets/{key}/mode")
+def update_site_asset_mode(
+    key: str,
+    payload: schemas.SiteAssetModeUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    asset = db.query(models.SiteAsset).filter(models.SiteAsset.key == key).first()
+    if not asset:
+        raise HTTPException(status_code=404, detail="Asset key not found")
+
+    if payload.mode not in VALID_SITE_ASSET_DISPLAY_MODES:
+        raise HTTPException(status_code=400, detail="Modo inválido: debe ser 'single' o 'carousel'")
+
+    asset.display_mode = payload.mode
+    db.commit()
+    db.refresh(asset)
+    return asset
+
+@app.post("/admin/site-assets/{key}/gallery")
+async def add_site_asset_gallery_image(
+    key: str,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    asset = db.query(models.SiteAsset).filter(models.SiteAsset.key == key).first()
+    if not asset:
+        raise HTTPException(status_code=404, detail="Asset key not found")
+
+    content = await file.read()
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="El archivo debe ser una imagen")
+
+    ext = os.path.splitext(file.filename)[1]
+    if not ext:
+        ext = ".png"
+
+    # Nombre único por imagen: a diferencia de la portada, varias conviven a la vez
+    filename = f"{key}_{uuid.uuid4().hex[:8]}{ext}"
+    filepath = os.path.join(SITE_IMAGES_DIR, filename)
+
+    with open(filepath, "wb") as f:
+        f.write(content)
+
+    gallery = list(asset.gallery_urls or [])
+    gallery.append(f"/api/files/site-images/{filename}")
+    asset.gallery_urls = gallery
+    db.commit()
+    db.refresh(asset)
+    return asset
+
+@app.put("/admin/site-assets/{key}/gallery")
+def update_site_asset_gallery(
+    key: str,
+    payload: schemas.SiteAssetGalleryUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    asset = db.query(models.SiteAsset).filter(models.SiteAsset.key == key).first()
+    if not asset:
+        raise HTTPException(status_code=404, detail="Asset key not found")
+
+    if not payload.images:
+        raise HTTPException(status_code=400, detail="La lista de imágenes no puede estar vacía")
+
+    known_urls = {asset.image_url, *(asset.gallery_urls or [])}
+    if any(url not in known_urls for url in payload.images):
+        raise HTTPException(status_code=400, detail="La lista contiene imágenes que no pertenecen a este asset")
+
+    # La posición 0 pasa a ser la portada (image_url); el resto, la galería —
+    # así "reordenar", "eliminar" y "promover a portada" son la misma operación.
+    asset.image_url = payload.images[0]
+    asset.gallery_urls = payload.images[1:]
+    db.commit()
+    db.refresh(asset)
     return asset
 
 @app.get("/files/site-images/{filename}")
@@ -854,4 +947,8 @@ async def serve_site_image(filename: str):
 @app.get("/site-assets-map")
 def get_site_assets_map(db: Session = Depends(get_db)):
     assets = db.query(models.SiteAsset).all()
-    return {a.key: a.image_url for a in assets}
+    result = {}
+    for a in assets:
+        images = [url for url in [a.image_url, *(a.gallery_urls or [])] if url]
+        result[a.key] = {"mode": a.display_mode, "images": images}
+    return result

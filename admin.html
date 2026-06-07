@@ -855,33 +855,65 @@
                 <h3 id="siteAssetModalTitle">Actualizar Imagen</h3>
                 <p id="siteAssetModalDesc" style="color: #666; margin: 10px 0 20px; font-size: 0.9rem;"></p>
                 <input type="hidden" id="siteAssetKey">
-                
-                <div class="form-grid" style="grid-template-columns: 1fr; gap: 15px;">
-                    <div class="fg">
-                        <label style="font-size:0.85rem; font-weight:600; color:#555;">Seleccionar Imagen</label>
-                        <div style="margin-top: 10px; border: 2px dashed #ddd; padding: 30px; text-align: center; border-radius: 8px; cursor: pointer; transition: 0.3s;" 
-                             onmouseover="this.style.borderColor='#2ecc71'" 
-                             onmouseout="this.style.borderColor='#ddd'"
-                             onclick="document.getElementById('siteAssetFileInput').click()">
-                            <i class="fas fa-cloud-upload-alt" style="font-size: 2.5rem; color: #ccc; margin-bottom: 10px;"></i>
-                            <p id="siteAssetFileNameDisplay" style="margin: 0; color: #888;">Haz clic para seleccionar o arrastra una imagen</p>
-                            <input type="file" id="siteAssetFileInput" accept="image/*" style="display: none;" onchange="handleSiteAssetFileSelect(this)">
+
+                <!-- Solo visible para assets carousel-capable (las 5 categorías del index) -->
+                <div id="siteAssetModeToggle" class="site-asset-mode-toggle" style="display:none;">
+                    <button type="button" id="siteAssetModeSingleBtn" class="site-asset-mode-btn">
+                        <i class="fas fa-image"></i> Imagen única
+                    </button>
+                    <button type="button" id="siteAssetModeCarouselBtn" class="site-asset-mode-btn">
+                        <i class="fas fa-images"></i> Carrusel
+                    </button>
+                </div>
+
+                <div id="siteAssetSingleSection">
+                    <div class="form-grid" style="grid-template-columns: 1fr; gap: 15px;">
+                        <div class="fg">
+                            <label style="font-size:0.85rem; font-weight:600; color:#555;">Seleccionar Imagen</label>
+                            <div style="margin-top: 10px; border: 2px dashed #ddd; padding: 30px; text-align: center; border-radius: 8px; cursor: pointer; transition: 0.3s;"
+                                 onmouseover="this.style.borderColor='#2ecc71'"
+                                 onmouseout="this.style.borderColor='#ddd'"
+                                 onclick="document.getElementById('siteAssetFileInput').click()">
+                                <i class="fas fa-cloud-upload-alt" style="font-size: 2.5rem; color: #ccc; margin-bottom: 10px;"></i>
+                                <p id="siteAssetFileNameDisplay" style="margin: 0; color: #888;">Haz clic para seleccionar o arrastra una imagen</p>
+                                <input type="file" id="siteAssetFileInput" accept="image/*" style="display: none;" onchange="handleSiteAssetFileSelect(this)">
+                            </div>
+                        </div>
+
+                        <div id="siteAssetPreviewContainer" style="display: none; text-align: center;">
+                            <p style="font-size: 0.8rem; color: #888; margin-bottom: 8px;">Nueva vista previa:</p>
+                            <img id="siteAssetPreview" src="" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid #eee;">
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button class="btn-primary" id="btnUploadSiteAsset" style="flex: 1;" onclick="uploadSiteAsset()">Subir e Instalar</button>
+                            <button class="btn-action btn-cancel" style="flex: 1;" onclick="closeModal('siteAssetModal')">Cancelar</button>
                         </div>
                     </div>
-                    
-                    <div id="siteAssetPreviewContainer" style="display: none; text-align: center;">
-                        <p style="font-size: 0.8rem; color: #888; margin-bottom: 8px;">Nueva vista previa:</p>
-                        <img id="siteAssetPreview" src="" alt="Preview" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 1px solid #eee;">
-                    </div>
 
-                    <div style="display: flex; gap: 10px; margin-top: 10px;">
-                        <button class="btn-primary" id="btnUploadSiteAsset" style="flex: 1;" onclick="uploadSiteAsset()">Subir e Instalar</button>
-                        <button class="btn-action btn-cancel" style="flex: 1;" onclick="closeModal('siteAssetModal')">Cancelar</button>
+                    <div id="siteAssetUploadProgress" style="display: none; margin-top: 15px; text-align: center; color: #007bff;">
+                        <i class="fas fa-spinner fa-spin"></i> Subiendo imagen, por favor espera...
                     </div>
                 </div>
-                
-                <div id="siteAssetUploadProgress" style="display: none; margin-top: 15px; text-align: center; color: #007bff;">
-                    <i class="fas fa-spinner fa-spin"></i> Subiendo imagen, por favor espera...
+
+                <!-- Gestor de galería: solo se muestra cuando el modo activo es 'carousel' -->
+                <div id="siteAssetGallerySection" style="display:none;">
+                    <p style="font-size: 0.78rem; color: #888; margin: 0 0 12px;">
+                        La primera imagen es la portada (la que se ve también en modo imagen única).
+                        Usa las flechas para reordenar, la estrella para promover una imagen a portada
+                        y la papelera para quitarla del carrusel.
+                    </p>
+                    <div id="siteAssetGalleryGrid" class="site-asset-gallery-grid"></div>
+                    <div class="site-asset-gallery-add" onclick="document.getElementById('siteAssetGalleryFileInput').click()">
+                        <i class="fas fa-plus"></i> Agregar imagen al carrusel
+                        <input type="file" id="siteAssetGalleryFileInput" accept="image/*" style="display:none;" onchange="handleSiteAssetGalleryFileSelect(this)">
+                    </div>
+                    <div id="siteAssetGalleryUploadProgress" style="display: none; margin-top: 12px; text-align: center; color: #007bff;">
+                        <i class="fas fa-spinner fa-spin"></i> Subiendo imagen, por favor espera...
+                    </div>
+                    <div style="display: flex; margin-top: 18px;">
+                        <button class="btn-action btn-cancel" style="flex: 1;" onclick="closeModal('siteAssetModal')">Cerrar</button>
+                    </div>
                 </div>
             </div>
         </div>
