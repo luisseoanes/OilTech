@@ -1958,17 +1958,17 @@ async function loadSiteAssets() {
                 : '';
 
             return `
-                <tr>
+                <tr onclick="openSiteAssetModal('${a.key}')">
                     <td><code style="background:#f0f0f0;padding:2px 5px;border-radius:4px;font-weight:600;">${a.key}</code></td>
                     <td>${a.description}${modeBadge}</td>
                     <td>
                         <img src="${fullUrl}" alt="${a.key}"
                              style="max-height: 50px; max-width: 100px; object-fit: contain; border-radius: 4px; background: #f9f9f9; border: 1px solid #eee; cursor: zoom-in;"
-                             onclick="openAdminLightbox('${fullUrl}')"
+                             onclick="event.stopPropagation(); openAdminLightbox('${fullUrl}')"
                              onerror="this.src='https://via.placeholder.com/100x50?text=Error'">
                     </td>
                     <td style="text-align: right;">
-                        <button class="btn-action btn-edit" onclick="openSiteAssetModal('${a.key}')" title="Actualizar">
+                        <button class="btn-action btn-edit" onclick="event.stopPropagation(); openSiteAssetModal('${a.key}')" title="Actualizar">
                             <i class="fas fa-upload"></i>
                         </button>
                     </td>

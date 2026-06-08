@@ -726,6 +726,13 @@ textarea {
 
     #categoriesTable tr,
     #subcategoriesTable tr { cursor: pointer; }
+
+    #siteAssetsTable th:nth-child(1),
+    #siteAssetsTable td:nth-child(1),
+    #siteAssetsTable th:nth-child(4),
+    #siteAssetsTable td:nth-child(4) { display: none; }
+
+    #siteAssetsTable tbody tr { cursor: pointer; }
 }
 
 /* Filter Bar */
