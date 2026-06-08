@@ -345,6 +345,7 @@ window.initProductCarousel = initProductCarousel;
 document.querySelectorAll('.carousel-wrapper:not([data-asset])').forEach(initProductCarousel);
 
 document.querySelectorAll('section img').forEach(img => {
+    if (img.closest('.carousel-wrapper[data-asset]')) return;
     img.classList.add('zoomable-image');
     img.addEventListener('click', () => {
         openImageLightbox(img.src, img.alt);
