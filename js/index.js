@@ -292,13 +292,19 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-// Product card image carousels
-document.querySelectorAll('.carousel-wrapper').forEach(wrapper => {
+// Product card image carousels.
+// Reentrante a propósito: site-assets.js reconstruye los slides de las tarjetas
+// con [data-asset] a partir del CMS y vuelve a llamar a esta función — por eso
+// limpia cualquier '.carousel-dots'/temporizador de una corrida anterior antes
+// de armar los nuevos.
+function initProductCarousel(wrapper) {
+    wrapper.querySelectorAll('.carousel-dots').forEach(el => el.remove());
+    clearInterval(wrapper._carouselTimer);
+
     const slides = wrapper.querySelectorAll('.carousel-slide');
     if (slides.length <= 1) return;
 
     let current = 0;
-    let timer;
 
     const dotsContainer = document.createElement('div');
     dotsContainer.className = 'carousel-dots';
@@ -326,14 +332,20 @@ document.querySelectorAll('.carousel-wrapper').forEach(wrapper => {
     }
 
     function resetTimer() {
-        clearInterval(timer);
-        timer = setInterval(() => goTo((current + 1) % slides.length), 3500);
+        clearInterval(wrapper._carouselTimer);
+        wrapper._carouselTimer = setInterval(() => goTo((current + 1) % slides.length), 3500);
     }
 
     resetTimer();
-});
+}
+window.initProductCarousel = initProductCarousel;
+
+// Las tarjetas con [data-asset] son carruseles del CMS — site-assets.js arma
+// sus slides según la configuración del admin y luego llama a initProductCarousel.
+document.querySelectorAll('.carousel-wrapper:not([data-asset])').forEach(initProductCarousel);
 
 document.querySelectorAll('section img').forEach(img => {
+    if (img.closest('.carousel-wrapper[data-asset]')) return;
     img.classList.add('zoomable-image');
     img.addEventListener('click', () => {
         openImageLightbox(img.src, img.alt);

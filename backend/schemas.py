@@ -144,8 +144,16 @@ class SiteAssetBase(BaseModel):
     key: str
     description: str
     image_url: Optional[str] = None
+    display_mode: str = "single"
+    gallery_urls: Optional[List[str]] = None
 
 class SiteAsset(SiteAssetBase):
     updated_at: datetime
     class Config:
         from_attributes = True
+
+class SiteAssetModeUpdate(BaseModel):
+    mode: str
+
+class SiteAssetGalleryUpdate(BaseModel):
+    images: List[str]

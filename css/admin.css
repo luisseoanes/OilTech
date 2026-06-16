@@ -870,6 +870,13 @@ textarea {
 
     #categoriesTable tr,
     #subcategoriesTable tr { cursor: pointer; }
+
+    #siteAssetsTable th:nth-child(1),
+    #siteAssetsTable td:nth-child(1),
+    #siteAssetsTable th:nth-child(4),
+    #siteAssetsTable td:nth-child(4) { display: none; }
+
+    #siteAssetsTable tbody tr { cursor: pointer; }
 }
 
 /* Filter Bar */
@@ -932,4 +939,120 @@ textarea {
 
 .filter-clear-btn:hover {
     background: #545b62 !important;
+}
+
+/* --- Site asset: toggle de modo (single/carousel) y gestor de galería --- */
+.site-asset-mode-toggle {
+    display: flex;
+    gap: 8px;
+    margin: 4px 0 18px;
+}
+
+.site-asset-mode-btn {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    color: #777;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.site-asset-mode-btn:hover {
+    border-color: var(--primary-color);
+}
+
+.site-asset-mode-btn.active {
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.site-asset-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 12px;
+}
+
+.site-asset-gallery-item {
+    position: relative;
+    border: 1.5px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f9f9f9;
+}
+
+.site-asset-gallery-item.is-cover {
+    border-color: var(--primary-color);
+}
+
+.site-asset-gallery-item img {
+    display: block;
+    width: 100%;
+    height: 90px;
+    object-fit: contain;
+    background: #fff;
+}
+
+.site-asset-cover-badge {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    background: var(--primary-color);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 5px;
+}
+
+.site-asset-gallery-actions {
+    display: flex;
+    border-top: 1px solid #eee;
+}
+
+.site-asset-gallery-actions button {
+    flex: 1;
+    border: none;
+    border-right: 1px solid #eee;
+    background: #fff;
+    color: #777;
+    padding: 7px 0;
+    cursor: pointer;
+    font-size: 0.78rem;
+    transition: 0.2s;
+}
+
+.site-asset-gallery-actions button:last-child {
+    border-right: none;
+}
+
+.site-asset-gallery-actions button:hover:not(:disabled) {
+    background: var(--secondary-color);
+    color: var(--primary-color);
+}
+
+.site-asset-gallery-actions button:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+.site-asset-gallery-add {
+    margin-top: 14px;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    color: #888;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.site-asset-gallery-add:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
 }
