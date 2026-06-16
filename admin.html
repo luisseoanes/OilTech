@@ -346,7 +346,12 @@
         <div id="products" class="section-view">
             <div class="section-header">
                 <h2>Inventario de Productos</h2>
-                <button class="btn-primary" onclick="openProductModal()">+ Nuevo Producto</button>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                    <button class="btn-excel-import" onclick="openExcelImportModal()">
+                        <i class="fas fa-file-excel"></i> Importar Excel
+                    </button>
+                    <button class="btn-primary" onclick="openProductModal()">+ Nuevo Producto</button>
+                </div>
             </div>
 
             <div class="filter-bar card">
@@ -883,6 +888,77 @@
                 <div id="siteAssetUploadProgress" style="display: none; margin-top: 15px; text-align: center; color: #007bff;">
                     <i class="fas fa-spinner fa-spin"></i> Subiendo imagen, por favor espera...
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Excel Import Modal -->
+    <div id="excelImportModal" class="modal">
+        <div class="modal-content excel-import-modal">
+            <span class="close" onclick="closeModal('excelImportModal')">&times;</span>
+            <h3 style="margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+                <i class="fas fa-file-excel" style="color:#217346;"></i> Importar Productos desde Excel
+            </h3>
+
+            <!-- Step 1: Upload -->
+            <div id="excelUploadStep">
+                <div class="excel-upload-zone" id="excelDropZone">
+                    <i class="fas fa-cloud-upload-alt" style="font-size:3rem;color:#217346;margin-bottom:15px;display:block;"></i>
+                    <p style="font-size:1.05rem;font-weight:600;margin:0 0 6px;">Arrastra tu archivo aquí</p>
+                    <p style="color:#888;margin:0 0 20px;font-size:0.9rem;">o haz clic para seleccionar</p>
+                    <input type="file" id="excelFileInput" accept=".xlsx,.xlsm" style="display:none" onchange="handleExcelFile(this)">
+                    <button class="btn-primary" style="pointer-events:none;">
+                        <i class="fas fa-folder-open"></i> Seleccionar archivo .xlsx
+                    </button>
+                    <div id="excelUploadLoading" style="display:none;margin-top:18px;color:#007bff;font-weight:600;">
+                        <i class="fas fa-spinner fa-spin"></i> Procesando archivo...
+                    </div>
+                </div>
+                <div style="margin-top:18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                    <button onclick="downloadImportTemplate()" class="btn-excel-template">
+                        <i class="fas fa-download"></i> Descargar Plantilla Excel
+                    </button>
+                    <div class="excel-columns-hint">
+                        Columnas esperadas: <strong>nombre</strong> · <strong>categoria</strong> · <strong>subcategoria</strong> · <strong>marcas</strong> · <strong>presentaciones</strong> · <strong>descripcion</strong> · <strong>imagen_url</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Preview -->
+            <div id="excelPreviewStep" style="display:none;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+                    <div id="excelImportStats" style="font-size:0.9rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"></div>
+                    <div style="display:flex;gap:8px;">
+                        <button onclick="resetExcelImport()" class="btn-excel-back">
+                            <i class="fas fa-arrow-left"></i> Cambiar archivo
+                        </button>
+                        <button class="btn-primary" id="excelImportBtn" onclick="executeImport()">
+                            <i class="fas fa-file-import"></i> Importar
+                        </button>
+                    </div>
+                </div>
+                <div class="excel-preview-scroll">
+                    <table class="excel-preview-tbl">
+                        <thead>
+                            <tr>
+                                <th style="width:36px;">#</th>
+                                <th style="width:48px;">Estado</th>
+                                <th style="min-width:140px;">Nombre *</th>
+                                <th style="min-width:155px;">Categoría *</th>
+                                <th style="min-width:155px;">Subcategoría</th>
+                                <th style="min-width:110px;">Marcas</th>
+                                <th style="min-width:110px;">Presentaciones</th>
+                                <th style="min-width:140px;">Descripción</th>
+                                <th style="min-width:140px;">URL Imagen</th>
+                                <th style="width:36px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="excelPreviewBody"></tbody>
+                    </table>
+                </div>
+                <p style="color:#aaa;font-size:0.78rem;margin-top:8px;">
+                    * Los productos con ❌ (sin nombre o categoría válida) no serán importados. Puedes editar los campos antes de confirmar.
+                </p>
             </div>
         </div>
     </div>

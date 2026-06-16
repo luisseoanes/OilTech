@@ -1154,13 +1154,87 @@ nav.scrolled {
 }
 
 .linea-list li::before {
-    content: '';
-    width: 7px;
-    height: 7px;
-    min-width: 7px;
-    background: var(--red);
-    border-radius: 50%;
+    display: none;
+}
+
+.linea-list li svg {
     flex-shrink: 0;
+    margin-top: 1px;
+}
+
+/* Eyebrow label inside cards */
+.linea-eyebrow {
+    font-size: 0.71rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: block;
+}
+
+/* Eyebrow + ODS badge row */
+.linea-eyebrow-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+.linea-eyebrow-row .linea-eyebrow {
+    margin-bottom: 0;
+}
+
+/* ODS badge pill */
+.linea-ods-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #fff;
+    padding: 3px 9px;
+    border-radius: 6px;
+    letter-spacing: .04em;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* KPI mini-strip inside card */
+.linea-kpis {
+    display: flex;
+    align-items: stretch;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 14px 0 16px;
+}
+
+.linea-kpi {
+    flex: 1;
+    padding: 10px 10px 9px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+
+.linea-kpi-sep {
+    width: 1px;
+    background: var(--border);
+    flex-shrink: 0;
+    align-self: stretch;
+}
+
+.linea-kpi-num {
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.linea-kpi-label {
+    font-size: 0.68rem;
+    color: var(--soft);
+    line-height: 1.3;
+    text-align: center;
 }
 
 .btn-text-mobile { display: none; }
@@ -1800,6 +1874,19 @@ footer {
         flex: none;
         width: 100%;
         height: 200px;
+    }
+
+    .linea-kpi-num {
+        font-size: 1.1rem;
+    }
+
+    .linea-kpi-label {
+        font-size: 0.62rem;
+    }
+
+    .linea-eyebrow-row {
+        flex-wrap: wrap;
+        gap: 6px;
     }
 
     .cta-strip {

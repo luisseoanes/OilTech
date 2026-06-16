@@ -5,7 +5,7 @@ import os, uuid, re
 from dotenv import load_dotenv
 load_dotenv()
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import FileResponse, Response, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import timedelta
@@ -565,10 +565,148 @@ def delete_product(product_id: int, db: Session = Depends(get_db), current_user:
     db_product = db.query(models.Product).filter(models.Product.id == product_id).first()
     if db_product is None:
         raise HTTPException(status_code=404, detail="Product not found")
-    
+
     db.delete(db_product)
     db.commit()
     return {"ok": True}
+
+@app.get("/products/import-template")
+def download_import_template(current_user: models.User = Depends(auth.get_current_user)):
+    import openpyxl, io
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Productos"
+    ws.append(["nombre", "categoria", "subcategoria", "marcas", "presentaciones", "descripcion", "imagen_url"])
+    ws.append(["Aceite Hidráulico ISO 46", "Lubricantes Industriales", "Aceite hidráulico ISO 46", "Shell,Mobil", "1 Galón,1 Cuñete", "Aceite hidráulico de alta calidad", ""])
+    for col in ws.columns:
+        ws.column_dimensions[col[0].column_letter].width = 30
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    return StreamingResponse(
+        buf,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment; filename=plantilla_productos.xlsx"}
+    )
+
+@app.post("/products/preview-excel")
+async def preview_excel_import(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    import openpyxl, io
+    if not file.filename.lower().endswith(('.xlsx', '.xlsm')):
+        raise HTTPException(status_code=400, detail="Solo se aceptan archivos .xlsx o .xlsm")
+    content = await file.read()
+    try:
+        wb = openpyxl.load_workbook(io.BytesIO(content), data_only=True)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Archivo Excel inválido o corrupto")
+    ws = wb.active
+    rows = list(ws.iter_rows(values_only=True))
+    if len(rows) < 2:
+        raise HTTPException(status_code=400, detail="El archivo no contiene datos (mínimo encabezado + 1 fila)")
+    categories = {c.name.strip().lower(): c for c in db.query(models.Category).all()}
+    all_subcats = db.query(models.Subcategory).all()
+    brands = {b.name.strip().lower(): b for b in db.query(models.Brand).all()}
+    presentations = {p.name.strip().lower(): p for p in db.query(models.Presentation).all()}
+    results = []
+    for row_num, row in enumerate(rows[1:], start=2):
+        if not row or all(v is None or str(v).strip() == '' for v in row):
+            continue
+        def cell(idx):
+            val = row[idx] if idx < len(row) else None
+            return str(val).strip() if val is not None else ''
+        nombre = cell(0)
+        categoria_str = cell(1)
+        subcategoria_str = cell(2)
+        marcas_str = cell(3)
+        presentaciones_str = cell(4)
+        descripcion = cell(5)
+        imagen_url = cell(6)
+        warnings, errors = [], []
+        if not nombre:
+            errors.append("Nombre vacío")
+        cat = categories.get(categoria_str.lower()) if categoria_str else None
+        if not cat:
+            if categoria_str:
+                warnings.append(f"Categoría '{categoria_str}' no encontrada")
+            errors.append("Categoría requerida")
+        subcat = None
+        if subcategoria_str:
+            for sc in all_subcats:
+                if sc.name.strip().lower() == subcategoria_str.lower() and cat and sc.category_id == cat.id:
+                    subcat = sc
+                    break
+            if not subcat:
+                for sc in all_subcats:
+                    if sc.name.strip().lower() == subcategoria_str.lower():
+                        subcat = sc
+                        break
+            if not subcat:
+                warnings.append(f"Subcategoría '{subcategoria_str}' no encontrada")
+        brand_ids, brand_names = [], []
+        for b_name in [x.strip() for x in marcas_str.split(',') if x.strip()]:
+            b = brands.get(b_name.lower())
+            if b:
+                brand_ids.append(b.id)
+                brand_names.append(b.name)
+            else:
+                warnings.append(f"Marca '{b_name}' no encontrada")
+        pres_ids, pres_names = [], []
+        for p_name in [x.strip() for x in presentaciones_str.split(',') if x.strip()]:
+            p = presentations.get(p_name.lower())
+            if p:
+                pres_ids.append(p.id)
+                pres_names.append(p.name)
+            else:
+                warnings.append(f"Presentación '{p_name}' no encontrada")
+        results.append({
+            "row": row_num,
+            "name": nombre,
+            "category_id": cat.id if cat else None,
+            "category_name": cat.name if cat else categoria_str,
+            "subcategory_id": subcat.id if subcat else None,
+            "subcategory_name": subcat.name if subcat else subcategoria_str,
+            "brand_ids": brand_ids,
+            "brand_names": brand_names,
+            "presentation_ids": pres_ids,
+            "presentation_names": pres_names,
+            "description": descripcion or None,
+            "image_url": imagen_url or None,
+            "warnings": warnings,
+            "errors": errors,
+            "status": "error" if errors else ("warning" if warnings else "ok")
+        })
+    return results
+
+@app.post("/products/bulk-import")
+def bulk_import_products(
+    products: List[schemas.ProductCreate],
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.get_current_user)
+):
+    created, errors = 0, []
+    for i, product in enumerate(products):
+        try:
+            data = product.dict()
+            brand_ids = data.pop("brand_ids", []) or []
+            presentation_ids = data.pop("presentation_ids", []) or []
+            data["search_tags"] = ",".join(data["name"].split())
+            db_product = models.Product(**data)
+            if brand_ids:
+                db_product.brands = db.query(models.Brand).filter(models.Brand.id.in_(brand_ids)).all()
+            if presentation_ids:
+                db_product.presentations = db.query(models.Presentation).filter(models.Presentation.id.in_(presentation_ids)).all()
+            db.add(db_product)
+            db.commit()
+            db.refresh(db_product)
+            created += 1
+        except Exception as e:
+            db.rollback()
+            errors.append({"index": i, "error": str(e)})
+    return {"created": created, "errors": errors}
 
 # Sale Endpoints
 @app.get("/sales/", response_model=List[schemas.Sale])

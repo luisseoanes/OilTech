@@ -1305,6 +1305,281 @@ async function deleteProduct(id) {
 
 
 
+// --- EXCEL IMPORT ---
+let allSubcategoriesByCategory = {};
+
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+async function openExcelImportModal() {
+    resetExcelImport();
+    // Ensure reference data is loaded
+    if (!allCategories.length) await loadCategories();
+    if (!allBrands.length) await loadBrandsPicker();
+    if (!allPresentations.length) await loadPresentationsPicker();
+    if (Object.keys(allSubcategoriesByCategory).length === 0) {
+        try {
+            const res = await fetch(`${API_URL}/subcategories/`);
+            const subcats = await res.json();
+            allSubcategoriesByCategory = {};
+            subcats.forEach(sc => {
+                if (!allSubcategoriesByCategory[sc.category_id]) allSubcategoriesByCategory[sc.category_id] = [];
+                allSubcategoriesByCategory[sc.category_id].push(sc);
+            });
+        } catch (e) { console.error('Error cargando subcategorías para importación', e); }
+    }
+    document.getElementById('excelImportModal').style.display = 'block';
+}
+
+function resetExcelImport() {
+    window.excelImportRows = [];
+    const uploadStep = document.getElementById('excelUploadStep');
+    const previewStep = document.getElementById('excelPreviewStep');
+    const loading = document.getElementById('excelUploadLoading');
+    const fileInput = document.getElementById('excelFileInput');
+    if (uploadStep) uploadStep.style.display = 'block';
+    if (previewStep) previewStep.style.display = 'none';
+    if (loading) loading.style.display = 'none';
+    if (fileInput) fileInput.value = '';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const zone = document.getElementById('excelDropZone');
+    if (!zone) return;
+    zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (!file) return;
+        const input = document.getElementById('excelFileInput');
+        try {
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            input.files = dt.files;
+        } catch (_) {}
+        handleExcelFile(input, file);
+    });
+    zone.addEventListener('click', () => document.getElementById('excelFileInput').click());
+});
+
+async function handleExcelFile(input, droppedFile) {
+    const file = droppedFile || input.files[0];
+    if (!file) return;
+    if (!file.name.match(/\.(xlsx|xlsm)$/i)) {
+        showToast('Solo se aceptan archivos .xlsx o .xlsm', 'warning');
+        input.value = '';
+        return;
+    }
+    document.getElementById('excelUploadLoading').style.display = 'block';
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+        const res = await fetchWithAuth(`${API_URL}/products/preview-excel`, {
+            method: 'POST',
+            body: formData
+        });
+        document.getElementById('excelUploadLoading').style.display = 'none';
+        if (!res.ok) {
+            const err = await res.json();
+            showToast(err.detail || 'Error al procesar el archivo', 'error');
+            return;
+        }
+        const rows = await res.json();
+        if (!rows.length) {
+            showToast('El archivo no contiene productos', 'warning');
+            return;
+        }
+        window.excelImportRows = rows;
+        document.getElementById('excelUploadStep').style.display = 'none';
+        document.getElementById('excelPreviewStep').style.display = 'block';
+        renderImportPreview();
+    } catch (e) {
+        console.error(e);
+        document.getElementById('excelUploadLoading').style.display = 'none';
+        showToast('Error de conexión al procesar el archivo', 'error');
+    }
+}
+
+function renderImportPreview() {
+    const rows = window.excelImportRows || [];
+    const valid = rows.filter(r => r.name && r.category_id).length;
+    const errorCount = rows.filter(r => r.status === 'error').length;
+    const warnCount = rows.filter(r => r.status === 'warning').length;
+
+    document.getElementById('excelImportStats').innerHTML = [
+        `<span style="color:#28a745;font-weight:600;">✅ ${valid} listo${valid !== 1 ? 's' : ''}</span>`,
+        warnCount ? `<span style="color:#b58900;font-weight:600;">⚠️ ${warnCount} con advertencias</span>` : '',
+        errorCount ? `<span style="color:#dc3545;font-weight:600;">❌ ${errorCount} con errores</span>` : ''
+    ].filter(Boolean).join('');
+
+    const btn = document.getElementById('excelImportBtn');
+    btn.innerHTML = `<i class="fas fa-file-import"></i> Importar ${valid} producto${valid !== 1 ? 's' : ''}`;
+    btn.disabled = valid === 0;
+
+    document.getElementById('excelPreviewBody').innerHTML = rows.map((r, i) => {
+        const isError = r.status === 'error';
+        const isWarn = r.status === 'warning';
+        const statusIcon = isError ? '❌' : isWarn ? '⚠️' : '✅';
+        const statusTitle = [...(r.errors || []), ...(r.warnings || [])].join('\n') || 'Sin problemas';
+        const rowBg = isError ? 'background:#fff5f5;' : isWarn ? 'background:#fffbf0;' : '';
+
+        const catOptions = (allCategories || []).map(c =>
+            `<option value="${c.id}" ${c.id == r.category_id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`
+        ).join('');
+
+        const subcats = allSubcategoriesByCategory[r.category_id] || [];
+        const subcatOptions = subcats.map(s =>
+            `<option value="${s.id}" ${s.id == r.subcategory_id ? 'selected' : ''}>${escapeHtml(s.name)}</option>`
+        ).join('');
+
+        const brandChips = (r.brand_names || []).map(b =>
+            `<span class="badge" style="background:#fff3cd;color:#856404;white-space:nowrap;font-size:0.72rem;">${escapeHtml(b)}</span>`
+        ).join(' ') || '<span style="color:#ccc;font-size:0.75rem;">—</span>';
+
+        const presChips = (r.presentation_names || []).map(p =>
+            `<span class="badge" style="background:#f0fff4;color:#28a745;white-space:nowrap;font-size:0.72rem;">${escapeHtml(p)}</span>`
+        ).join(' ') || '<span style="color:#ccc;font-size:0.75rem;">—</span>';
+
+        return `<tr data-idx="${i}" style="${rowBg}">
+            <td style="text-align:center;color:#aaa;font-size:0.75rem;">${r.row}</td>
+            <td style="text-align:center;font-size:1rem;" title="${escapeHtml(statusTitle)}">${statusIcon}</td>
+            <td><input class="excel-cell-input" value="${escapeHtml(r.name || '')}" oninput="window.excelImportRows[${i}].name=this.value;updateImportBtn()"></td>
+            <td>
+                <select class="excel-cell-select" onchange="onImportRowCatChange(${i},this.value)">
+                    <option value="">Sin categoría</option>
+                    ${catOptions}
+                </select>
+            </td>
+            <td>
+                <select class="excel-cell-select" id="importSubcat_${i}" onchange="window.excelImportRows[${i}].subcategory_id=parseInt(this.value)||null">
+                    <option value="">Sin subcategoría</option>
+                    ${subcatOptions}
+                </select>
+            </td>
+            <td>${brandChips}</td>
+            <td>${presChips}</td>
+            <td><input class="excel-cell-input" value="${escapeHtml(r.description || '')}" oninput="window.excelImportRows[${i}].description=this.value" placeholder="Descripción..."></td>
+            <td><input class="excel-cell-input" value="${escapeHtml(r.image_url || '')}" oninput="window.excelImportRows[${i}].image_url=this.value" placeholder="URL..."></td>
+            <td>
+                <button class="btn-action btn-cancel" title="Eliminar fila" onclick="removeImportRow(${i})" style="padding:4px 8px;">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+function updateImportBtn() {
+    const rows = window.excelImportRows || [];
+    const valid = rows.filter(r => r.name && r.category_id).length;
+    const btn = document.getElementById('excelImportBtn');
+    if (!btn) return;
+    btn.innerHTML = `<i class="fas fa-file-import"></i> Importar ${valid} producto${valid !== 1 ? 's' : ''}`;
+    btn.disabled = valid === 0;
+}
+
+async function onImportRowCatChange(idx, catId) {
+    catId = parseInt(catId) || null;
+    window.excelImportRows[idx].category_id = catId;
+    window.excelImportRows[idx].subcategory_id = null;
+    updateImportBtn();
+    const subcatSel = document.getElementById(`importSubcat_${idx}`);
+    subcatSel.innerHTML = '<option value="">Sin subcategoría</option>';
+    if (catId) {
+        if (!allSubcategoriesByCategory[catId]) {
+            try {
+                const res = await fetch(`${API_URL}/subcategories/?category_id=${catId}`);
+                allSubcategoriesByCategory[catId] = await res.json();
+            } catch (e) { console.error(e); }
+        }
+        (allSubcategoriesByCategory[catId] || []).forEach(s => {
+            subcatSel.innerHTML += `<option value="${s.id}">${escapeHtml(s.name)}</option>`;
+        });
+    }
+}
+
+function removeImportRow(idx) {
+    window.excelImportRows.splice(idx, 1);
+    renderImportPreview();
+}
+
+async function executeImport() {
+    const rows = window.excelImportRows || [];
+    const toImport = rows.filter(r => r.name && r.category_id);
+    if (!toImport.length) {
+        showToast('No hay productos válidos para importar', 'warning');
+        return;
+    }
+    const btn = document.getElementById('excelImportBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importando...';
+    const products = toImport.map(r => ({
+        name: r.name,
+        category_id: r.category_id,
+        subcategory_id: r.subcategory_id || null,
+        image_url: r.image_url || null,
+        brand_ids: r.brand_ids || [],
+        presentation_ids: r.presentation_ids || [],
+        description: r.description || null,
+        technical_sheet_url: null
+    }));
+    try {
+        const res = await fetchWithAuth(`${API_URL}/products/bulk-import`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(products)
+        });
+        if (res.ok) {
+            const result = await res.json();
+            const errCount = (result.errors || []).length;
+            showToast(
+                errCount > 0
+                    ? `${result.created} importados, ${errCount} con error`
+                    : `${result.created} productos importados exitosamente`,
+                errCount > 0 ? 'warning' : 'success'
+            );
+            closeModal('excelImportModal');
+            loadProducts();
+            loadDashboardData();
+        } else {
+            const err = await res.json();
+            showToast(err.detail || 'Error al importar', 'error');
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fas fa-file-import"></i> Importar ${toImport.length} productos`;
+        }
+    } catch (e) {
+        console.error(e);
+        showToast('Error de conexión', 'error');
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fas fa-file-import"></i> Importar ${toImport.length} productos`;
+    }
+}
+
+async function downloadImportTemplate() {
+    try {
+        const res = await fetchWithAuth(`${API_URL}/products/import-template`);
+        if (!res.ok) { showToast('Error al descargar la plantilla', 'error'); return; }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'plantilla_productos.xlsx';
+        a.click();
+        URL.revokeObjectURL(url);
+    } catch (e) {
+        console.error(e);
+        showToast('Error al descargar la plantilla', 'error');
+    }
+}
+
 async function changePassword() {
     const newPass = document.getElementById('newPassword').value;
     const confirmPass = document.getElementById('confirmPassword').value;
