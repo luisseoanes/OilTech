@@ -812,6 +812,21 @@ nav.scrolled {
 
 .product-card.featured .carousel-slide {
     object-fit: contain;
+    z-index: 1;
+}
+
+/* Relleno difuminado detrás de la imagen "contain" de la card principal:
+   la foto se ve completa (sin recorte) y el espacio sobrante deja de ser
+   una barra negra — se llena con una versión cover+blur de la misma imagen. */
+.product-card.featured .carousel-backdrop {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(30px) brightness(0.8);
+    transform: scale(1.2);
+    z-index: 0;
 }
 
 

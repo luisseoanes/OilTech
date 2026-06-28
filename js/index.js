@@ -329,6 +329,7 @@ function initProductCarousel(wrapper) {
         current = index;
         slides[current].classList.add('active');
         dots[current].classList.add('active');
+        syncFeaturedBackdrop(wrapper);
     }
 
     function resetTimer() {
@@ -340,9 +341,30 @@ function initProductCarousel(wrapper) {
 }
 window.initProductCarousel = initProductCarousel;
 
+// Rellena el espacio sobrante de la card principal (.featured) con una copia
+// difuminada de la imagen activa, en lugar de la barra negra que deja object-fit:
+// contain. Solo aplica a la card principal; las 4 pequeñas no se tocan.
+function syncFeaturedBackdrop(wrapper) {
+    if (!wrapper || !wrapper.closest('.product-card.featured')) return;
+    let backdrop = wrapper.querySelector('.carousel-backdrop');
+    if (!backdrop) {
+        backdrop = document.createElement('div');
+        backdrop.className = 'carousel-backdrop';
+        wrapper.insertBefore(backdrop, wrapper.firstChild);
+    }
+    const active = wrapper.querySelector('.carousel-slide.active') || wrapper.querySelector('.carousel-slide');
+    const src = active && (active.currentSrc || active.src);
+    if (src) backdrop.style.backgroundImage = `url("${src}")`;
+}
+window.syncFeaturedBackdrop = syncFeaturedBackdrop;
+
 // Las tarjetas con [data-asset] son carruseles del CMS — site-assets.js arma
 // sus slides según la configuración del admin y luego llama a initProductCarousel.
 document.querySelectorAll('.carousel-wrapper:not([data-asset])').forEach(initProductCarousel);
+
+// Fondo difuminado inicial para la card principal (cubre el caso sin CMS o si el
+// backend está caído; site-assets.js lo re-sincroniza al reconstruir los slides).
+document.querySelectorAll('.product-card.featured .carousel-wrapper').forEach(syncFeaturedBackdrop);
 
 document.querySelectorAll('section img').forEach(img => {
     if (img.closest('.carousel-wrapper[data-asset]')) return;

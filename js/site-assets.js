@@ -28,6 +28,10 @@ function applyCarouselAsset(wrapper, entry) {
     if (typeof window.initProductCarousel === 'function') {
         window.initProductCarousel(wrapper);
     }
+    // Re-sincroniza el relleno difuminado de la card principal con la imagen activa.
+    if (typeof window.syncFeaturedBackdrop === 'function') {
+        window.syncFeaturedBackdrop(wrapper);
+    }
 }
 
 async function loadSiteAssets() {
