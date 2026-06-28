@@ -106,7 +106,9 @@ nav.scrolled {
 
 .nav-logo {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
+    /* baja el logo para que su borde inferior roce la línea roja del nav */
+    align-self: flex-end;
     gap: 12px;
     text-decoration: none;
 }
