@@ -67,9 +67,15 @@ js/            — Per-page JS (admin, catalogo, login, productos, index)
 imagenes/      — Static assets
 index.html     — Landing page
 productos.html — Product listing page
+sostenibilidad.html — Página de sostenibilidad (ODS, KPIs, donuts SVG, gráfico Chart.js). Carga index.css
+encuentranos.html — Coverage map (Leaflet)
 admin.html     — Admin panel (auth-gated)
 login.html     — Admin login
 ```
+
+**Nav (menú público):** Todas las páginas de usuario (`index`, `productos`, `sostenibilidad`, `encuentranos`) comparten el mismo `<nav id="main-nav">` con Nosotros · Productos · Sostenibilidad · Contacto · Encuéntranos. El `<nav>` es `position: sticky; top: 0`. **Gotcha:** `html`/`body` usan `overflow-x: clip` (NO `hidden`) — `overflow: hidden` en un ancestro rompe el sticky del nav.
+
+**Logo del menú (FIJO):** El logo del nav es `imagenes/oiltech_logo_sin_fondo.png` hardcodeado en el HTML. **Ya NO es editable** desde el admin: se eliminó la semilla `logo_navbar` en `seed_site_assets()` y `loadSiteAssets()` en `admin.js` filtra la key `logo_navbar`. No re-agregar `data-asset="logo_navbar"` al `<img>` del nav.
 
 **Auth flow:** JWT tokens via `/token` endpoint (OAuth2 password flow). Token stored in `localStorage`. Admin-only endpoints use `Depends(auth.get_current_user)`.
 

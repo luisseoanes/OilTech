@@ -30,7 +30,8 @@
 
 html {
     scroll-behavior: smooth;
-    overflow-x: hidden;
+    /* clip (no hidden) evita crear un contenedor de scroll que rompe position: sticky del nav */
+    overflow-x: clip;
 }
 
 h1, h2, h3, h4 {
@@ -41,7 +42,7 @@ body {
     font-family: 'Montserrat', sans-serif;
     background: var(--bg);
     color: var(--black);
-    overflow-x: hidden;
+    overflow-x: clip;
     -webkit-font-smoothing: antialiased;
 }
 

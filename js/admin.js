@@ -2213,7 +2213,8 @@ function siteAssetFullUrl(url) {
 async function loadSiteAssets() {
     try {
         const response = await fetchWithAuth(`${API_URL}/admin/site-assets`);
-        const assets = await response.json();
+        // logo_navbar ya no es editable: el logo del menú es fijo (oiltech_logo_sin_fondo.png en el HTML).
+        const assets = (await response.json()).filter(a => a.key !== 'logo_navbar');
 
         // Igual que quotationsMap: se guarda el objeto completo por key y los
         // onclick de la tabla solo pasan el key — evita serializar el asset en el atributo HTML.

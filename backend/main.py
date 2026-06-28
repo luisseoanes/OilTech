@@ -314,7 +314,7 @@ def seed_site_assets():
     db = database.SessionLocal()
     try:
         initial = [
-            {"key": "logo_navbar", "description": "Logo de la barra de navegación", "image_url": "imagenes/LogoNavBar.png"},
+            # logo_navbar eliminado: el logo del menú es fijo (oiltech_logo_sin_fondo.png en el HTML), ya no editable desde el admin.
             {"key": "hero_bg", "description": "Imagen de fondo del Hero (Inicio)", "image_url": "imagenes/hero_industrial.png"},
             {"key": "cat_lubricantes", "description": "Imagen: Línea Lubricantes Industriales", "image_url": "imagenes/cat_lubricantes.png"},
             {"key": "cat_grasas", "description": "Imagen: Línea Grasas Industriales", "image_url": "imagenes/GrasaIndustrial.png"},

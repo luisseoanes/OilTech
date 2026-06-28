@@ -31,16 +31,20 @@
 
     <nav id="main-nav">
         <a class="nav-logo" href="index.html">
-            <img src="imagenes/LogoNavBar.png" alt="Oil Tech Logo" data-asset="logo_navbar"
+            <img src="imagenes/oiltech_logo_sin_fondo.png" alt="Oil Tech Logo"
                 style="height: 150px; width: auto; object-fit: contain; margin-top:1.8rem">
         </a>
         <ul class="nav-links">
             <li><a href="index.html#nosotros">Nosotros</a></li>
             <li><a href="productos.html" style="color: var(--red); border-bottom-color: var(--red);">Productos</a></li>
-            <li><a href="index.html#lineas">Líneas</a></li>
+            <li><a href="sostenibilidad.html">Sostenibilidad</a></li>
             <li><a href="index.html#contacto">Contacto</a></li>
+            <li><a href="encuentranos.html">Encuéntranos</a></li>
         </ul>
         <a class="nav-cta" href="index.html#contacto">Solicitar Cotización</a>
+        <button class="nav-hamburger" id="nav-hamburger" aria-label="Menú">
+            <span></span><span></span><span></span>
+        </button>
     </nav>
 
     <!-- PRODUCTOS MAIN SECTION -->
@@ -234,6 +238,10 @@
         const nav = document.getElementById('main-nav');
         window.addEventListener('scroll', () => {
             nav.classList.toggle('scrolled', window.scrollY > 20);
+        });
+
+        document.getElementById('nav-hamburger').addEventListener('click', () => {
+            document.querySelector('.nav-links').classList.toggle('open');
         });
 
         document.getElementById('detailModal').addEventListener('click', (e) => {
